@@ -113,6 +113,22 @@ export function AuthFilesOAuthModelAliasEditPage() {
     [modelAlias, resolvedProviderKey]
   );
   const mappingsSignature = useMemo(() => getModelAliasDraftSignature(mappings), [mappings]);
+  const orderedRanks = useMemo(() => {
+    const counts = new Map<string, number>();
+    const ranks: Array<number | null> = mappings.map((entry) => {
+      const alias = String(entry.alias ?? '').trim().toLowerCase();
+      if (!alias) return null;
+      const next = (counts.get(alias) ?? 0) + 1;
+      counts.set(alias, next);
+      return next;
+    });
+    return ranks.map((rank, index) => {
+      const alias = String(mappings[index]?.alias ?? '').trim().toLowerCase();
+      if (!alias || (counts.get(alias) ?? 0) < 2) return null;
+      return rank;
+    });
+  }, [mappings]);
+  const hasOrderedPool = orderedRanks.some((rank) => rank != null);
   const contentDirty = baselineMappingsSignature !== mappingsSignature;
   const isDirty = isOAuthEditorDirty(
     initialProviderKey,
@@ -341,19 +357,19 @@ export function AuthFilesOAuthModelAliasEditPage() {
       return;
     }
 
-    const seenAlias = new Set<string>();
-    let hasDuplicateAlias = false;
+    const seenEntry = new Set<string>();
+    let hasIdenticalDuplicate = false;
     const normalized = mappings
       .map((entry) => {
         const name = String(entry.name ?? '').trim();
         const alias = String(entry.alias ?? '').trim();
         if (!name || !alias) return null;
-        const aliasKey = alias.toLowerCase();
-        if (seenAlias.has(aliasKey)) {
-          hasDuplicateAlias = true;
+        const entryKey = `${name.toLowerCase()}\0${alias.toLowerCase()}`;
+        if (seenEntry.has(entryKey)) {
+          hasIdenticalDuplicate = true;
           return null;
         }
-        seenAlias.add(aliasKey);
+        seenEntry.add(entryKey);
         const normalizedEntry: OAuthModelAliasEntry = { name, alias };
         if (entry.fork) normalizedEntry.fork = true;
         if (typeof entry.forceMapping === 'boolean') {
@@ -363,8 +379,8 @@ export function AuthFilesOAuthModelAliasEditPage() {
       })
       .filter(Boolean) as OAuthModelAliasEntry[];
 
-    if (hasDuplicateAlias) {
-      showNotification(t('oauth_model_alias.duplicate_alias'), 'error');
+    if (hasIdenticalDuplicate) {
+      showNotification(t('oauth_model_alias.duplicate_entry'), 'error');
       return;
     }
 
@@ -484,7 +500,12 @@ export function AuthFilesOAuthModelAliasEditPage() {
 
           <Card className={styles.settingsCard}>
             <div className={styles.mappingsHeader}>
-              <div className={styles.mappingsTitle}>{t('oauth_model_alias.alias_label')}</div>
+              <div className={styles.mappingsTitle}>
+                {t('oauth_model_alias.alias_label')}
+                {hasOrderedPool ? (
+                  <span className={styles.orderedHint}>{t('oauth_model_alias.ordered_pool_hint')}</span>
+                ) : null}
+              </div>
               <Button
                 variant="secondary"
                 size="sm"
@@ -498,6 +519,9 @@ export function AuthFilesOAuthModelAliasEditPage() {
             <div className={styles.mappingsBody}>
               {mappings.map((entry, index) => (
                 <div key={entry.id} className={styles.mappingRow}>
+                  <span className={styles.orderedRank} aria-hidden>
+                    {orderedRanks[index] != null ? `#${orderedRanks[index]}` : ''}
+                  </span>
                   <AutocompleteInput
                     wrapperStyle={{ flex: 1, marginBottom: 0 }}
                     placeholder={t('oauth_model_alias.alias_name_placeholder')}

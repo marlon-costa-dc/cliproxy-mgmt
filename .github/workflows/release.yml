@@ -60,6 +60,17 @@ jobs:
             local tag="$1"
             local has_fork_revision=0
             local fork_revision=0
+            if [[ "${tag}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-dc([1-9][0-9]*))$ ]]; then
+              has_fork_revision=1
+              fork_revision="${BASH_REMATCH[5]}"
+              printf '%s %s %s %s %s\n' \
+                "${BASH_REMATCH[1]}" \
+                "${BASH_REMATCH[2]}" \
+                "${BASH_REMATCH[3]}" \
+                "${has_fork_revision}" \
+                "${fork_revision}"
+              return 0
+            fi
             if [[ ! "${tag}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*)))?$ ]]; then
               return 1
             fi
@@ -103,7 +114,7 @@ jobs:
           }
 
           if ! parse_release_tag "${RELEASE_TAG}" >/dev/null; then
-            echo "[!] Release tag must match vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-FORK_REVISION: ${RELEASE_TAG}"
+            echo "[!] Release tag must match vMAJOR.MINOR.PATCH, vMAJOR.MINOR.PATCH-N, or vMAJOR.MINOR.PATCH-dcN: ${RELEASE_TAG}"
             exit 1
           fi
 

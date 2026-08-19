@@ -624,6 +624,8 @@
     "alias_name_placeholder": "Source model name",
     "alias_placeholder": "Alias (required)",
     "duplicate_alias": "Each alias must be unique for this provider.",
+    "duplicate_entry": "Identical source+alias rows are not allowed.",
+    "ordered_pool_hint": "Repeated aliases form an ordered failover chain. Row order is the try order.",
     "alias_fork_label": "Keep original",
     "add_alias": "Add alias",
     "save": "Save/Update",

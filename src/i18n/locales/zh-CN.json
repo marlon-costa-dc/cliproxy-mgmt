@@ -624,6 +624,8 @@
     "alias_name_placeholder": "原模型名称",
     "alias_placeholder": "别名 (必填)",
     "duplicate_alias": "同一提供商下的别名不能重复。",
+    "duplicate_entry": "不允许完全相同的源模型+别名行。",
+    "ordered_pool_hint": "重复别名构成有序故障转移链，行顺序即为尝试顺序。",
     "alias_fork_label": "保留原名",
     "add_alias": "添加别名",
     "save": "保存/更新",
