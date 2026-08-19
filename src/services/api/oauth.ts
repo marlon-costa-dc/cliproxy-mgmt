@@ -14,7 +14,9 @@ export type BuiltInOAuthProvider =
   | 'antigravity'
   | 'kimi'
   | 'qoder'
-  | 'xai';
+  | 'xai'
+  | 'zai'
+  | 'bigmodel';
 
 export interface OAuthStartResponse {
   url: string;
@@ -25,7 +27,15 @@ export interface OAuthCallbackResponse {
   status: 'ok';
 }
 
-const WEBUI_SUPPORTED = new Set<string>(['codex', 'anthropic', 'antigravity', 'qoder', 'xai']);
+const WEBUI_SUPPORTED = new Set<string>([
+  'codex',
+  'anthropic',
+  'antigravity',
+  'qoder',
+  'xai',
+  'zai',
+  'bigmodel',
+]);
 
 const normalizeProviderForManagementPath = (provider: string): string => {
   const key = normalizeManagementOAuthProviderKey(provider);

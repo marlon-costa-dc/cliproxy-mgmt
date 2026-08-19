@@ -173,6 +173,19 @@
   color: var(--text-tertiary);
 }
 
+.zaiRegionToggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 0 0;
+}
+
+.zaiRegionLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
 .oauthSection {
   display: flex;
   flex-direction: column;

@@ -3,6 +3,14 @@ const OAUTH_PROVIDER_ALIASES: Record<string, string> = {
   grok: 'xai',
   'x-ai': 'xai',
   'x.ai': 'xai',
+  'z.ai': 'zai',
+  zcode: 'zai',
+  glm: 'zai',
+  zen: 'opencode',
+  'opencode-zen': 'opencode',
+  'open-code': 'opencode',
+  poolsideai: 'poolside',
+  'poolside-ai': 'poolside',
 };
 
 const MANAGEMENT_OAUTH_PROVIDER_PATTERN = /^[a-z0-9-]+$/;

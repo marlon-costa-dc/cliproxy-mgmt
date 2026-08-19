@@ -17,6 +17,11 @@ export type AuthFileType =
   | 'xai'
   | 'iflow'
   | 'vertex'
+  | 'zai'
+  | 'bigmodel'
+  | 'opencode'
+  | 'opencode-go'
+  | 'poolside'
   | 'empty'
   | 'unknown';
 

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { IconPlug } from '@/components/ui/icons';
 import { useAuthStore, useNotificationStore, useThemeStore } from '@/stores';
 import { oauthApi, pluginsApi, type BuiltInOAuthProvider } from '@/services/api';
+import { authFilesApi } from '@/services/api/authFiles';
 import { vertexApi, type VertexImportResponse } from '@/services/api/vertex';
 import { copyToClipboard } from '@/utils/clipboard';
 import { getErrorMessage, isRecord } from '@/utils/helpers';
@@ -23,6 +24,9 @@ import iconQoder from '@/assets/icons/qoder.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import iconGrok from '@/assets/icons/grok.svg';
 import iconGrokDark from '@/assets/icons/grok-dark.svg';
+import iconGlm from '@/assets/icons/glm.svg';
+import iconOpenaiLight from '@/assets/icons/openai-light.svg';
+import iconOpenaiDark from '@/assets/icons/openai-dark.svg';
 
 interface ProviderState {
   url?: string;
@@ -109,6 +113,12 @@ const PROVIDERS: BuiltInOAuthProviderCard[] = [
     id: 'xai',
     titleKey: 'auth_login.xai_oauth_title',
     icon: { light: iconGrok, dark: iconGrokDark },
+  },
+  {
+    kind: 'builtin',
+    id: 'zai',
+    titleKey: 'auth_login.zai_oauth_title',
+    icon: iconGlm,
   },
 ];
 
@@ -259,6 +269,14 @@ export function OAuthPage() {
     location: '',
     loading: false,
   });
+  const [zaiRegion, setZaiRegion] = useState<'zai' | 'bigmodel'>('zai');
+  const [openCodeKey, setOpenCodeKey] = useState('');
+  const [openCodeSaving, setOpenCodeSaving] = useState(false);
+  const [openCodeGoKey, setOpenCodeGoKey] = useState('');
+  const [openCodeGoSaving, setOpenCodeGoSaving] = useState(false);
+  const [poolsideApiKey, setPoolsideApiKey] = useState('');
+  const [poolsideSettingsFile, setPoolsideSettingsFile] = useState<File | null>(null);
+  const [poolsideSettingsImporting, setPoolsideSettingsImporting] = useState(false);
   const pollingTimers = useRef<Partial<Record<string, number>>>({});
   const successResetTimers = useRef<Partial<Record<string, number>>>({});
   const vertexFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -411,20 +429,24 @@ export function OAuthPage() {
     pollingTimers.current[provider] = timer;
   };
 
-  const startAuth = async (provider: string) => {
-    clearProviderTimers(provider);
-    updateProviderState(provider, {
-      url: undefined,
-      state: undefined,
-      status: 'waiting',
-      polling: true,
-      error: undefined,
-      callbackStatus: undefined,
-      callbackError: undefined,
-      callbackUrl: '',
-    });
-    try {
-      const res = await oauthApi.startAuth(provider);
+   const startAuth = async (provider: string) => {
+     clearProviderTimers(provider);
+     updateProviderState(provider, {
+       url: undefined,
+       state: undefined,
+       status: 'waiting',
+       polling: true,
+       error: undefined,
+       callbackStatus: undefined,
+       callbackError: undefined,
+       callbackUrl: '',
+     });
+     try {
+       let effectiveProvider = provider;
+       if (provider === 'zai' && zaiRegion === 'bigmodel') {
+         effectiveProvider = 'bigmodel';
+       }
+       const res = await oauthApi.startAuth(effectiveProvider);
       if (!res.state) {
         const message = t('auth_login.missing_state');
         updateProviderState(provider, {
@@ -575,6 +597,158 @@ export function OAuthPage() {
     }
   };
 
+  const saveOpenCodeKey = async () => {
+    const apiKey = openCodeKey.trim();
+    if (!apiKey) {
+      showNotification(t('auth_login.opencode_key_required'), 'warning');
+      return;
+    }
+    setOpenCodeSaving(true);
+    try {
+      const payload = {
+        type: 'opencode',
+        api_key: apiKey,
+        access_token: apiKey,
+        base_url: 'https://opencode.ai/zen/v1',
+      };
+      const file = new File([JSON.stringify(payload, null, 2)], `opencode-${Date.now()}.json`, {
+        type: 'application/json',
+      });
+      const result = await authFilesApi.uploadFiles([file]);
+      if (result.failed.length) {
+        throw new Error(result.failed[0]?.error || t('auth_login.opencode_save_failed'));
+      }
+      setOpenCodeKey('');
+      notifyAuthFilesChanged();
+      showNotification(t('auth_login.opencode_save_success'), 'success');
+    } catch (err: unknown) {
+      showNotification(
+        `${t('auth_login.opencode_save_failed')} ${getErrorMessage(err)}`.trim(),
+        'error'
+      );
+    } finally {
+      setOpenCodeSaving(false);
+    }
+  };
+
+  const saveOpenCodeGoKey = async () => {
+    const apiKey = openCodeGoKey.trim();
+    if (!apiKey) {
+      showNotification(t('auth_login.opencode_go_key_required'), 'warning');
+      return;
+    }
+    setOpenCodeGoSaving(true);
+    try {
+      const payload = {
+        type: 'opencode-go',
+        api_key: apiKey,
+        access_token: apiKey,
+        base_url: 'https://opencode.ai/zen/go/v1',
+      };
+      const file = new File([JSON.stringify(payload, null, 2)], `opencode-go-${Date.now()}.json`, {
+        type: 'application/json',
+      });
+      const result = await authFilesApi.uploadFiles([file]);
+      if (result.failed.length) {
+        throw new Error(result.failed[0]?.error || t('auth_login.opencode_go_save_failed'));
+      }
+      setOpenCodeGoKey('');
+      notifyAuthFilesChanged();
+      showNotification(t('auth_login.opencode_go_save_success'), 'success');
+    } catch (err: unknown) {
+      showNotification(
+        `${t('auth_login.opencode_go_save_failed')} ${getErrorMessage(err)}`.trim(),
+        'error'
+      );
+    } finally {
+      setOpenCodeGoSaving(false);
+    }
+  };
+
+  const handlePoolsideSettingsPick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (file) {
+        setPoolsideSettingsFile(file);
+        void importPoolsideSettings(file);
+      }
+    };
+    input.click();
+  };
+
+  const importPoolsideSettings = async (file: File) => {
+    setPoolsideSettingsImporting(true);
+    try {
+      const text = await file.text();
+      const settings = JSON.parse(text);
+      const apiKey = String(settings.api_key || '').trim();
+      if (!apiKey) {
+        throw new Error(t('auth_login.poolside_key_required'));
+      }
+      const payload = {
+        type: 'poolside',
+        api_key: apiKey,
+        access_token: apiKey,
+        base_url: 'https://inference.poolside.ai/v1',
+      };
+      if (settings.base_url) {
+        payload.base_url = settings.base_url;
+      }
+      const authFile = new File([JSON.stringify(payload, null, 2)], `poolside-${Date.now()}.json`, {
+        type: 'application/json',
+      });
+      const result = await authFilesApi.uploadFiles([authFile]);
+      if (result.failed.length) {
+        throw new Error(result.failed[0]?.error || t('auth_login.poolside_save_failed'));
+      }
+      setPoolsideApiKey('');
+      setPoolsideSettingsFile(null);
+      notifyAuthFilesChanged();
+      showNotification(t('auth_login.poolside_save_success'), 'success');
+    } catch (err: unknown) {
+      showNotification(
+        `${t('auth_login.poolside_save_failed')} ${getErrorMessage(err)}`.trim(),
+        'error'
+      );
+    } finally {
+      setPoolsideSettingsImporting(false);
+    }
+  };
+
+  const savePoolsideKey = async () => {
+    const apiKey = poolsideApiKey.trim();
+    if (!apiKey) {
+      showNotification(t('auth_login.poolside_key_required'), 'warning');
+      return;
+    }
+    const payload = {
+      type: 'poolside',
+      api_key: apiKey,
+      access_token: apiKey,
+      base_url: 'https://inference.poolside.ai/v1',
+    };
+    const file = new File([JSON.stringify(payload, null, 2)], `poolside-${Date.now()}.json`, {
+      type: 'application/json',
+    });
+    try {
+      const result = await authFilesApi.uploadFiles([file]);
+      if (result.failed.length) {
+        throw new Error(result.failed[0]?.error || t('auth_login.poolside_save_failed'));
+      }
+      setPoolsideApiKey('');
+      notifyAuthFilesChanged();
+      showNotification(t('auth_login.poolside_save_success'), 'success');
+    } catch (err: unknown) {
+      showNotification(
+        `${t('auth_login.poolside_save_failed')} ${getErrorMessage(err)}`.trim(),
+        'error'
+      );
+    }
+  };
+
   const renderOAuthProviderCard = (provider: OAuthProviderCard, featured = false) => {
     const state = states[provider.id] || {};
     const showKimiSignUp = featured && provider.kind === 'builtin' && provider.id === 'kimi';
@@ -599,7 +773,13 @@ export function OAuthPage() {
         title={
           <span className={styles.cardTitle}>
             <OAuthProviderIcon provider={provider} theme={resolvedTheme} />
-            <span>{getProviderTitleText(provider)}</span>
+            <span>
+              {provider.id === 'zai'
+                ? zaiRegion === 'zai'
+                  ? t('auth_login.zai_oauth_title')
+                  : 'BigModel'
+                : getProviderTitleText(provider)}
+            </span>
           </span>
         }
         extra={
@@ -625,6 +805,24 @@ export function OAuthPage() {
           <div className={featured ? styles.featuredHint : styles.cardHint}>
             {getProviderText(provider, 'oauth_hint')}
           </div>
+          {provider.id === 'zai' && (
+            <div className={styles.zaiRegionToggle}>
+              <span className={styles.zaiRegionLabel}>
+                {zaiRegion === 'zai'
+                  ? t('auth_login.zai_oauth_title')
+                  : 'BigModel'}
+              </span>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setZaiRegion(zaiRegion === 'zai' ? 'bigmodel' : 'zai')}
+              >
+                {zaiRegion === 'zai'
+                  ? t('auth_login.zai_oauth_bigmodel')
+                  : t('auth_login.zai_oauth_world')}
+              </Button>
+            </div>
+          )}
           {state.url && (
             <div className={styles.authUrlBox}>
               <div className={styles.authUrlLabel}>
@@ -738,6 +936,97 @@ export function OAuthPage() {
         {/* Vertex JSON 登录 */}
         <section className={styles.providerSection}>
           <h2 className={styles.sectionTitle}>{t('auth_login.other_login_methods')}</h2>
+          <Card
+            title={
+              <span className={styles.cardTitle}>
+                <img
+                  src={getIcon({ light: iconOpenaiLight, dark: iconOpenaiDark }, resolvedTheme)}
+                  alt=""
+                  className={styles.cardTitleIcon}
+                />
+                {t('auth_login.opencode_title')}
+              </span>
+            }
+            extra={
+              <Button onClick={() => void saveOpenCodeKey()} loading={openCodeSaving}>
+                {t('auth_login.opencode_save')}
+              </Button>
+            }
+          >
+            <div className={styles.cardContent}>
+              <div className={styles.cardHint}>{t('auth_login.opencode_hint')}</div>
+              <Input
+                label={t('auth_login.opencode_key_label')}
+                hint={t('auth_login.opencode_key_hint')}
+                type="password"
+                value={openCodeKey}
+                onChange={(e) => setOpenCodeKey(e.target.value)}
+                placeholder={t('auth_login.opencode_key_placeholder')}
+              />
+            </div>
+          </Card>
+          <Card
+            title={
+              <span className={styles.cardTitle}>
+                <img
+                  src={getIcon({ light: iconOpenaiLight, dark: iconOpenaiDark }, resolvedTheme)}
+                  alt=""
+                  className={styles.cardTitleIcon}
+                />
+                {t('auth_login.opencode_go_title')}
+              </span>
+            }
+            extra={
+              <Button onClick={() => void saveOpenCodeGoKey()} loading={openCodeGoSaving}>
+                {t('auth_login.opencode_go_save')}
+              </Button>
+            }
+          >
+            <div className={styles.cardContent}>
+              <div className={styles.cardHint}>{t('auth_login.opencode_go_hint')}</div>
+              <Input
+                label={t('auth_login.opencode_go_key_label')}
+                hint={t('auth_login.opencode_go_key_hint')}
+                type="password"
+                value={openCodeGoKey}
+                onChange={(e) => setOpenCodeGoKey(e.target.value)}
+                placeholder={t('auth_login.opencode_go_key_placeholder')}
+              />
+            </div>
+          </Card>
+          <Card
+            title={
+              <span className={styles.cardTitle}>
+                <img src={iconOpenaiLight} alt="" className={styles.cardTitleIcon} />
+                {t('auth_login.poolside_title')}
+              </span>
+            }
+            extra={
+              <>
+                <Button onClick={handlePoolsideSettingsPick} loading={poolsideSettingsImporting}>
+                  {t('auth_login.poolside_import_button')}
+                </Button>
+                <Button onClick={() => void savePoolsideKey()}>
+                  {t('auth_login.poolside_save')}
+                </Button>
+              </>
+            }
+          >
+            <div className={styles.cardContent}>
+              <div className={styles.cardHint}>{t('auth_login.poolside_hint')}</div>
+              {poolsideSettingsFile && (
+                <div className={styles.fileName}>{poolsideSettingsFile.name}</div>
+              )}
+              <Input
+                label={t('auth_login.poolside_key_label')}
+                hint={t('auth_login.poolside_key_hint')}
+                type="password"
+                value={poolsideApiKey}
+                onChange={(e) => setPoolsideApiKey(e.target.value)}
+                placeholder={t('auth_login.poolside_key_placeholder')}
+              />
+            </div>
+          </Card>
           <Card
             title={
               <span className={styles.cardTitle}>

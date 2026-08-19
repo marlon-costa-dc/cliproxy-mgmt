@@ -54,9 +54,29 @@ export const TYPE_COLORS: Record<string, TypeColorSet> = {
     light: { bg: '#f5f5f5', text: '#616161' },
     dark: { bg: '#424242', text: '#bdbdbd' },
   },
-  unknown: {
+   unknown: {
     light: { bg: '#f0f0f0', text: '#666666', border: '1px dashed #999999' },
     dark: { bg: '#3a3a3a', text: '#aaaaaa', border: '1px dashed #666666' },
+  },
+  zai: {
+    light: { bg: '#fff0f6', text: '#be12b9' },
+    dark: { bg: '#500742', text: '#f9a8d4' },
+  },
+  bigmodel: {
+    light: { bg: '#fff0f6', text: '#be12b9' },
+    dark: { bg: '#500742', text: '#f9a8d4' },
+  },
+  opencode: {
+    light: { bg: '#f0f9ff', text: '#0284c7' },
+    dark: { bg: '#07314c', text: '#7dd3fc' },
+  },
+  'opencode-go': {
+    light: { bg: '#f0f9ff', text: '#0284c7' },
+    dark: { bg: '#07314c', text: '#7dd3fc' },
+  },
+  poolside: {
+    light: { bg: '#f5f3ff', text: '#6d28d9' },
+    dark: { bg: '#312e81', text: '#a78bfa' },
   },
 };
 

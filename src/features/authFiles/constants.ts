@@ -11,6 +11,9 @@ import iconKimiLight from '@/assets/icons/kimi-light.svg';
 import iconQoder from '@/assets/icons/qoder.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
+import iconGlm from '@/assets/icons/glm.svg';
+import iconOpenaiLight from '@/assets/icons/openai-light.svg';
+import iconOpenaiDark from '@/assets/icons/openai-dark.svg';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
 import { normalizeOAuthProviderKey } from '@/utils/providerKeys';
 import { parseTimestamp } from '@/utils/timestamp';
@@ -45,6 +48,11 @@ export const OAUTH_PROVIDER_PRESETS = [
   'claude',
   'codex',
   'kimi',
+  'zai',
+  'bigmodel',
+  'opencode',
+  'opencode-go',
+  'poolside',
 ];
 
 const OAUTH_PROVIDER_EXCLUDES = new Set(['all', 'unknown', 'empty']);
@@ -80,6 +88,11 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   qoder: iconQoder,
   qwen: iconQwen,
   vertex: iconVertex,
+  zai: iconGlm,
+  bigmodel: iconGlm,
+  opencode: { light: iconOpenaiLight, dark: iconOpenaiDark },
+  'opencode-go': { light: iconOpenaiLight, dark: iconOpenaiDark },
+  poolside: iconOpenaiLight,
 };
 
 export const clampCardPageSize = (value: number) =>
@@ -145,6 +158,11 @@ export const getTypeLabel = (t: TFunction, type: string): string => {
   const translated = t(key);
   if (translated !== key) return translated;
   if (providerKey === 'iflow') return 'iFlow';
+  if (providerKey === 'zai') return 'Z.AI';
+  if (providerKey === 'bigmodel') return 'BigModel';
+  if (providerKey === 'opencode') return 'OpenCode Zen';
+  if (providerKey === 'opencode-go') return 'OpenCode Go';
+  if (providerKey === 'poolside') return 'Poolside';
   return type.charAt(0).toUpperCase() + type.slice(1);
 };
 
