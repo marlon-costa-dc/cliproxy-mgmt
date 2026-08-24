@@ -8,28 +8,85 @@ export type TypeColorSet = { light: ThemeColors; dark?: ThemeColors };
 export type ResolvedTheme = 'light' | 'dark';
 
 // API payload types
-export interface AntigravityQuotaSummaryBucketPayload {
-  bucketId?: string;
-  bucket_id?: string;
-  displayName?: string;
-  display_name?: string;
-  window?: string;
-  resetTime?: string;
-  reset_time?: string;
+export interface GeminiCliQuotaBucket {
+  modelId?: string;
+  model_id?: string;
+  tokenType?: string;
+  token_type?: string;
   remainingFraction?: number | string;
   remaining_fraction?: number | string;
-  description?: string;
+  remainingAmount?: number | string;
+  remaining_amount?: number | string;
+  resetTime?: string;
+  reset_time?: string;
 }
 
-export interface AntigravityQuotaSummaryGroupPayload {
+export interface GeminiCliQuotaPayload {
+  buckets?: GeminiCliQuotaBucket[];
+}
+
+export interface GeminiCliCredits {
+  creditType?: string;
+  credit_type?: string;
+  creditAmount?: string | number;
+  credit_amount?: string | number;
+}
+
+export interface GeminiCliUserTier {
+  id?: string;
+  name?: string;
+  description?: string;
+  availableCredits?: GeminiCliCredits[];
+  available_credits?: GeminiCliCredits[];
+}
+
+export interface GeminiCliCodeAssistPayload {
+  currentTier?: GeminiCliUserTier | null;
+  current_tier?: GeminiCliUserTier | null;
+  paidTier?: GeminiCliUserTier | null;
+  paid_tier?: GeminiCliUserTier | null;
+}
+
+export interface AntigravityQuotaInfo {
   displayName?: string;
-  display_name?: string;
-  description?: string;
-  buckets?: AntigravityQuotaSummaryBucketPayload[];
+  quotaInfo?: {
+    remainingFraction?: number | string;
+    remaining_fraction?: number | string;
+    remaining?: number | string;
+    resetTime?: string;
+    reset_time?: string;
+  };
+  quota_info?: {
+    remainingFraction?: number | string;
+    remaining_fraction?: number | string;
+    remaining?: number | string;
+    resetTime?: string;
+    reset_time?: string;
+  };
 }
 
-export interface AntigravityQuotaSummaryPayload {
-  groups?: AntigravityQuotaSummaryGroupPayload[];
+export type AntigravityModelsPayload = Record<string, AntigravityQuotaInfo>;
+
+export interface AntigravityQuotaGroupDefinition {
+  id: string;
+  label: string;
+  identifiers: string[];
+  labelFromModel?: boolean;
+}
+
+export interface GeminiCliQuotaGroupDefinition {
+  id: string;
+  label: string;
+  preferredModelId?: string;
+  modelIds: string[];
+}
+
+export interface GeminiCliParsedBucket {
+  modelId: string;
+  tokenType: string | null;
+  remainingFraction: number | null;
+  remainingAmount: number | null;
+  resetTime: string | undefined;
 }
 
 export interface CodexUsageWindow {
@@ -65,8 +122,6 @@ export interface CodexAdditionalRateLimit {
 export interface CodexRateLimitResetCredits {
   available_count?: number | string;
   availableCount?: number | string;
-  applicable_available_count?: number | string;
-  applicableAvailableCount?: number | string;
 }
 
 export interface CodexRateLimitResetCredit {
@@ -92,21 +147,7 @@ export interface CodexUsagePayload {
 // Claude API payload types
 export interface ClaudeUsageWindow {
   utilization: number;
-  resets_at: string | null;
-}
-
-export interface ClaudeUsageLimit {
-  kind?: string | null;
-  group?: string | null;
-  percent?: number | null;
-  resets_at?: string | null;
-  is_active?: boolean | null;
-  scope?: {
-    model?: {
-      id?: string | null;
-      display_name?: string | null;
-    } | null;
-  } | null;
+  resets_at: string;
 }
 
 export interface ClaudeExtraUsage {
@@ -124,7 +165,6 @@ export interface ClaudeUsagePayload {
   seven_day_sonnet?: ClaudeUsageWindow | null;
   seven_day_cowork?: ClaudeUsageWindow | null;
   iguana_necktie?: ClaudeUsageWindow | null;
-  limits?: ClaudeUsageLimit[] | null;
   extra_usage?: ClaudeExtraUsage | null;
 }
 
@@ -156,14 +196,6 @@ export interface ClaudeQuotaWindow {
   labelKey?: string;
   usedPercent: number | null;
   resetLabel: string;
-  /**
-   * Reset instant in epoch ms, kept alongside the display label so callers that
-   * need to compute (ordering, the timeline) aren't stuck comparing formatted
-   * strings. Null when the payload carried no parseable timestamp.
-   */
-  resetAtMs?: number | null;
-  /** Window length in hours — 5 for the rolling window, 168 for the weekly ones. */
-  periodHours?: number | null;
 }
 
 export interface ClaudeQuotaState {
@@ -179,42 +211,34 @@ export interface ClaudeQuotaState {
 export interface AntigravityQuotaGroup {
   id: string;
   label: string;
-  description?: string;
-  buckets: AntigravityQuotaBucket[];
-}
-
-export interface AntigravityQuotaSubscription {
-  plan: string | null;
-  tierName: string | null;
-  tierId: string | null;
-}
-
-export interface AntigravityQuotaBucket {
-  id: string;
-  label: string;
-  window?: string;
+  models: string[];
   remainingFraction: number;
   resetTime?: string;
-  description?: string;
-  /**
-   * Reset instant in epoch ms, parsed from `resetTime`. Kept alongside the raw
-   * string so the timeline can position a bar without re-parsing.
-   *
-   * Not corrected by `serverTimeOffsetMs`: that offset is applied to *now* when
-   * rendering the card countdown, and every other provider's `resetAtMs` is an
-   * uncorrected instant too. Keeping them consistent matters more than the few
-   * seconds of clock skew it represents.
-   */
-  resetAtMs?: number | null;
-  /** Window length in hours, from the bucket's `window` field. */
-  periodHours?: number | null;
 }
 
 export interface AntigravityQuotaState {
   status: 'idle' | 'loading' | 'success' | 'error';
   groups: AntigravityQuotaGroup[];
-  subscription?: AntigravityQuotaSubscription | null;
-  serverTimeOffsetMs?: number | null;
+  error?: string;
+  errorStatus?: number;
+}
+
+export interface GeminiCliQuotaBucketState {
+  id: string;
+  label: string;
+  remainingFraction: number | null;
+  remainingAmount: number | null;
+  resetTime: string | undefined;
+  tokenType: string | null;
+  modelIds?: string[];
+}
+
+export interface GeminiCliQuotaState {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  buckets: GeminiCliQuotaBucketState[];
+  tierLabel?: string | null;
+  tierId?: string | null;
+  creditBalance?: number | null;
   error?: string;
   errorStatus?: number;
 }
@@ -226,10 +250,6 @@ export interface CodexQuotaWindow {
   labelParams?: Record<string, string | number>;
   usedPercent: number | null;
   resetLabel: string;
-  /** Reset instant in epoch ms; null when the payload carried no timestamp. */
-  resetAtMs?: number | null;
-  /** Window length in hours, from the payload's limit_window_seconds. */
-  periodHours?: number | null;
 }
 
 export interface CodexQuotaState {
@@ -238,7 +258,6 @@ export interface CodexQuotaState {
   planType?: string | null;
   subscriptionActiveUntil?: string | number | null;
   rateLimitResetCreditsAvailableCount?: number | null;
-  rateLimitResetCreditsApplicableAvailableCount?: number | null;
   rateLimitResetCredits?: CodexRateLimitResetCredit[];
   rateLimitResetCreditsError?: string;
   error?: string;
@@ -247,22 +266,22 @@ export interface CodexQuotaState {
 
 // Kimi API payload types
 export interface KimiUsageDetail {
-  used?: number | string;
-  limit?: number | string;
-  remaining?: number | string;
+  used?: number;
+  limit?: number;
+  remaining?: number;
   name?: string;
   title?: string;
   resetAt?: string;
   reset_at?: string;
   resetTime?: string;
   reset_time?: string;
-  resetIn?: number | string;
-  reset_in?: number | string;
-  ttl?: number | string;
+  resetIn?: number;
+  reset_in?: number;
+  ttl?: number;
 }
 
 export interface KimiLimitWindow {
-  duration?: number | string;
+  duration?: number;
   timeUnit?: string;
 }
 
@@ -272,16 +291,16 @@ export interface KimiLimitItem {
   scope?: string;
   detail?: KimiUsageDetail;
   window?: KimiLimitWindow;
-  used?: number | string;
-  limit?: number | string;
-  remaining?: number | string;
-  duration?: number | string;
+  used?: number;
+  limit?: number;
+  remaining?: number;
+  duration?: number;
   timeUnit?: string;
   resetAt?: string;
   reset_at?: string;
-  resetIn?: number | string;
-  reset_in?: number | string;
-  ttl?: number | string;
+  resetIn?: number;
+  reset_in?: number;
+  ttl?: number;
 }
 
 export interface KimiUsagePayload {
@@ -297,124 +316,11 @@ export interface KimiQuotaRow {
   used: number;
   limit: number;
   resetHint?: string;
-  /** Reset instant in epoch ms; null when only a relative hint was available. */
-  resetAtMs?: number | null;
-  /** Window length in hours, derived from explicit duration metadata or the limit scope. */
-  periodHours?: number | null;
 }
 
 export interface KimiQuotaState {
   status: 'idle' | 'loading' | 'success' | 'error';
   rows: KimiQuotaRow[];
-  error?: string;
-  errorStatus?: number;
-}
-
-export interface QoderUsageSnapshot {
-  used?: number | string;
-  total?: number | string;
-  remaining?: number | string;
-  percentage?: number | string;
-  unit?: string;
-  is_quota_exceeded?: boolean;
-  isQuotaExceeded?: boolean;
-  expires_at?: number | string;
-  expiresAt?: number | string;
-  org_resource_remaining?: number | string;
-  orgResourceRemaining?: number | string;
-}
-
-export interface QoderQuotaState {
-  status: 'idle' | 'loading' | 'success' | 'error';
-  usage?: QoderUsageSnapshot | null;
-  error?: string;
-  errorStatus?: number;
-}
-
-// xAI/Grok API payload types
-export interface XaiBillingCent {
-  val?: number | string;
-}
-
-export interface XaiBillingPeriod {
-  type?: string;
-  start?: string;
-  end?: string;
-}
-
-export interface XaiBillingProductUsage {
-  product?: string;
-  usagePercent?: number | string | null;
-  usage_percent?: number | string | null;
-}
-
-export interface XaiBillingConfig {
-  currentPeriod?: XaiBillingPeriod | null;
-  current_period?: XaiBillingPeriod | null;
-  creditUsagePercent?: number | string | null;
-  credit_usage_percent?: number | string | null;
-  productUsage?: XaiBillingProductUsage[] | null;
-  product_usage?: XaiBillingProductUsage[] | null;
-  monthlyLimit?: XaiBillingCent | number | string | null;
-  monthly_limit?: XaiBillingCent | number | string | null;
-  used?: XaiBillingCent | number | string | null;
-  onDemandCap?: XaiBillingCent | number | string | null;
-  on_demand_cap?: XaiBillingCent | number | string | null;
-  onDemandUsed?: XaiBillingCent | number | string | null;
-  on_demand_used?: XaiBillingCent | number | string | null;
-  billingPeriodStart?: string;
-  billing_period_start?: string;
-  billingPeriodEnd?: string;
-  billing_period_end?: string;
-}
-
-export interface XaiBillingPayload {
-  config?: XaiBillingConfig | null;
-}
-
-export type XaiBillingPeriodType = 'weekly' | 'monthly' | 'unknown';
-
-export interface XaiProductUsageSummary {
-  product: string;
-  usagePercent: number | null;
-}
-
-export interface XaiBillingSummary {
-  mode: 'billing' | 'paid-health';
-  source?: 'cli-chat-proxy' | 'api.x.ai-fallback';
-  planType?: 'paid';
-  healthStatus?: 'chat-ok';
-  userId?: string;
-  teamId?: string;
-  periodType: XaiBillingPeriodType;
-  usagePercent: number | null;
-  periodStart?: string;
-  periodEnd?: string;
-  productUsage: XaiProductUsageSummary[];
-  monthlyLimitCents: number | null;
-  usedCents: number | null;
-  includedUsedCents: number | null;
-  onDemandCapCents: number | null;
-  onDemandUsedCents: number | null;
-  onDemandUsedPercent: number | null;
-  billingPeriodStart?: string;
-  billingPeriodEnd?: string;
-  usedPercent: number | null;
-  /**
-   * Reset instant of the *active* period (`periodEnd`) in epoch ms.
-   *
-   * Only meaningful as a quota window when `periodType` is 'weekly' — for a
-   * monthly summary this is the billing cycle rollover, which is a spend cap
-   * resetting, not rate-limited capacity coming back.
-   */
-  resetAtMs?: number | null;
-  /** Active period length in hours, derived from `periodStart` → `periodEnd`. */
-  periodHours?: number | null;
-}
-
-export interface XaiQuotaState {
-  status: 'idle' | 'loading' | 'success' | 'error';
-  billing: XaiBillingSummary | null;
   error?: string;
   errorStatus?: number;
 }

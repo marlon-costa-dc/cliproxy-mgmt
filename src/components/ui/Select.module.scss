@@ -31,29 +31,19 @@
   box-sizing: border-box;
 
   &:hover {
-    border-color: var(--border-hover);
+    border-color: var(--color-primary-light-5);
   }
 
   &:focus {
     outline: none;
-    box-shadow:
-      var(--shadow),
-      0 0 0 3px rgba($primary-color, 0.18);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow), 0 0 0 3px var(--primary-ring, color-mix(in srgb, var(--primary-color) 20%, transparent));
   }
 
   &[aria-expanded='true'] {
     border-color: var(--primary-color);
-    box-shadow:
-      var(--shadow),
-      0 0 0 3px rgba($primary-color, 0.18);
+    box-shadow: var(--shadow), 0 0 0 3px var(--primary-ring, color-mix(in srgb, var(--primary-color) 20%, transparent));
   }
-}
-
-.triggerSm {
-  height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
-  box-shadow: none;
 }
 
 .triggerText {
@@ -103,22 +93,21 @@
   text-align: left;
   font-size: 13px;
   font-weight: 500;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   flex-shrink: 0;
 
   &:hover {
-    background: var(--bg-secondary);
+    background: var(--color-primary-light-9);
   }
 }
 
 .optionActive {
-  border-color: rgba($primary-color, 0.5);
-  background: rgba($primary-color, 0.1);
+  border-color: var(--color-primary-light-7);
+  background: var(--color-primary-light-9);
+  color: var(--primary-color);
   font-weight: 600;
 }
 
 .optionHighlighted {
-  background: var(--bg-secondary);
+  background: var(--color-primary-light-9);
 }

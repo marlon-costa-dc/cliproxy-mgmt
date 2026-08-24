@@ -28,6 +28,7 @@ interface NotificationState {
   };
   showNotification: (message: string, type?: NotificationType, duration?: number) => void;
   removeNotification: (id: string) => void;
+  clearAll: () => void;
   showConfirmation: (options: ConfirmationOptions) => void;
   hideConfirmation: () => void;
   setConfirmationLoading: (loading: boolean) => void;
@@ -38,7 +39,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   confirmation: {
     isOpen: false,
     isLoading: false,
-    options: null,
+    options: null
   },
 
   showNotification: (message, type = 'info', duration = NOTIFICATION_DURATION_MS) => {
@@ -47,18 +48,18 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       id,
       message,
       type,
-      duration,
+      duration
     };
 
     set((state) => ({
-      notifications: [...state.notifications, notification],
+      notifications: [...state.notifications, notification]
     }));
 
     // 自动移除通知
     if (duration > 0) {
       setTimeout(() => {
         set((state) => ({
-          notifications: state.notifications.filter((n) => n.id !== id),
+          notifications: state.notifications.filter((n) => n.id !== id)
         }));
       }, duration);
     }
@@ -66,8 +67,12 @@ export const useNotificationStore = create<NotificationState>((set) => ({
 
   removeNotification: (id) => {
     set((state) => ({
-      notifications: state.notifications.filter((n) => n.id !== id),
+      notifications: state.notifications.filter((n) => n.id !== id)
     }));
+  },
+
+  clearAll: () => {
+    set({ notifications: [] });
   },
 
   showConfirmation: (options) => {
@@ -75,8 +80,8 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       confirmation: {
         isOpen: true,
         isLoading: false,
-        options,
-      },
+        options
+      }
     });
   },
 
@@ -85,8 +90,8 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       confirmation: {
         ...state.confirmation,
         isOpen: false,
-        options: null, // Cleanup
-      },
+        options: null // Cleanup
+      }
     }));
   },
 
@@ -94,8 +99,8 @@ export const useNotificationStore = create<NotificationState>((set) => ({
     set((state) => ({
       confirmation: {
         ...state.confirmation,
-        isLoading: loading,
-      },
+        isLoading: loading
+      }
     }));
-  },
+  }
 }));

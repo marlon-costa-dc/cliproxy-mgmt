@@ -5,6 +5,14 @@ import { parseTimestamp } from './timestamp';
  * 从原项目 src/utils/string.js 迁移
  */
 
+const resolveDefaultLocale = (): string | undefined => {
+  const fromDocument =
+    typeof document !== 'undefined' ? document.documentElement?.lang?.trim() : '';
+  if (fromDocument) return fromDocument;
+  const fromNavigator = typeof navigator !== 'undefined' ? navigator.language?.trim() : '';
+  return fromNavigator || undefined;
+};
+
 /**
  * 隐藏 API Key 中间部分，仅保留前后两位
  */
@@ -24,6 +32,21 @@ export function maskApiKey(key: string): string {
   return `${start}${masked}${end}`;
 }
 
+const API_KEY_MASK_REGEX =
+  /(sk-[A-Za-z0-9-_]{6,}|sk-ant-[A-Za-z0-9-_]{6,}|AIza[0-9A-Za-z-_]{8,}|AI[a-zA-Z0-9_-]{6,}|hf_[A-Za-z0-9]{6,}|pk_[A-Za-z0-9]{6,}|rk_[A-Za-z0-9]{6,})/g;
+
+/**
+ * 将文本中的 API Key 片段替换为脱敏显示
+ */
+export function maskSensitiveText(value: string): string {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  return trimmed.replace(API_KEY_MASK_REGEX, (match) => maskApiKey(match));
+}
+
 /**
  * 格式化文件大小
  */
@@ -37,43 +60,25 @@ export function formatFileSize(bytes: number): string {
   return `${(bytes / Math.pow(k, i)).toFixed(2)} ${units[i]}`;
 }
 
-const COMPACT_SUFFIXES = ['', 'K', 'M', 'B', 'T'] as const;
-
 /**
- * 将较大的计数压缩为紧凑形式（1284 → 1.3K），用于统计卡片与图表标签
+ * 格式化日期时间
  */
-export function formatCompactNumber(value: number): string {
-  if (!Number.isFinite(value)) return '0';
+export function formatDateTime(date: string | Date, locale?: string): string {
+  const d = typeof date === 'string' ? parseTimestamp(date) ?? new Date(date) : date;
 
-  const sign = value < 0 ? '-' : '';
-  let scaled = Math.abs(value);
-  let tier = 0;
-
-  while (scaled >= 1000 && tier < COMPACT_SUFFIXES.length - 1) {
-    scaled /= 1000;
-    tier += 1;
+  if (isNaN(d.getTime())) {
+    return 'Invalid Date';
   }
 
-  // 三位有效数字以内保留一位小数；Number() 顺带去掉 "1.0K" 这类冗余尾巴
-  let rendered = tier === 0 ? Math.round(scaled) : Number(scaled.toFixed(scaled < 100 ? 1 : 0));
-
-  // 四舍五入后又进位到 1000（如 999,999 → 1000K）时再升一档
-  if (rendered >= 1000 && tier < COMPACT_SUFFIXES.length - 1) {
-    rendered = 1;
-    tier += 1;
-  }
-
-  return `${sign}${rendered}${COMPACT_SUFFIXES[tier]}`;
-}
-
-/**
- * 格式化百分比，去掉无意义的 ".0" 尾巴
- */
-export function formatPercent(value: number, fractionDigits = 1): string {
-  if (!Number.isFinite(value)) return '—';
-
-  const rendered = value.toFixed(fractionDigits);
-  return `${rendered.replace(/\.0+$/, '')}%`;
+  const resolvedLocale = locale?.trim() || resolveDefaultLocale();
+  return d.toLocaleString(resolvedLocale, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
 }
 
 /**
@@ -107,25 +112,20 @@ export function formatUnixTimestamp(value: unknown, locale?: string): string {
   return locale ? date.toLocaleString(locale) : date.toLocaleString();
 }
 
-export function parseDateValue(value: unknown): Date | null {
-  if (value === null || value === undefined || value === '') return null;
-
-  const date =
-    typeof value === 'number'
-      ? new Date(value < 1e12 ? value * 1000 : value)
-      : (parseTimestamp(value) ?? new Date(String(value)));
-
-  return Number.isNaN(date.getTime()) ? null : date;
+/**
+ * 格式化数字（添加千位分隔符）
+ */
+export function formatNumber(num: number, locale?: string): string {
+  const resolvedLocale = locale?.trim() || resolveDefaultLocale();
+  return num.toLocaleString(resolvedLocale);
 }
 
-export function formatDateValue(value: unknown, locale?: string): string {
-  const date = parseDateValue(value);
-  if (!date) return '';
-  return locale ? date.toLocaleDateString(locale) : date.toLocaleDateString();
-}
-
-export function formatDateTimeValue(value: unknown, locale?: string): string {
-  const date = parseDateValue(value);
-  if (!date) return '';
-  return locale ? date.toLocaleString(locale) : date.toLocaleString();
+/**
+ * 截断长文本
+ */
+export function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return text.slice(0, maxLength) + '...';
 }

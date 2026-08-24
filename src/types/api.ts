@@ -3,6 +3,9 @@
  * 基于原项目 src/core/api-client.js 和各模块 API
  */
 
+// HTTP 方法
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
 // API 客户端配置
 export interface ApiClientConfig {
   apiBase: string;
@@ -10,13 +13,24 @@ export interface ApiClientConfig {
   timeout?: number;
 }
 
+// 请求选项
+export interface RequestOptions {
+  method?: HttpMethod;
+  headers?: Record<string, string>;
+  params?: Record<string, unknown>;
+  data?: unknown;
+}
+
+// 服务器版本信息
+export interface ServerVersion {
+  version: string;
+  buildDate?: string;
+}
+
 // API 错误
 export type ApiError = Error & {
   status?: number;
-  /** Axios/network error code, such as ERR_NETWORK. */
   code?: string;
-  /** Machine-readable error code returned by the Management API. */
-  apiCode?: string;
   details?: unknown;
   data?: unknown;
 };

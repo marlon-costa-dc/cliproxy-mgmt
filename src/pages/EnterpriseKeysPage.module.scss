@@ -1,0 +1,226 @@
+@use '../styles/mixins' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  min-width: 420px;
+}
+
+.quotaBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: $radius-sm;
+  border: 1px solid var(--border-color);
+  font-size: 12px;
+  color: var(--text-secondary);
+
+  &[data-enabled='true'] {
+    color: #16a34a;
+    background: rgba(22, 163, 74, 0.1);
+    border-color: rgba(22, 163, 74, 0.3);
+  }
+
+  &[data-enabled='false'] {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.3);
+  }
+}
+
+.fieldHint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: $radius-sm;
+  border: 1px solid var(--border-color);
+}
+
+.tableWrapper {
+  overflow: auto;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+}
+
+.table {
+  width: 100%;
+  min-width: 1248px;
+  table-layout: fixed;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  th:nth-child(1) { width: 48px; }
+  th:nth-child(2) { width: 160px; }
+  th:nth-child(3) { width: 220px; }
+  th:nth-child(4) { width: 360px; }
+  th:nth-child(5) { width: 160px; }
+  th:nth-child(6) { width: 300px; }
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+.selectionMeta {
+  margin-top: $spacing-sm;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.rowActions {
+  display: flex;
+  gap: $spacing-xs;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  min-width: 220px;
+}
+
+.actionTarget {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.empty {
+  padding: $spacing-md;
+  color: var(--text-tertiary);
+}
+
+.modalSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.rowInputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px 84px;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+.newDepartmentSection {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border-color);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px 128px;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+.previewList {
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.previewItem {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 2fr 1fr;
+  gap: $spacing-sm;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.preview_ok {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.preview_warning {
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.preview_error {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.importFileName,
+.importSummary {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.historyItem {
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.errorDetails {
+  margin-top: 4px;
+
+  summary {
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  pre {
+    margin: 8px 0 0;
+    padding: 8px;
+    border-radius: $radius-sm;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+}
+
+@include mobile {
+  .toolbar {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .rowInputs,
+  .newDepartmentSection,
+  .previewItem {
+    grid-template-columns: 1fr;
+  }
+}

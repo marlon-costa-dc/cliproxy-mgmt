@@ -33,3 +33,13 @@ settings.local.json
 *.njsproj
 *.sln
 *.sw?
+
+TODO.md
+
+/bin/tmp/
+/bin/cpa-manager
+/data/usage.sqlite*
+/run/*.pid
+/run/*.log
+.ccg
+*.stackdump

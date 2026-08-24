@@ -3,20 +3,13 @@
  */
 
 import { apiClient } from './client';
-import {
-  isManagementOAuthProviderKey,
-  normalizeManagementOAuthProviderKey,
-} from '@/utils/providerKeys';
 
-export type BuiltInOAuthProvider =
+export type OAuthProvider =
   | 'codex'
   | 'anthropic'
   | 'antigravity'
-  | 'kimi'
-  | 'qoder'
-  | 'xai'
-  | 'zai'
-  | 'bigmodel';
+  | 'gemini-cli'
+  | 'kimi';
 
 export interface OAuthStartResponse {
   url: string;
@@ -27,46 +20,35 @@ export interface OAuthCallbackResponse {
   status: 'ok';
 }
 
-const WEBUI_SUPPORTED = new Set<string>([
-  'codex',
-  'anthropic',
-  'antigravity',
-  'qoder',
-  'xai',
-  'zai',
-  'bigmodel',
-]);
-
-const normalizeProviderForManagementPath = (provider: string): string => {
-  const key = normalizeManagementOAuthProviderKey(provider);
-  if (!isManagementOAuthProviderKey(key)) {
-    throw new Error('Invalid OAuth provider');
-  }
-  return key;
+const WEBUI_SUPPORTED: OAuthProvider[] = ['codex', 'anthropic', 'antigravity', 'gemini-cli'];
+const CALLBACK_PROVIDER_MAP: Partial<Record<OAuthProvider, string>> = {
+  'gemini-cli': 'gemini'
 };
 
 export const oauthApi = {
-  startAuth: (provider: string) => {
-    const providerKey = normalizeProviderForManagementPath(provider);
+  startAuth: (provider: OAuthProvider, options?: { projectId?: string }) => {
     const params: Record<string, string | boolean> = {};
-    if (WEBUI_SUPPORTED.has(providerKey)) {
+    if (WEBUI_SUPPORTED.includes(provider)) {
       params.is_webui = true;
     }
-    return apiClient.get<OAuthStartResponse>(`/${providerKey}-auth-url`, {
-      params: Object.keys(params).length ? params : undefined,
+    if (provider === 'gemini-cli' && options?.projectId) {
+      params.project_id = options.projectId;
+    }
+    return apiClient.get<OAuthStartResponse>(`/${provider}-auth-url`, {
+      params: Object.keys(params).length ? params : undefined
     });
   },
 
   getAuthStatus: (state: string) =>
     apiClient.get<{ status: 'ok' | 'wait' | 'error'; error?: string }>(`/get-auth-status`, {
-      params: { state },
+      params: { state }
     }),
 
-  submitCallback: (provider: string, redirectUrl: string) => {
-    const providerKey = normalizeProviderForManagementPath(provider);
+  submitCallback: (provider: OAuthProvider, redirectUrl: string) => {
+    const callbackProvider = CALLBACK_PROVIDER_MAP[provider] ?? provider;
     return apiClient.post<OAuthCallbackResponse>('/oauth-callback', {
-      provider: providerKey,
-      redirect_url: redirectUrl,
+      provider: callbackProvider,
+      redirect_url: redirectUrl
     });
-  },
+  }
 };

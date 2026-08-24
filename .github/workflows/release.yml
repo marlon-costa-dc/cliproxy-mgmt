@@ -4,20 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Existing fork tag to release, for example v1.10.2-0
-        required: true
-        type: string
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
-
-concurrency:
-  group: build-and-release
-  queue: max
 
 jobs:
   build-and-release:
@@ -32,124 +18,31 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24'
+          cache: 'npm'
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          bun-version: '1.3.14'
+          go-version: '1.24.x'
+          cache-dependency-path: usage-service/go.sum
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Reject release rollback
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          # Repository release order is the numeric core version followed by an
-          # optional numeric fork revision (vX.Y.Z-N). This avoids lexical and
-          # SemVer prerelease ordering from rolling the fork stream backward.
-          parse_release_tag() {
-            local tag="$1"
-            local has_fork_revision=0
-            local fork_revision=0
-            if [[ "${tag}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-dc([1-9][0-9]*))$ ]]; then
-              has_fork_revision=1
-              fork_revision="${BASH_REMATCH[5]}"
-              printf '%s %s %s %s %s\n' \
-                "${BASH_REMATCH[1]}" \
-                "${BASH_REMATCH[2]}" \
-                "${BASH_REMATCH[3]}" \
-                "${has_fork_revision}" \
-                "${fork_revision}"
-              return 0
-            fi
-            if [[ ! "${tag}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*)))?$ ]]; then
-              return 1
-            fi
-            if [ -n "${BASH_REMATCH[5]}" ]; then
-              has_fork_revision=1
-              fork_revision="${BASH_REMATCH[5]}"
-            fi
-            printf '%s %s %s %s %s\n' \
-              "${BASH_REMATCH[1]}" \
-              "${BASH_REMATCH[2]}" \
-              "${BASH_REMATCH[3]}" \
-              "${has_fork_revision}" \
-              "${fork_revision}"
-          }
-
-          compare_release_tags() {
-            local left="$1"
-            local right="$2"
-            local left_parts right_parts index
-
-            left_parts="$(parse_release_tag "${left}")" || return 2
-            right_parts="$(parse_release_tag "${right}")" || return 2
-            read -r -a left_parts <<< "${left_parts}"
-            read -r -a right_parts <<< "${right_parts}"
-
-            for index in 0 1 2 3 4; do
-              if (( ${#left_parts[index]} < ${#right_parts[index]} )); then
-                return 1
-              fi
-              if (( ${#left_parts[index]} > ${#right_parts[index]} )); then
-                return 0
-              fi
-              if [[ "${left_parts[index]}" < "${right_parts[index]}" ]]; then
-                return 1
-              fi
-              if [[ "${left_parts[index]}" > "${right_parts[index]}" ]]; then
-                return 0
-              fi
-            done
-            return 0
-          }
-
-          if ! parse_release_tag "${RELEASE_TAG}" >/dev/null; then
-            echo "[!] Release tag must match vMAJOR.MINOR.PATCH, vMAJOR.MINOR.PATCH-N, or vMAJOR.MINOR.PATCH-dcN: ${RELEASE_TAG}"
-            exit 1
-          fi
-
-          latest_tag="$(gh release list --limit 1000 --json tagName,isLatest --jq '
-            if length == 0 then
-              ""
-            else
-              ([.[] | select(.isLatest == true) | .tagName] |
-                if length == 1 then
-                  .[0]
-                elif length == 0 then
-                  error("release history exists but none is marked latest")
-                else
-                  error("multiple releases are marked latest")
-                end)
-            end
-          ')"
-          if [ -z "${latest_tag}" ]; then
-            echo "[i] No current latest release; ${RELEASE_TAG} may become latest."
-            exit 0
-          fi
-          if ! parse_release_tag "${latest_tag}" >/dev/null; then
-            echo "[!] Cannot safely compare current latest release tag: ${latest_tag}"
-            exit 1
-          fi
-          if ! compare_release_tags "${RELEASE_TAG}" "${latest_tag}"; then
-            echo "[!] Refusing to release ${RELEASE_TAG}: current latest is newer (${latest_tag})."
-            exit 1
-          fi
-          echo "[i] Release order check passed: ${RELEASE_TAG} >= ${latest_tag}."
+        run: npm ci
 
       - name: Build all-in-one HTML
-        run: bun run build
+        run: npm run build
         env:
-          VERSION: ${{ env.RELEASE_TAG }}
+          VERSION: ${{ github.ref_name }}
+
+      - name: Build native release packages
+        run: bin/release/package-native.sh
+        env:
+          VERSION: ${{ github.ref_name }}
 
       - name: Prepare release assets
         run: |
@@ -160,7 +53,7 @@ jobs:
       - name: Generate release notes
         run: |
           set -euo pipefail
-          current_tag="${RELEASE_TAG}"
+          current_tag="${GITHUB_REF_NAME}"
           previous_tag="$(git tag --list 'v*' --sort=-v:refname | grep -v "^${current_tag}$" | head -n 1 || true)"
           if [ -n "${previous_tag}" ]; then
             range="${previous_tag}..${current_tag}"
@@ -172,13 +65,89 @@ jobs:
           git log --pretty=format:"- %h %s" "${range}" >> release-notes.md
 
       - name: Create Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.RELEASE_TAG }}
-          files: dist/management.html
+          files: |
+            dist/management.html
+            dist/native/*
           body_path: release-notes.md
           draft: false
           prerelease: false
-          make_latest: 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-push-docker:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    env:
+      DOCKERHUB_IMAGE: seakee/cpa-manager
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate DockerHub configuration
+        run: |
+          set -euo pipefail
+          if [ -z "${DOCKERHUB_USERNAME}" ]; then
+            echo "DOCKERHUB_USERNAME secret is required" >&2
+            exit 1
+          fi
+          if [ -z "${DOCKERHUB_TOKEN}" ]; then
+            echo "DOCKERHUB_TOKEN secret is required" >&2
+            exit 1
+          fi
+          if [ "${DOCKERHUB_IMAGE}" != "seakee/cpa-manager" ]; then
+            echo "Docker image name must be seakee/cpa-manager" >&2
+            exit 1
+          fi
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKERHUB_IMAGE }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
+      - name: Build and push Usage Service image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.usage-service
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ github.ref_name }}
+
+      - name: Update DockerHub overview
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.DOCKERHUB_IMAGE }}
+          short-description: CLI Proxy API Management Center with Dockerized Usage Service
+          readme-filepath: ./README.md

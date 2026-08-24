@@ -1,0 +1,80 @@
+.container {
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+.tableCard {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th, td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color, #e5e5e5);
+  }
+
+  th {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}
+
+.hashCell {
+  font-family: monospace;
+  font-size: 0.8125rem;
+}
+
+.userCell {
+  font-weight: 500;
+}
+
+.error {
+  color: var(--color-error, #dc3545);
+  margin-bottom: 16px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted, #999);
+}
+
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted, #999);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  label {
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}

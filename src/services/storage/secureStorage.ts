@@ -6,13 +6,6 @@
  */
 
 import { obfuscateData, deobfuscateData, isObfuscated } from '@/utils/encryption';
-import {
-  STORAGE_KEY_AUTH,
-  STORAGE_KEY_AUTH_LOGIN_PREFIX,
-  STORAGE_KEY_AUTH_SCOPE_PREFIX,
-  STORAGE_KEY_AUTH_SELECTION_PREFIX,
-} from '@/utils/constants';
-import { detectApiBaseFromLocation, normalizeApiBase } from '@/utils/connection';
 
 interface StorageOptions {
   /**
@@ -79,6 +72,13 @@ class ObfuscatedStorageService {
   }
 
   /**
+   * 清空所有数据
+   */
+  clear(): void {
+    localStorage.clear();
+  }
+
+  /**
    * 迁移旧的明文缓存为加密格式
    */
   migratePlaintextKeys(keys: string[]): void {
@@ -87,11 +87,11 @@ class ObfuscatedStorageService {
       if (!raw) return;
 
       // 如果已经是加密格式，跳过
-      if (isObfuscated(raw)) {
+      if (raw.startsWith('enc::v1::')) {
         return;
       }
 
-      let parsed: unknown;
+      let parsed: unknown = raw;
       try {
         parsed = JSON.parse(raw);
       } catch {
@@ -106,145 +106,15 @@ class ObfuscatedStorageService {
       }
     });
   }
+
+  /**
+   * 检查键是否存在
+   */
+  hasItem(key: string): boolean {
+    return localStorage.getItem(key) !== null;
+  }
 }
 
 export const obfuscatedStorage = new ObfuscatedStorageService();
-
-interface PersistedAuthEnvelope {
-  state?: {
-    apiBase?: unknown;
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
-}
-
-const normalizedStorageScope = (apiBase: string) =>
-  encodeURIComponent(normalizeApiBase(apiBase));
-
-export const getScopedAuthStorageKey = (panelBase: string, apiBase: string): string =>
-  `${STORAGE_KEY_AUTH_SCOPE_PREFIX}${normalizedStorageScope(panelBase)}:${normalizedStorageScope(apiBase)}`;
-
-export const getAuthSelectionStorageKey = (panelBase: string): string =>
-  `${STORAGE_KEY_AUTH_SELECTION_PREFIX}${normalizedStorageScope(panelBase)}`;
-
-export const getAuthLoginStateStorageKey = (panelBase: string): string =>
-  `${STORAGE_KEY_AUTH_LOGIN_PREFIX}${normalizedStorageScope(panelBase)}`;
-
-export const resolveLegacyAuthApiBase = (
-  legacyApiBase: string,
-  detectedApiBase: string
-): string | null => {
-  const legacy = normalizeApiBase(legacyApiBase);
-  const detected = normalizeApiBase(detectedApiBase);
-  if (!legacy || !detected) return null;
-  // Origin equality is insufficient: reverse-proxy paths may identify entirely
-  // different services. Only an exact normalized base can safely reuse a key.
-  return legacy === detected ? detected : null;
-};
-
-const readEnvelopeApiBase = (value: unknown): string => {
-  if (!value || typeof value !== 'object') return '';
-  const apiBase = (value as PersistedAuthEnvelope).state?.apiBase;
-  return typeof apiBase === 'string' ? normalizeApiBase(apiBase) : '';
-};
-
-const migrateLegacyAuthEnvelope = (
-  legacy: PersistedAuthEnvelope,
-  detectedBase: string
-): PersistedAuthEnvelope | null => {
-  const migratedBase = resolveLegacyAuthApiBase(readEnvelopeApiBase(legacy), detectedBase);
-  if (!migratedBase || !legacy.state) return null;
-  return { ...legacy, state: { ...legacy.state, apiBase: migratedBase } };
-};
-
-/**
- * Zustand storage adapter that isolates remembered credentials by both the
- * panel mount and the selected normalized API base.
- */
-export const createScopedAuthStorage = (
-  detectPanelBase: () => string = detectApiBaseFromLocation
-) => ({
-  getItem: (name: string): string | null => {
-    const panelBase = normalizeApiBase(detectPanelBase());
-    const selectionKey = getAuthSelectionStorageKey(panelBase);
-    const selectedBase = obfuscatedStorage.getItem<string>(selectionKey);
-    const selectedEnvelope = selectedBase
-      ? obfuscatedStorage.getItem<PersistedAuthEnvelope>(
-          getScopedAuthStorageKey(panelBase, selectedBase)
-        )
-      : null;
-    if (selectedEnvelope) return JSON.stringify(selectedEnvelope);
-
-    const legacy = obfuscatedStorage.getItem<PersistedAuthEnvelope>(name);
-    const migrated = legacy ? migrateLegacyAuthEnvelope(legacy, panelBase) : null;
-    if (!migrated) return null;
-
-    const migratedBase = readEnvelopeApiBase(migrated);
-    obfuscatedStorage.setItem(getScopedAuthStorageKey(panelBase, migratedBase), migrated);
-    obfuscatedStorage.setItem(selectionKey, migratedBase);
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-      localStorage.setItem(getAuthLoginStateStorageKey(panelBase), 'true');
-      localStorage.removeItem('isLoggedIn');
-    }
-    obfuscatedStorage.removeItem(name);
-    return JSON.stringify(migrated);
-  },
-  setItem: (_name: string, value: string): void => {
-    const panelBase = normalizeApiBase(detectPanelBase());
-    const selectionKey = getAuthSelectionStorageKey(panelBase);
-    const previousBase = obfuscatedStorage.getItem<string>(selectionKey);
-    const envelope = JSON.parse(value) as PersistedAuthEnvelope;
-    const apiBase = readEnvelopeApiBase(envelope);
-
-    if (!apiBase) {
-      if (previousBase) {
-        obfuscatedStorage.removeItem(getScopedAuthStorageKey(panelBase, previousBase));
-      }
-      obfuscatedStorage.removeItem(selectionKey);
-      return;
-    }
-
-    obfuscatedStorage.setItem(getScopedAuthStorageKey(panelBase, apiBase), envelope);
-    obfuscatedStorage.setItem(selectionKey, apiBase);
-  },
-  removeItem: (name: string): void => {
-    const panelBase = normalizeApiBase(detectPanelBase());
-    const selectionKey = getAuthSelectionStorageKey(panelBase);
-    const selectedBase = obfuscatedStorage.getItem<string>(selectionKey);
-    if (selectedBase) {
-      obfuscatedStorage.removeItem(getScopedAuthStorageKey(panelBase, selectedBase));
-    }
-    obfuscatedStorage.removeItem(selectionKey);
-    obfuscatedStorage.removeItem(name || STORAGE_KEY_AUTH);
-  },
-});
-
-const AUTH_STORAGE_PREFIXES = [
-  STORAGE_KEY_AUTH_SCOPE_PREFIX,
-  STORAGE_KEY_AUTH_SELECTION_PREFIX,
-  STORAGE_KEY_AUTH_LOGIN_PREFIX,
-] as const;
-
-const LEGACY_AUTH_STORAGE_KEYS = [
-  STORAGE_KEY_AUTH,
-  'isLoggedIn',
-  'apiBase',
-  'apiUrl',
-  'managementKey',
-] as const;
-
-export const clearAllAuthStorage = (): void => {
-  if (typeof localStorage === 'undefined') return;
-
-  const keys = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index)).filter(
-    (key): key is string => Boolean(key)
-  );
-  for (const key of keys) {
-    if (
-      LEGACY_AUTH_STORAGE_KEYS.includes(key as (typeof LEGACY_AUTH_STORAGE_KEYS)[number]) ||
-      AUTH_STORAGE_PREFIXES.some((prefix) => key.startsWith(prefix))
-    ) {
-      localStorage.removeItem(key);
-    }
-  }
-};
+// Backward-compatible alias (historically named "secureStorage").
+export const secureStorage = obfuscatedStorage;

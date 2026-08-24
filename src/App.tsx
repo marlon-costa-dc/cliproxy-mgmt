@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
 import { NotificationContainer } from '@/components/common/NotificationContainer';
@@ -7,12 +7,20 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { ProtectedRoute } from '@/router/ProtectedRoute';
 import { useLanguageStore, useThemeStore } from '@/stores';
 
+const ApiKeyUsageSelfServicePage = lazy(() =>
+  import('@/pages/ApiKeyUsageSelfServicePage').then(({ ApiKeyUsageSelfServicePage }) => ({
+    default: ApiKeyUsageSelfServicePage,
+  }))
+);
+
 function RootShell() {
   return (
     <>
       <NotificationContainer />
       <ConfirmationModal />
-      <Outlet />
+      <Suspense fallback={<div className="page-loading">Loading...</div>}>
+        <Outlet />
+      </Suspense>
     </>
   );
 }
@@ -22,6 +30,7 @@ const router = createHashRouter([
     element: <RootShell />,
     children: [
       { path: '/login', element: <LoginPage /> },
+      { path: '/my-usage', element: <ApiKeyUsageSelfServicePage /> },
       {
         path: '/*',
         element: (
@@ -46,8 +55,7 @@ function App() {
 
   useEffect(() => {
     setLanguage(language);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // 仅用于首屏同步 i18n 语言
+  }, []);
 
   useEffect(() => {
     document.documentElement.lang = language;

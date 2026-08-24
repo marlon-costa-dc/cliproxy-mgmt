@@ -1,0 +1,164 @@
+package usage
+
+import (
+	"errors"
+	"strings"
+	"testing"
+)
+
+const legacyUsageExportFixture = `{
+  "version": 1,
+  "exported_at": "2026-01-02T03:04:05Z",
+  "usage": {
+    "total_requests": 2,
+    "success_count": 1,
+    "failure_count": 1,
+    "total_tokens": 66,
+    "apis": {
+      "POST /v1/chat/completions": {
+        "models": {
+          "gpt-4o": {
+            "details": [
+              {
+                "timestamp": "2026-01-02T03:04:05Z",
+                "source": "alice@example.com",
+                "auth_index": "auth-1",
+                "tokens": {
+                  "input_tokens": 10,
+                  "output_tokens": 20,
+                  "cached_tokens": 3,
+                  "total_tokens": 33
+                },
+                "failed": false,
+                "latency_ms": 123
+              },
+              {
+                "timestamp": "2026-01-02T03:05:05Z",
+                "source": "sk-test-secret-value",
+                "authIndex": "auth-2",
+                "tokens": {
+                  "inputTokens": 5,
+                  "outputTokens": 6,
+                  "reasoningTokens": 7,
+                  "cacheTokens": 8
+                },
+                "failed": true
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}`
+
+func TestParseImportPayloadLegacyUsageExport(t *testing.T) {
+	result, err := ParseImportPayload([]byte(legacyUsageExportFixture))
+	if err != nil {
+		t.Fatalf("parse legacy export: %v", err)
+	}
+	if result.Format != ImportFormatLegacyExport {
+		t.Fatalf("format = %q", result.Format)
+	}
+	if len(result.Events) != 2 || result.Failed != 0 || result.Unsupported != 0 {
+		t.Fatalf("summary = %#v", result)
+	}
+	if len(result.Warnings) == 0 {
+		t.Fatalf("expected legacy warnings")
+	}
+
+	first := result.Events[0]
+	if first.Model != "gpt-4o" || first.Endpoint != "POST /v1/chat/completions" {
+		t.Fatalf("first event target = %#v", first)
+	}
+	if first.Method != "POST" || first.Path != "/v1/chat/completions" {
+		t.Fatalf("first endpoint parts = %#v", first)
+	}
+	if first.Source != "ali***@example.com" || first.AuthIndex != "auth-1" {
+		t.Fatalf("first source = %#v", first)
+	}
+	if first.TotalTokens != 33 || first.LatencyMS == nil || *first.LatencyMS != 123 {
+		t.Fatalf("first metrics = %#v", first)
+	}
+	if first.EventHash == "" || !strings.HasPrefix(first.RequestID, "legacy:") {
+		t.Fatalf("first ids = %#v", first)
+	}
+
+	second := result.Events[1]
+	if second.TotalTokens != 26 || !second.Failed || second.AuthIndex != "auth-2" {
+		t.Fatalf("second event = %#v", second)
+	}
+
+	again, err := ParseImportPayload([]byte(legacyUsageExportFixture))
+	if err != nil {
+		t.Fatalf("parse legacy export again: %v", err)
+	}
+	if again.Events[0].EventHash != first.EventHash || again.Events[1].EventHash != second.EventHash {
+		t.Fatalf("legacy event hashes are not stable")
+	}
+}
+
+func TestParseImportPayloadRejectsLegacySummaryWithoutDetails(t *testing.T) {
+	payload := `{
+	  "usage": {
+	    "total_requests": 1,
+	    "apis": {
+	      "GET /v1/models": {
+	        "models": {
+	          "gpt-4o": {
+	            "requests": 1
+	          }
+	        }
+	      }
+	    }
+	  }
+	}`
+	result, err := ParseImportPayload([]byte(payload))
+	if !errors.Is(err, ErrLegacyUsageNoDetails) {
+		t.Fatalf("err = %v, result = %#v", err, result)
+	}
+	if result.Format != ImportFormatLegacyExport || result.Unsupported != 1 {
+		t.Fatalf("summary = %#v", result)
+	}
+}
+
+func TestParseImportPayloadPreservesExportedEventHash(t *testing.T) {
+	payload := `{
+	  "request_id": "req-1",
+	  "event_hash": "stable-hash",
+	  "timestamp_ms": 1760000000000,
+	  "timestamp": "2025-10-09T08:53:20Z",
+	  "model": "gpt-4o",
+	  "endpoint": "POST /v1/chat/completions",
+	  "source": "m:sk-t...alue",
+	  "source_hash": "source-hash",
+	  "api_key_hash": "key-hash",
+	  "input_tokens": 1,
+	  "output_tokens": 2,
+	  "total_tokens": 3,
+	  "created_at_ms": 1760000000001
+	}`
+	result, err := ParseImportPayload([]byte(payload))
+	if err != nil {
+		t.Fatalf("parse exported event: %v", err)
+	}
+	if result.Format != ImportFormatJSONL || len(result.Events) != 1 {
+		t.Fatalf("result = %#v", result)
+	}
+	event := result.Events[0]
+	if event.EventHash != "stable-hash" || event.SourceHash != "source-hash" || event.APIKeyHash != "key-hash" {
+		t.Fatalf("event hashes = %#v", event)
+	}
+}
+
+func TestParseImportPayloadJSONLCountsBadLines(t *testing.T) {
+	payload := `{"timestamp":"2026-01-02T03:04:05Z","model":"gpt-4o","endpoint":"GET /v1/models","tokens":{"input_tokens":1}}
+not-json`
+	result, err := ParseImportPayload([]byte(payload))
+	if err != nil {
+		t.Fatalf("parse jsonl: %v", err)
+	}
+	if result.Format != ImportFormatJSONL || len(result.Events) != 1 || result.Failed != 1 {
+		t.Fatalf("result = %#v", result)
+	}
+}

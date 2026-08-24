@@ -7,16 +7,12 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
-import { lockScroll, unlockScroll } from '@/components/ui/scrollLock';
 import {
   IconChevronDown,
   IconChevronUp,
   IconCode,
   IconDownload,
-  IconEye,
   IconEyeOff,
-  IconMaximize2,
-  IconMinimize2,
   IconRefreshCw,
   IconSearch,
   IconSlidersHorizontal,
@@ -27,13 +23,17 @@ import {
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useAuthStore, useConfigStore, useNotificationStore } from '@/stores';
-import { logsApi, type LogsQuery } from '@/services/api/logs';
+import { logsApi } from '@/services/api/logs';
 import { copyToClipboard } from '@/utils/clipboard';
-import { getErrorMessage } from '@/utils/helpers';
 import { downloadBlob } from '@/utils/download';
 import { MANAGEMENT_API_PREFIX } from '@/utils/constants';
 import { formatUnixTimestamp } from '@/utils/format';
-import { HTTP_METHODS, STATUS_GROUPS, resolveStatusGroup, type LogState } from './hooks/logTypes';
+import {
+  HTTP_METHODS,
+  STATUS_GROUPS,
+  resolveStatusGroup,
+  type LogState,
+} from './hooks/logTypes';
 import { parseLogLine } from './hooks/logParsing';
 import { useLogFilters } from './hooks/useLogFilters';
 import { isNearBottom, useLogScroller } from './hooks/useLogScroller';
@@ -51,89 +51,14 @@ const MAX_BUFFER_LINES = 10000;
 const LONG_PRESS_MS = 650;
 const LONG_PRESS_MOVE_THRESHOLD = 10;
 
-type LogPosition = Pick<LogsQuery, 'after' | 'cursor'>;
-
-const getIncrementalAfter = (after: LogsQuery['after']): LogsQuery['after'] => {
-  if (typeof after !== 'number') return after;
-  return after > 1 ? after - 1 : undefined;
-};
-
-const buildLogsQuery = (incremental: boolean, position: LogPosition): LogsQuery => {
-  const params: LogsQuery = { limit: MAX_BUFFER_LINES };
-  if (!incremental) return params;
-
-  if (position.cursor) {
-    params.cursor = position.cursor;
-  }
-
-  const after = getIncrementalAfter(position.after);
-  if (after !== undefined) {
-    params.after = after;
-  }
-
-  return params;
-};
-
-const findLineOverlap = (currentLines: string[], incomingLines: string[]): number => {
-  const maxOverlap = Math.min(currentLines.length, incomingLines.length);
-
-  for (let size = maxOverlap; size > 0; size -= 1) {
-    let matched = true;
-    for (let i = 0; i < size; i += 1) {
-      if (currentLines[currentLines.length - size + i] !== incomingLines[i]) {
-        matched = false;
-        break;
-      }
-    }
-    if (matched) return size;
-  }
-
-  return 0;
-};
-
-const mergeIncrementalLines = (currentLines: string[], incomingLines: string[]): string[] => {
-  if (currentLines.length === 0 || incomingLines.length === 0) {
-    return [...currentLines, ...incomingLines];
-  }
-
-  const overlap = findLineOverlap(currentLines, incomingLines);
-  return [...currentLines, ...incomingLines.slice(overlap)];
-};
-
-const getErrorPayloadText = (err: unknown): string => {
+const getErrorMessage = (err: unknown): string => {
+  if (err instanceof Error) return err.message;
+  if (typeof err === 'string') return err;
   if (typeof err !== 'object' || err === null) return '';
-  const payloads = [
-    (err as { data?: unknown }).data,
-    (err as { details?: unknown }).details,
-  ].filter((payload) => payload !== undefined);
-  return payloads
-    .map((payload) => {
-      if (typeof payload === 'string') return payload;
-      try {
-        return JSON.stringify(payload);
-      } catch {
-        return '';
-      }
-    })
-    .join(' ');
-};
+  if (!('message' in err)) return '';
 
-const isLoggingToFileDisabledError = (err: unknown): boolean => {
-  const text = `${getErrorMessage(err)} ${getErrorPayloadText(err)}`.toLowerCase();
-  return text.includes('logging to file disabled');
-};
-
-const responseDataToText = async (data: unknown): Promise<string> => {
-  if (data instanceof Blob) return data.text();
-  if (data instanceof ArrayBuffer) return new TextDecoder().decode(data);
-  if (typeof data === 'string') return data;
-  if (data === undefined || data === null) return '';
-
-  try {
-    return JSON.stringify(data, null, 2);
-  } catch {
-    return String(data);
-  }
+  const message = (err as { message?: unknown }).message;
+  return typeof message === 'string' ? message : '';
 };
 
 type TabType = 'logs' | 'errors';
@@ -144,10 +69,6 @@ export function LogsPage() {
   const connectionStatus = useAuthStore((state) => state.connectionStatus);
   const config = useConfigStore((state) => state.config);
   const requestLogEnabled = config?.requestLog ?? false;
-  const loggingToFileEnabled = config?.loggingToFile ?? false;
-  const cpaNeedsFileLogging = !loggingToFileEnabled;
-  const [fileLoggingRequired, setFileLoggingRequired] = useState(false);
-  const showFileLoggingRequired = cpaNeedsFileLogging || fileLoggingRequired;
 
   const [activeTab, setActiveTab] = useState<TabType>('logs');
   const [logState, setLogState] = useState<LogState>({ buffer: [], visibleFrom: 0 });
@@ -168,15 +89,10 @@ export function LogsPage() {
   const [errorLogs, setErrorLogs] = useState<ErrorLogItem[]>([]);
   const [loadingErrors, setLoadingErrors] = useState(false);
   const [errorLogsError, setErrorLogsError] = useState('');
-  const [selectedErrorLog, setSelectedErrorLog] = useState<ErrorLogItem | null>(null);
-  const [selectedErrorLogText, setSelectedErrorLogText] = useState('');
-  const [selectedErrorLogError, setSelectedErrorLogError] = useState('');
-  const [selectedErrorLogLoading, setSelectedErrorLogLoading] = useState(false);
   const [requestLogId, setRequestLogId] = useState<string | null>(null);
   const [requestLogDownloading, setRequestLogDownloading] = useState(false);
-  const [fullscreenLogs, setFullscreenLogs] = useState(false);
 
-  const errorLogViewRequestRef = useRef(0);
+  const logScrollerRef = useRef<ReturnType<typeof useLogScroller> | null>(null);
   const longPressRef = useRef<{
     timer: number | null;
     startX: number;
@@ -186,49 +102,14 @@ export function LogsPage() {
   const logRequestInFlightRef = useRef(false);
   const pendingFullReloadRef = useRef(false);
 
-  // 保存最新游标用于增量获取；新接口优先使用 cursor，旧接口继续使用 after。
-  const logPositionRef = useRef<LogPosition>({});
-
-  const resetLogPosition = () => {
-    logPositionRef.current = {};
-  };
-
-  const updateLogPosition = (
-    data: Awaited<ReturnType<typeof logsApi.fetchLogs>>,
-    incremental: boolean
-  ) => {
-    const currentPosition = logPositionRef.current;
-    const nextPosition: LogPosition = {};
-    if (data.nextCursor) {
-      nextPosition.cursor = data.nextCursor;
-    }
-    if (data.latestAfter !== undefined) {
-      nextPosition.after = data.latestAfter;
-    } else if (incremental && currentPosition.after !== undefined) {
-      nextPosition.after = currentPosition.after;
-    }
-    logPositionRef.current = nextPosition;
-  };
+  // 保存最新时间戳用于增量获取
+  const latestTimestampRef = useRef<number>(0);
 
   const disableControls = connectionStatus !== 'connected';
-  const refreshDisabled = disableControls || loading || cpaNeedsFileLogging;
-  const autoRefreshDisabled = disableControls || showFileLoggingRequired;
-  const clearDisabled = disableControls || showFileLoggingRequired;
 
-  async function loadLogs(incremental = false) {
+  const loadLogs = async (incremental = false) => {
     if (connectionStatus !== 'connected') {
       setLoading(false);
-      return;
-    }
-
-    if (cpaNeedsFileLogging) {
-      if (!incremental) {
-        resetLogPosition();
-        setFileLoggingRequired(false);
-        setLogState({ buffer: [], visibleFrom: 0 });
-        setError('');
-        setLoading(false);
-      }
       return;
     }
 
@@ -247,28 +128,29 @@ export function LogsPage() {
     setError('');
 
     try {
-      const stickToBottom = !incremental || isNearBottom(logViewerRef.current);
+      const scrollerInstance = logScrollerRef.current;
+      const stickToBottom =
+        !incremental || isNearBottom(scrollerInstance?.logViewerRef.current ?? null);
       if (stickToBottom) {
-        requestScrollToBottom();
+        scrollerInstance?.requestScrollToBottom();
       }
 
-      const params = buildLogsQuery(incremental, logPositionRef.current);
+      const params =
+        incremental && latestTimestampRef.current > 0 ? { after: latestTimestampRef.current } : {};
       const data = await logsApi.fetchLogs(params);
-      setFileLoggingRequired(false);
 
-      updateLogPosition(data, incremental);
+      // 更新时间戳
+      if (data['latest-timestamp']) {
+        latestTimestampRef.current = data['latest-timestamp'];
+      }
 
       const newLines = Array.isArray(data.lines) ? data.lines : [];
 
-      if (incremental && data.cursorReset) {
-        const buffer = newLines.slice(-MAX_BUFFER_LINES);
-        const visibleFrom = Math.max(buffer.length - INITIAL_DISPLAY_LINES, 0);
-        setLogState({ buffer, visibleFrom });
-      } else if (incremental && newLines.length > 0) {
+      if (incremental && newLines.length > 0) {
         // 增量更新：追加新日志并限制缓冲区大小（避免内存与渲染膨胀）
         setLogState((prev) => {
           const prevRenderedCount = prev.buffer.length - prev.visibleFrom;
-          const combined = mergeIncrementalLines(prev.buffer, newLines);
+          const combined = [...prev.buffer, ...newLines];
           const dropCount = Math.max(combined.length - MAX_BUFFER_LINES, 0);
           const buffer = dropCount > 0 ? combined.slice(dropCount) : combined;
           let visibleFrom = Math.max(prev.visibleFrom - dropCount, 0);
@@ -288,15 +170,6 @@ export function LogsPage() {
       }
     } catch (err: unknown) {
       console.error('Failed to load logs:', err);
-      if (isLoggingToFileDisabledError(err)) {
-        if (!incremental) {
-          resetLogPosition();
-          setFileLoggingRequired(true);
-          setLogState({ buffer: [], visibleFrom: 0 });
-          setError('');
-        }
-        return;
-      }
       if (!incremental) {
         setError(getErrorMessage(err) || t('logs.load_error'));
       }
@@ -310,19 +183,11 @@ export function LogsPage() {
         void loadLogs(false);
       }
     }
-  }
+  };
 
   useHeaderRefresh(() => loadLogs(false));
 
   const clearLogs = async () => {
-    if (cpaNeedsFileLogging) {
-      showNotification(t('logs.cpa_file_logging_required'), 'warning');
-      return;
-    }
-    if (fileLoggingRequired) {
-      showNotification(t('logs.file_logging_required'), 'warning');
-      return;
-    }
     showConfirmation({
       title: t('logs.clear_confirm_title', { defaultValue: 'Clear Logs' }),
       message: t('logs.clear_confirm'),
@@ -332,8 +197,7 @@ export function LogsPage() {
         try {
           await logsApi.clearLogs();
           setLogState({ buffer: [], visibleFrom: 0 });
-          resetLogPosition();
-          setFileLoggingRequired(false);
+          latestTimestampRef.current = 0;
           showNotification(t('logs.clear_success'), 'success');
         } catch (err: unknown) {
           const message = getErrorMessage(err);
@@ -357,6 +221,7 @@ export function LogsPage() {
       setLoadingErrors(false);
       return;
     }
+
     setLoadingErrors(true);
     setErrorLogsError('');
     try {
@@ -389,58 +254,13 @@ export function LogsPage() {
     }
   };
 
-  const openErrorLog = async (item: ErrorLogItem) => {
-    const requestId = errorLogViewRequestRef.current + 1;
-    errorLogViewRequestRef.current = requestId;
-    setSelectedErrorLog(item);
-    setSelectedErrorLogText('');
-    setSelectedErrorLogError('');
-    setSelectedErrorLogLoading(true);
-
-    try {
-      const response = await logsApi.downloadErrorLog(item.name);
-      const text = await responseDataToText(response.data);
-      if (errorLogViewRequestRef.current !== requestId) return;
-      setSelectedErrorLogText(text);
-    } catch (err: unknown) {
-      if (errorLogViewRequestRef.current !== requestId) return;
-      const message = getErrorMessage(err);
-      setSelectedErrorLogError(
-        message ? `${t('logs.error_log_open_failed')}: ${message}` : t('logs.error_log_open_failed')
-      );
-    } finally {
-      if (errorLogViewRequestRef.current === requestId) {
-        setSelectedErrorLogLoading(false);
-      }
-    }
-  };
-
-  const closeErrorLogViewer = () => {
-    errorLogViewRequestRef.current += 1;
-    setSelectedErrorLog(null);
-    setSelectedErrorLogText('');
-    setSelectedErrorLogError('');
-    setSelectedErrorLogLoading(false);
-  };
-
-  const copySelectedErrorLog = async () => {
-    const ok = await copyToClipboard(selectedErrorLogText);
-    showNotification(
-      ok
-        ? t('logs.error_log_copy_success')
-        : t('logs.copy_failed', { defaultValue: 'Copy failed' }),
-      ok ? 'success' : 'error'
-    );
-  };
-
   useEffect(() => {
     if (connectionStatus === 'connected') {
-      resetLogPosition();
-      setFileLoggingRequired(false);
+      latestTimestampRef.current = 0;
       loadLogs(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connectionStatus, loggingToFileEnabled]);
+  }, [connectionStatus]);
 
   useEffect(() => {
     if (activeTab !== 'errors') return;
@@ -450,7 +270,7 @@ export function LogsPage() {
   }, [activeTab, connectionStatus, requestLogEnabled]);
 
   useEffect(() => {
-    if (!autoRefresh || connectionStatus !== 'connected' || showFileLoggingRequired) {
+    if (!autoRefresh || connectionStatus !== 'connected') {
       return;
     }
     const id = window.setInterval(() => {
@@ -458,7 +278,7 @@ export function LogsPage() {
     }, 8000);
     return () => window.clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoRefresh, connectionStatus, showFileLoggingRequired]);
+  }, [autoRefresh, connectionStatus]);
 
   const visibleLines = useMemo(
     () => logState.buffer.slice(logState.visibleFrom),
@@ -516,14 +336,14 @@ export function LogsPage() {
     return {
       filteredParsedLines: filteredParsed,
       filteredLines: filteredParsed.map((line) => line.raw),
-      removedCount: Math.max(baseLines.length - filteredParsed.length, 0),
+      removedCount: Math.max(baseLines.length - filteredParsed.length, 0)
     };
   }, [
     baseLines,
     filters.methodFilterSet,
     filters.pathFilterSet,
     filters.statusFilterSet,
-    parsedSearchLines,
+    parsedSearchLines
   ]);
 
   const parsedVisibleLines = useMemo(
@@ -533,15 +353,17 @@ export function LogsPage() {
 
   const rawVisibleText = useMemo(() => filteredLines.join('\n'), [filteredLines]);
 
-  const { canLoadMore, handleLogScroll, logViewerRef, requestScrollToBottom } = useLogScroller({
+  const scroller = useLogScroller({
     logState,
     setLogState,
     loading,
     isSearching,
     filteredLineCount: filteredLines.length,
     hasStructuredFilters: filters.hasStructuredFilters,
-    showRawLogs,
+    showRawLogs
   });
+
+  logScrollerRef.current = scroller;
 
   const copyLogLine = async (raw: string) => {
     const ok = await copyToClipboard(raw);
@@ -604,7 +426,7 @@ export function LogsPage() {
       const response = await logsApi.downloadRequestLogById(id);
       downloadBlob({
         filename: `request-${id}.log`,
-        blob: new Blob([response.data], { type: 'text/plain' }),
+        blob: new Blob([response.data], { type: 'text/plain' })
       });
       showNotification(t('logs.request_log_download_success'), 'success');
       setRequestLogId(null);
@@ -628,27 +450,6 @@ export function LogsPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!fullscreenLogs) return;
-
-    document.body.classList.add('logs-fullscreen-active');
-    lockScroll();
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      if (document.querySelector('.modal-overlay')) return;
-      setFullscreenLogs(false);
-    };
-
-    document.addEventListener('keydown', handleEscape);
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.classList.remove('logs-fullscreen-active');
-      unlockScroll();
-    };
-  }, [fullscreenLogs]);
-
   return (
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>{t('logs.title')}</h1>
@@ -664,10 +465,7 @@ export function LogsPage() {
         <button
           type="button"
           className={`${styles.tabItem} ${activeTab === 'errors' ? styles.tabActive : ''}`}
-          onClick={() => {
-            setFullscreenLogs(false);
-            setActiveTab('errors');
-          }}
+          onClick={() => setActiveTab('errors')}
         >
           {t('logs.error_logs_modal_title')}
         </button>
@@ -675,84 +473,67 @@ export function LogsPage() {
 
       <div className={styles.content}>
         {activeTab === 'logs' && (
-          <Card
-            className={[styles.logCard, fullscreenLogs ? styles.logCardFullscreen : '']
-              .filter(Boolean)
-              .join(' ')}
-          >
-            {showFileLoggingRequired && (
-              <div className="status-badge warning">
-                {t(
-                  cpaNeedsFileLogging
-                    ? 'logs.cpa_file_logging_required'
-                    : 'logs.file_logging_required'
-                )}
-              </div>
-            )}
+          <Card className={styles.logCard}>
             {error && <div className="error-box">{error}</div>}
 
             <div className={styles.filters}>
-              {!fullscreenLogs && (
-                <>
-                  <div className={styles.searchWrapper}>
-                    <Input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={t('logs.search_placeholder')}
-                      className={styles.searchInput}
-                      rightElement={
-                        searchQuery ? (
-                          <button
-                            type="button"
-                            className={styles.searchClear}
-                            onClick={() => setSearchQuery('')}
-                            title="Clear"
-                            aria-label="Clear"
-                          >
-                            <IconX size={16} />
-                          </button>
-                        ) : (
-                          <IconSearch size={16} className={styles.searchIcon} />
-                        )
-                      }
-                    />
-                  </div>
+              <div className={styles.searchWrapper}>
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t('logs.search_placeholder')}
+                  className={styles.searchInput}
+                  rightElement={
+                    searchQuery ? (
+                      <button
+                        type="button"
+                        className={styles.searchClear}
+                        onClick={() => setSearchQuery('')}
+                        title="Clear"
+                        aria-label="Clear"
+                      >
+                        <IconX size={16} />
+                      </button>
+                    ) : (
+                      <IconSearch size={16} className={styles.searchIcon} />
+                    )
+                  }
+                />
+              </div>
 
-                  <div className={styles.filterPanelHeader}>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className={styles.filterPanelToggle}
-                      onClick={() => setStructuredFiltersExpanded((prev) => !prev)}
-                      aria-expanded={structuredFiltersExpanded}
-                      aria-controls={structuredFiltersPanelId}
-                      title={
-                        structuredFiltersExpanded
-                          ? t('logs.filter_panel_collapse')
-                          : t('logs.filter_panel_expand')
-                      }
-                    >
-                      <span className={styles.filterPanelButtonContent}>
-                        <IconSlidersHorizontal size={16} />
-                        <span>{t('logs.filter_panel_title')}</span>
-                        {structuredFilterCount > 0 && (
-                          <span className={styles.filterPanelCount}>
-                            {t('logs.filter_panel_active_count', { count: structuredFilterCount })}
-                          </span>
-                        )}
-                        {structuredFiltersExpanded ? (
-                          <IconChevronUp size={16} />
-                        ) : (
-                          <IconChevronDown size={16} />
-                        )}
+              <div className={styles.filterPanelHeader}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className={styles.filterPanelToggle}
+                  onClick={() => setStructuredFiltersExpanded((prev) => !prev)}
+                  aria-expanded={structuredFiltersExpanded}
+                  aria-controls={structuredFiltersPanelId}
+                  title={
+                    structuredFiltersExpanded
+                      ? t('logs.filter_panel_collapse')
+                      : t('logs.filter_panel_expand')
+                  }
+                >
+                  <span className={styles.filterPanelButtonContent}>
+                    <IconSlidersHorizontal size={16} />
+                    <span>{t('logs.filter_panel_title')}</span>
+                    {structuredFilterCount > 0 && (
+                      <span className={styles.filterPanelCount}>
+                        {t('logs.filter_panel_active_count', { count: structuredFilterCount })}
                       </span>
-                    </Button>
-                  </div>
-                </>
-              )}
+                    )}
+                    {structuredFiltersExpanded ? (
+                      <IconChevronUp size={16} />
+                    ) : (
+                      <IconChevronDown size={16} />
+                    )}
+                  </span>
+                </Button>
+              </div>
 
-              {!fullscreenLogs && structuredFiltersExpanded && (
+              {structuredFiltersExpanded && (
                 <div id={structuredFiltersPanelId} className={styles.structuredFilters}>
                   <div className={styles.filterChipGroup}>
                     <span className={styles.filterChipLabel}>{t('logs.filter_method')}</span>
@@ -866,7 +647,7 @@ export function LogsPage() {
                   variant="secondary"
                   size="sm"
                   onClick={() => loadLogs(false)}
-                  disabled={refreshDisabled}
+                  disabled={disableControls || loading}
                   className={styles.actionButton}
                 >
                   <span className={styles.buttonContent}>
@@ -877,7 +658,7 @@ export function LogsPage() {
                 <ToggleSwitch
                   checked={autoRefresh}
                   onChange={(value) => setAutoRefresh(value)}
-                  disabled={autoRefreshDisabled}
+                  disabled={disableControls}
                   label={
                     <span className={styles.switchLabel}>
                       <IconTimer size={16} />
@@ -901,29 +682,12 @@ export function LogsPage() {
                   variant="danger"
                   size="sm"
                   onClick={clearLogs}
-                  disabled={clearDisabled}
+                  disabled={disableControls}
                   className={styles.actionButton}
                 >
                   <span className={styles.buttonContent}>
                     <IconTrash2 size={16} />
                     {t('logs.clear_button')}
-                  </span>
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setFullscreenLogs((prev) => !prev)}
-                  className={styles.actionButton}
-                  aria-pressed={fullscreenLogs}
-                  title={
-                    fullscreenLogs ? t('logs.exit_fullscreen_button') : t('logs.fullscreen_button')
-                  }
-                >
-                  <span className={styles.buttonContent}>
-                    {fullscreenLogs ? <IconMinimize2 size={16} /> : <IconMaximize2 size={16} />}
-                    {fullscreenLogs
-                      ? t('logs.exit_fullscreen_button')
-                      : t('logs.fullscreen_button')}
                   </span>
                 </Button>
               </div>
@@ -933,17 +697,17 @@ export function LogsPage() {
               <div className="hint">{t('logs.loading')}</div>
             ) : logState.buffer.length > 0 && filteredLines.length > 0 ? (
               <div
-                ref={logViewerRef}
-                className={[styles.logPanel, fullscreenLogs ? styles.logPanelFullscreen : '']
-                  .filter(Boolean)
-                  .join(' ')}
-                onScroll={handleLogScroll}
+                ref={scroller.logViewerRef}
+                className={styles.logPanel}
+                onScroll={scroller.handleLogScroll}
               >
-                {canLoadMore && (
+                {scroller.canLoadMore && (
                   <div className={styles.loadMoreBanner}>
                     <span>{t('logs.load_more_hint')}</span>
                     <div className={styles.loadMoreStats}>
-                      <span>{t('logs.loaded_lines', { count: filteredLines.length })}</span>
+                      <span>
+                        {t('logs.loaded_lines', { count: filteredLines.length })}
+                      </span>
                       {removedCount > 0 && (
                         <span className={styles.loadMoreCount}>
                           {t('logs.filtered_lines', { count: removedCount })}
@@ -1064,19 +828,6 @@ export function LogsPage() {
                 title={t('logs.search_empty_title')}
                 description={t('logs.search_empty_desc')}
               />
-            ) : showFileLoggingRequired ? (
-              <EmptyState
-                title={t(
-                  cpaNeedsFileLogging
-                    ? 'logs.cpa_file_logging_required_title'
-                    : 'logs.file_logging_required_title'
-                )}
-                description={t(
-                  cpaNeedsFileLogging
-                    ? 'logs.cpa_file_logging_required_desc'
-                    : 'logs.file_logging_required_desc'
-                )}
-              />
             ) : (
               <EmptyState title={t('logs.empty_title')} description={t('logs.empty_desc')} />
             )}
@@ -1102,9 +853,7 @@ export function LogsPage() {
 
               {requestLogEnabled && (
                 <div>
-                  <div className="status-badge warning">
-                    {t('logs.error_logs_request_log_enabled')}
-                  </div>
+                  <div className="status-badge warning">{t('logs.error_logs_request_log_enabled')}</div>
                 </div>
               )}
 
@@ -1130,19 +879,6 @@ export function LogsPage() {
                           <Button
                             variant="secondary"
                             size="sm"
-                            onClick={() => {
-                              void openErrorLog(item);
-                            }}
-                            disabled={disableControls}
-                          >
-                            <span className={styles.buttonContent}>
-                              <IconEye size={16} />
-                              {t('logs.error_logs_open')}
-                            </span>
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="sm"
                             onClick={() => downloadErrorLog(item.name)}
                             disabled={disableControls}
                           >
@@ -1160,74 +896,12 @@ export function LogsPage() {
       </div>
 
       <Modal
-        open={Boolean(selectedErrorLog)}
-        onClose={closeErrorLogViewer}
-        title={selectedErrorLog?.name ?? t('logs.error_log_view_title')}
-        width={960}
-        footer={
-          <>
-            <Button variant="secondary" onClick={closeErrorLogViewer}>
-              {t('common.close')}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                void copySelectedErrorLog();
-              }}
-              disabled={!selectedErrorLogText || selectedErrorLogLoading}
-            >
-              {t('common.copy')}
-            </Button>
-            <Button
-              onClick={() => {
-                if (selectedErrorLog) {
-                  void downloadErrorLog(selectedErrorLog.name);
-                }
-              }}
-              disabled={!selectedErrorLog || selectedErrorLogLoading}
-            >
-              {t('logs.error_logs_download')}
-            </Button>
-          </>
-        }
-      >
-        <div className={styles.errorLogViewer}>
-          {selectedErrorLog && (
-            <div className={styles.errorLogViewerMeta}>
-              <span>
-                {t('logs.error_logs_size')}:{' '}
-                {selectedErrorLog.size ? `${(selectedErrorLog.size / 1024).toFixed(1)} KB` : '-'}
-              </span>
-              <span>
-                {t('logs.error_logs_modified')}:{' '}
-                {selectedErrorLog.modified ? formatUnixTimestamp(selectedErrorLog.modified) : '-'}
-              </span>
-            </div>
-          )}
-          {selectedErrorLogError && <div className="error-box">{selectedErrorLogError}</div>}
-          {selectedErrorLogLoading ? (
-            <div className="hint">{t('common.loading')}</div>
-          ) : selectedErrorLogText ? (
-            <pre className={styles.errorLogContent} spellCheck={false}>
-              {selectedErrorLogText}
-            </pre>
-          ) : !selectedErrorLogError ? (
-            <div className="hint">{t('logs.error_log_empty_content')}</div>
-          ) : null}
-        </div>
-      </Modal>
-
-      <Modal
         open={Boolean(requestLogId)}
         onClose={closeRequestLogModal}
         title={t('logs.request_log_download_title')}
         footer={
           <>
-            <Button
-              variant="secondary"
-              onClick={closeRequestLogModal}
-              disabled={requestLogDownloading}
-            >
+            <Button variant="secondary" onClick={closeRequestLogModal} disabled={requestLogDownloading}>
               {t('common.cancel')}
             </Button>
             <Button

@@ -34,11 +34,6 @@ export function useUnsavedChangesGuard(options: UseUnsavedChangesGuardOptions) {
     allowNextNavigationKeyRef.current = '';
   }, []);
 
-  const allowNavigationTo = useCallback((nextLocationKey: string) => {
-    allowNextNavigationUntilRef.current = Date.now() + 2_000;
-    allowNextNavigationKeyRef.current = nextLocationKey;
-  }, []);
-
   const shouldBlockFunction = useCallback<BlockerFunction>(
     (args) => {
       if (!enabled) return false;
@@ -97,5 +92,5 @@ export function useUnsavedChangesGuard(options: UseUnsavedChangesGuardOptions) {
     });
   }, [blockedKey, blocker, dialog, showConfirmation]);
 
-  return { allowNextNavigation, allowNavigationTo };
+  return { allowNextNavigation };
 }
