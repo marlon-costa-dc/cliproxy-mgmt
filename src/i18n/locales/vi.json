@@ -1493,7 +1493,8 @@
       "cloakTag": "Cloak",
       "empty": "Chưa có tài nguyên nào, nhấn \"Mới\" để thêm.",
       "filterPlaceholder": "Tìm key, URL, tiền tố…",
-      "description": "Quản lý tài nguyên trong {{route}}"
+      "description": "Quản lý tài nguyên trong {{route}}",
+      "cliProfileTag": "CLI Profile"
     },
     "sponsor": {
       "protocolSummary": "Anthropic / OpenAI / Gemini / Codex API (Responses)",
@@ -1649,15 +1650,17 @@
       },
       "cloakCacheUserId": "Cache user_id",
       "cloakCacheUserIdHint": "Dùng lại user_id Claude cloak theo từng API key",
-      "experimentalCchSigning": "Ký CCH thử nghiệm",
-      "experimentalCchSigningHint": "Ký body /v1/messages Claude đã cloak cuối cùng bằng CCH",
       "validation": {
         "nameRequired": "Tên là bắt buộc",
         "apiKeyRequired": "Cần ít nhất một API key",
         "baseUrlRequired": "Base URL là bắt buộc",
         "weightInteger": "Trọng số điều phối phải là số nguyên",
         "weightMax": "Trọng số điều phối không được vượt quá {{max}}"
-      }
+      },
+      "fingerprintProfile": "Request fingerprint",
+      "fingerprintProfileDefault": "Default (caller-owned)",
+      "fingerprintProfileClaudeCodeCli": "Claude Code CLI",
+      "fingerprintProfileHint": "Keep the caller's prompt and headers by default, or opt in to the Claude Code CLI request fingerprint."
     },
     "delete": {
       "title": "Xóa tài nguyên",
