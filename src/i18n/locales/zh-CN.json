@@ -290,6 +290,7 @@
     "filter_qwen": "Qwen",
     "filter_gemini": "Gemini",
     "filter_kimi": "Kimi",
+    "filter_zai": "Z.ai",
     "filter_aistudio": "AIStudio",
     "filter_claude": "Claude",
     "filter_codex": "Codex",
@@ -488,6 +489,19 @@
     "limit_window": "{{duration}} 限额",
     "limit_index": "限额 #{{index}}",
     "reset_hint": "{{hint}} 后重置"
+  },
+  "zai_quota": {
+    "title": "Z.ai Coding Plan 配额",
+    "idle": "点击刷新配额",
+    "loading": "正在加载配额...",
+    "load_failed": "加载配额失败：{{message}}",
+    "missing_auth_index": "服务器尚未加载 Z.ai API Key",
+    "empty_data": "暂无 Z.ai Coding Plan 配额数据",
+    "plan_label": "套餐",
+    "five_hour": "5 小时限额",
+    "weekly": "每周限额",
+    "credit_limit": "积分限额",
+    "remaining_credits": "剩余 {{remaining}} / {{total}}"
   },
   "xai_quota": {
     "title": "Grok 额度",

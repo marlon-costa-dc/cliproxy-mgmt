@@ -290,6 +290,7 @@
     "filter_qwen": "Qwen",
     "filter_gemini": "Gemini",
     "filter_kimi": "Kimi",
+    "filter_zai": "Z.ai",
     "filter_aistudio": "AIStudio",
     "filter_claude": "Claude",
     "filter_codex": "Codex",
@@ -488,6 +489,19 @@
     "limit_window": "{{duration}} limit",
     "limit_index": "Limit #{{index}}",
     "reset_hint": "resets in {{hint}}"
+  },
+  "zai_quota": {
+    "title": "Z.ai Coding Plan Quota",
+    "idle": "Click here to refresh quota",
+    "loading": "Loading quota...",
+    "load_failed": "Failed to load quota: {{message}}",
+    "missing_auth_index": "Z.ai API key is not loaded by the server",
+    "empty_data": "No Z.ai Coding Plan quota data available",
+    "plan_label": "Plan",
+    "five_hour": "5-hour limit",
+    "weekly": "Weekly limit",
+    "credit_limit": "Credit limit",
+    "remaining_credits": "{{remaining}} / {{total}} left"
   },
   "xai_quota": {
     "title": "Grok Quota",
@@ -1158,7 +1172,7 @@
   },
   "quota_management": {
     "title": "Quota Management",
-    "description": "Monitor OAuth quota status for Antigravity, Codex, Claude, Kimi, and xAI credentials.",
+    "description": "Monitor quota status for OAuth credentials and Z.ai Coding Plan API keys.",
     "refresh_all_credentials": "Refresh all credentials",
     "sort_label": "Sort",
     "sort_default": "Default",
@@ -1167,7 +1181,7 @@
     "meta_loaded": "{{count}} loaded",
     "meta_attention": "{{count}} need attention",
     "empty_title": "No quota-capable credentials",
-    "empty_desc": "Connect an Antigravity, Claude, Codex, xAI, or Kimi credential to track its quota here.",
+    "empty_desc": "Connect a supported OAuth credential or Z.ai Coding Plan API key to track its quota here.",
     "windows_title": "Quota windows",
     "windows_span_weekly": "two weeks",
     "windows_span_session": "three days",

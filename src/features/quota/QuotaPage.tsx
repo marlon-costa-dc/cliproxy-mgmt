@@ -10,7 +10,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { authFilesApi } from '@/services/api';
+import { authFilesApi, providersApi } from '@/services/api';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
@@ -43,6 +43,7 @@ import {
 import { nextRecoveryMs } from './resetSchedule';
 import { QUOTA_ADAPTERS, getQuotaSetter, type QuotaCardState } from './providers';
 import type { QuotaProviderType } from './providers/types';
+import { buildZaiQuotaFiles } from './providers/zai/data';
 import { useQuotaActions } from './hooks/useQuotaActions';
 import { useQuotaBatchLoader } from './hooks/useQuotaBatchLoader';
 import { readQuotaUiState, writeQuotaUiState } from './uiState';
@@ -81,8 +82,11 @@ export function QuotaPage() {
     setLoading(true);
     setError('');
     try {
-      const data = await authFilesApi.list();
-      setFiles(data?.files || []);
+      const [data, providers] = await Promise.all([
+        authFilesApi.list(),
+        providersApi.getOpenAIProviders(),
+      ]);
+      setFiles([...(data?.files || []), ...buildZaiQuotaFiles(providers)]);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : t('notification.refresh_failed');
       setError(message);
@@ -105,6 +109,7 @@ export function QuotaPage() {
   const codexQuota = useQuotaStore((state) => state.codexQuota);
   const kimiQuota = useQuotaStore((state) => state.kimiQuota);
   const xaiQuota = useQuotaStore((state) => state.xaiQuota);
+  const zaiQuota = useQuotaStore((state) => state.zaiQuota);
 
   const quotaByType = useMemo<Record<QuotaProviderType, Record<string, QuotaCardState>>>(
     () =>
@@ -114,8 +119,9 @@ export function QuotaPage() {
         codex: codexQuota,
         kimi: kimiQuota,
         xai: xaiQuota,
+        zai: zaiQuota,
       }) as unknown as Record<QuotaProviderType, Record<string, QuotaCardState>>,
-    [antigravityQuota, claudeQuota, codexQuota, kimiQuota, xaiQuota]
+    [antigravityQuota, claudeQuota, codexQuota, kimiQuota, xaiQuota, zaiQuota]
   );
 
   const getQuota = useCallback(

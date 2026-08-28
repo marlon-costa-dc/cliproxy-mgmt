@@ -310,6 +310,47 @@ export interface KimiQuotaState {
   errorStatus?: number;
 }
 
+// Z.ai Coding Plan quota payload/state
+export interface ZaiQuotaLimit {
+  type?: string;
+  unit?: number | string;
+  number?: number | string;
+  usage?: number | string;
+  currentValue?: number | string;
+  remaining?: number | string;
+  percentage?: number | string;
+  nextResetTime?: number | string;
+}
+
+export interface ZaiQuotaPayload {
+  success?: boolean;
+  code?: number | string;
+  message?: string;
+  data?: {
+    level?: string;
+    limits?: ZaiQuotaLimit[];
+  };
+}
+
+export interface ZaiQuotaRow {
+  id: string;
+  labelKey: string;
+  used: number;
+  limit: number;
+  remaining: number;
+  usedPercent: number;
+  resetAtMs: number | null;
+  periodHours: number | null;
+}
+
+export interface ZaiQuotaState {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  rows: ZaiQuotaRow[];
+  planType?: string | null;
+  error?: string;
+  errorStatus?: number;
+}
+
 // xAI/Grok API payload types
 export interface XaiBillingCent {
   val?: number | string;

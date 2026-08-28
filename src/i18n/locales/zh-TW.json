@@ -290,6 +290,7 @@
     "filter_qwen": "Qwen",
     "filter_gemini": "Gemini",
     "filter_kimi": "Kimi",
+    "filter_zai": "Z.ai",
     "filter_aistudio": "AIStudio",
     "filter_claude": "Claude",
     "filter_codex": "Codex",
@@ -488,6 +489,19 @@
     "limit_window": "{{duration}} 限額",
     "limit_index": "限額 #{{index}}",
     "reset_hint": "{{hint}} 後重置"
+  },
+  "zai_quota": {
+    "title": "Z.ai Coding Plan 配額",
+    "idle": "點擊重新整理配額",
+    "loading": "正在載入配額...",
+    "load_failed": "載入配額失敗：{{message}}",
+    "missing_auth_index": "伺服器尚未載入 Z.ai API Key",
+    "empty_data": "暫無 Z.ai Coding Plan 配額資料",
+    "plan_label": "方案",
+    "five_hour": "5 小時限額",
+    "weekly": "每週限額",
+    "credit_limit": "點數限額",
+    "remaining_credits": "剩餘 {{remaining}} / {{total}}"
   },
   "xai_quota": {
     "title": "Grok 配額",

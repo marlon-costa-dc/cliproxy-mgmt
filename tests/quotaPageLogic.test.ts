@@ -57,6 +57,7 @@ describe('buildTabCounts', () => {
       codex: 2,
       xai: 1,
       kimi: 1,
+      zai: 0,
     });
   });
 });

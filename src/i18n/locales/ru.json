@@ -289,6 +289,7 @@
     "filter_qwen": "Qwen",
     "filter_gemini": "Gemini",
     "filter_kimi": "Kimi",
+    "filter_zai": "Z.ai",
     "filter_aistudio": "AIStudio",
     "filter_claude": "Claude",
     "filter_codex": "Codex",
@@ -475,6 +476,19 @@
     "limit_window": "Лимит {{duration}}",
     "limit_index": "Лимит #{{index}}",
     "reset_hint": "сброс через {{hint}}"
+  },
+  "zai_quota": {
+    "title": "Квота Z.ai Coding Plan",
+    "idle": "Нажмите, чтобы обновить квоту",
+    "loading": "Загрузка квоты...",
+    "load_failed": "Не удалось загрузить квоту: {{message}}",
+    "missing_auth_index": "API-ключ Z.ai не загружен сервером",
+    "empty_data": "Данные квоты Z.ai Coding Plan недоступны",
+    "plan_label": "План",
+    "five_hour": "Лимит на 5 часов",
+    "weekly": "Недельный лимит",
+    "credit_limit": "Лимит кредитов",
+    "remaining_credits": "Осталось {{remaining}} / {{total}}"
   },
   "xai_quota": {
     "title": "Квота Grok",

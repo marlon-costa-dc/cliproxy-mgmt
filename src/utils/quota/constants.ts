@@ -30,6 +30,10 @@ export const TYPE_COLORS: Record<string, TypeColorSet> = {
     light: { bg: '#dce8ff', text: '#0560cf' },
     dark: { bg: '#003880', text: '#70b5ff' },
   },
+  zai: {
+    light: { bg: '#e8f5ee', text: '#087a46' },
+    dark: { bg: '#12452f', text: '#7ee2ae' },
+  },
   antigravity: {
     light: { bg: '#e0f7fa', text: '#006064' },
     dark: { bg: '#004d40', text: '#80deea' },
