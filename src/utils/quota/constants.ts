@@ -34,6 +34,10 @@ export const TYPE_COLORS: Record<string, TypeColorSet> = {
     light: { bg: '#e8f5ee', text: '#087a46' },
     dark: { bg: '#12452f', text: '#7ee2ae' },
   },
+  deepseek: {
+    light: { bg: '#e8efff', text: '#2356b6' },
+    dark: { bg: '#172f67', text: '#9dbbff' },
+  },
   antigravity: {
     light: { bg: '#e0f7fa', text: '#006064' },
     dark: { bg: '#004d40', text: '#80deea' },

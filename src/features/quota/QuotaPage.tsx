@@ -44,6 +44,7 @@ import { nextRecoveryMs } from './resetSchedule';
 import { QUOTA_ADAPTERS, getQuotaSetter, type QuotaCardState } from './providers';
 import type { QuotaProviderType } from './providers/types';
 import { buildZaiQuotaFiles } from './providers/zai/data';
+import { buildDeepSeekQuotaFiles } from './providers/deepseek/data';
 import { useQuotaActions } from './hooks/useQuotaActions';
 import { useQuotaBatchLoader } from './hooks/useQuotaBatchLoader';
 import { readQuotaUiState, writeQuotaUiState } from './uiState';
@@ -86,7 +87,11 @@ export function QuotaPage() {
         authFilesApi.list(),
         providersApi.getOpenAIProviders(),
       ]);
-      setFiles([...(data?.files || []), ...buildZaiQuotaFiles(providers)]);
+      setFiles([
+        ...(data?.files || []),
+        ...buildDeepSeekQuotaFiles(providers),
+        ...buildZaiQuotaFiles(providers),
+      ]);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : t('notification.refresh_failed');
       setError(message);
@@ -110,6 +115,7 @@ export function QuotaPage() {
   const kimiQuota = useQuotaStore((state) => state.kimiQuota);
   const xaiQuota = useQuotaStore((state) => state.xaiQuota);
   const zaiQuota = useQuotaStore((state) => state.zaiQuota);
+  const deepseekQuota = useQuotaStore((state) => state.deepseekQuota);
 
   const quotaByType = useMemo<Record<QuotaProviderType, Record<string, QuotaCardState>>>(
     () =>
@@ -120,8 +126,9 @@ export function QuotaPage() {
         kimi: kimiQuota,
         xai: xaiQuota,
         zai: zaiQuota,
+        deepseek: deepseekQuota,
       }) as unknown as Record<QuotaProviderType, Record<string, QuotaCardState>>,
-    [antigravityQuota, claudeQuota, codexQuota, kimiQuota, xaiQuota, zaiQuota]
+    [antigravityQuota, claudeQuota, codexQuota, deepseekQuota, kimiQuota, xaiQuota, zaiQuota]
   );
 
   const getQuota = useCallback(

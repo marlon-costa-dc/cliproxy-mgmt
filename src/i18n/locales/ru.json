@@ -290,6 +290,7 @@
     "filter_gemini": "Gemini",
     "filter_kimi": "Kimi",
     "filter_zai": "Z.ai",
+    "filter_deepseek": "DeepSeek",
     "filter_aistudio": "AIStudio",
     "filter_claude": "Claude",
     "filter_codex": "Codex",
@@ -489,6 +490,20 @@
     "weekly": "Недельный лимит",
     "credit_limit": "Лимит кредитов",
     "remaining_credits": "Осталось {{remaining}} / {{total}}"
+  },
+  "deepseek_quota": {
+    "title": "Баланс DeepSeek",
+    "idle": "Нажмите, чтобы обновить баланс",
+    "loading": "Загрузка баланса...",
+    "load_failed": "Не удалось загрузить баланс: {{message}}",
+    "missing_auth_index": "API-ключ DeepSeek не загружен сервером",
+    "empty_data": "Данные баланса DeepSeek недоступны",
+    "status_label": "Баланс API",
+    "available": "Доступен",
+    "unavailable": "Недостаточно средств",
+    "total_balance": "Баланс {{currency}}",
+    "topped_up": "Пополнено {{amount}}",
+    "granted": "Бонус {{amount}}"
   },
   "xai_quota": {
     "title": "Квота Grok",

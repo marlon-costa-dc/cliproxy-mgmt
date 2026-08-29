@@ -17,6 +17,7 @@ export type AuthFileType =
   | 'iflow'
   | 'vertex'
   | 'zai'
+  | 'deepseek'
   | 'empty'
   | 'unknown';
 

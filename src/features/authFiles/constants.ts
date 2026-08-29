@@ -11,6 +11,7 @@ import iconKimiLight from '@/assets/icons/kimi-light.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import iconGlm from '@/assets/icons/glm.svg';
+import iconDeepseek from '@/assets/icons/deepseek.svg';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
 import { normalizeOAuthProviderKey } from '@/utils/providerKeys';
 import { parseTimestamp } from '@/utils/timestamp';
@@ -79,6 +80,7 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   qwen: iconQwen,
   vertex: iconVertex,
   zai: iconGlm,
+  deepseek: iconDeepseek,
 };
 
 export const clampCardPageSize = (value: number) =>

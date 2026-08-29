@@ -10,6 +10,7 @@ import { CODEX_CONFIG } from './providers/codex/data';
 import { KIMI_CONFIG } from './providers/kimi/data';
 import { XAI_CONFIG } from './providers/xai/data';
 import { ZAI_CONFIG } from './providers/zai/data';
+import { DEEPSEEK_CONFIG } from './providers/deepseek/data';
 import type { QuotaProviderType } from './providers/types';
 import { QUOTA_TAB_ORDER, type QuotaSortMode, type QuotaTabId } from './constants';
 
@@ -20,6 +21,7 @@ const QUOTA_FILTER_MAP: Record<QuotaProviderType, (file: AuthFileItem) => boolea
   kimi: KIMI_CONFIG.filterFn,
   xai: XAI_CONFIG.filterFn,
   zai: ZAI_CONFIG.filterFn,
+  deepseek: DEEPSEEK_CONFIG.filterFn,
 };
 
 export interface QuotaFileEntry {

@@ -45,18 +45,18 @@ export function ZaiQuotaBody({ quota, classes }: QuotaBodyProps<ZaiQuotaState>) 
           >
             <div className={classes.quotaRowHeader}>
               <span className={classes.quotaModel}>{t(row.labelKey)}</span>
-              <div className={classes.quotaMeta}>
-                <span className={classes.quotaAmount}>
-                  {t('zai_quota.remaining_credits', {
-                    remaining: row.remaining.toLocaleString(),
-                    total: row.limit.toLocaleString(),
-                  })}
-                </span>
-                <span className={classes.quotaPercent}>{Math.round(remainingPercent)}%</span>
+              <span className={classes.quotaPercent}>{Math.round(remainingPercent)}%</span>
+            </div>
+            <div className={classes.quotaMeta}>
+              <span className={classes.quotaAmount}>
+                {t('zai_quota.remaining_credits', {
+                  remaining: row.remaining.toLocaleString(),
+                  total: row.limit.toLocaleString(),
+                })}
+              </span>
                 {resetDisplay && (
                   <QuotaResetLabel display={resetDisplay} classes={classes} soon={soon} />
                 )}
-              </div>
             </div>
             <QuotaMeter percent={remainingPercent} classes={classes} index={index} />
           </div>

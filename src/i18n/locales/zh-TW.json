@@ -291,6 +291,7 @@
     "filter_gemini": "Gemini",
     "filter_kimi": "Kimi",
     "filter_zai": "Z.ai",
+    "filter_deepseek": "DeepSeek",
     "filter_aistudio": "AIStudio",
     "filter_claude": "Claude",
     "filter_codex": "Codex",
@@ -502,6 +503,20 @@
     "weekly": "每週限額",
     "credit_limit": "點數限額",
     "remaining_credits": "剩餘 {{remaining}} / {{total}}"
+  },
+  "deepseek_quota": {
+    "title": "DeepSeek 餘額",
+    "idle": "點擊重新整理餘額",
+    "loading": "正在載入餘額...",
+    "load_failed": "載入餘額失敗：{{message}}",
+    "missing_auth_index": "伺服器尚未載入 DeepSeek API Key",
+    "empty_data": "暫無 DeepSeek 餘額資料",
+    "status_label": "API 餘額",
+    "available": "可用",
+    "unavailable": "餘額不足",
+    "total_balance": "{{currency}} 餘額",
+    "topped_up": "儲值 {{amount}}",
+    "granted": "贈金 {{amount}}"
   },
   "xai_quota": {
     "title": "Grok 配額",

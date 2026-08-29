@@ -23,6 +23,8 @@ import { XAI_CONFIG } from './xai/data';
 import { XaiQuotaBody } from './xai/XaiQuotaBody';
 import { ZAI_CONFIG } from './zai/data';
 import { ZaiQuotaBody } from './zai/ZaiQuotaBody';
+import { DEEPSEEK_CONFIG } from './deepseek/data';
+import { DeepSeekQuotaBody } from './deepseek/DeepSeekQuotaBody';
 
 /** 所有 provider 额度状态的公共骨架（各 *QuotaState 的结构子集）。 */
 export interface QuotaCardState {
@@ -56,6 +58,10 @@ export const QUOTA_ADAPTERS: Record<QuotaProviderType, QuotaAdapter> = {
   kimi: { ...KIMI_CONFIG, Body: KimiQuotaBody } as unknown as QuotaAdapter,
   xai: { ...XAI_CONFIG, Body: XaiQuotaBody } as unknown as QuotaAdapter,
   zai: { ...ZAI_CONFIG, Body: ZaiQuotaBody } as unknown as QuotaAdapter,
+  deepseek: {
+    ...DEEPSEEK_CONFIG,
+    Body: DeepSeekQuotaBody,
+  } as unknown as QuotaAdapter,
 };
 
 export type QuotaMapUpdater = (

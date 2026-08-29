@@ -14,11 +14,19 @@ import type {
   KimiQuotaState,
   XaiQuotaState,
   ZaiQuotaState,
+  DeepSeekQuotaState,
 } from '@/types';
 
 export type QuotaUpdater<T> = T | ((prev: T) => T);
 
-export type QuotaProviderType = 'antigravity' | 'claude' | 'codex' | 'kimi' | 'xai' | 'zai';
+export type QuotaProviderType =
+  | 'antigravity'
+  | 'claude'
+  | 'codex'
+  | 'deepseek'
+  | 'kimi'
+  | 'xai'
+  | 'zai';
 
 /** useQuotaStore 的结构契约（storeSelector/storeSetter 依赖）。 */
 export interface QuotaStore {
@@ -28,12 +36,14 @@ export interface QuotaStore {
   kimiQuota: Record<string, KimiQuotaState>;
   xaiQuota: Record<string, XaiQuotaState>;
   zaiQuota: Record<string, ZaiQuotaState>;
+  deepseekQuota: Record<string, DeepSeekQuotaState>;
   setAntigravityQuota: (updater: QuotaUpdater<Record<string, AntigravityQuotaState>>) => void;
   setClaudeQuota: (updater: QuotaUpdater<Record<string, ClaudeQuotaState>>) => void;
   setCodexQuota: (updater: QuotaUpdater<Record<string, CodexQuotaState>>) => void;
   setKimiQuota: (updater: QuotaUpdater<Record<string, KimiQuotaState>>) => void;
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;
   setZaiQuota: (updater: QuotaUpdater<Record<string, ZaiQuotaState>>) => void;
+  setDeepseekQuota: (updater: QuotaUpdater<Record<string, DeepSeekQuotaState>>) => void;
   clearQuotaCache: () => void;
 }
 

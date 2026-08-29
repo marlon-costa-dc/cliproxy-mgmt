@@ -351,6 +351,34 @@ export interface ZaiQuotaState {
   errorStatus?: number;
 }
 
+// DeepSeek account balance payload/state
+export interface DeepSeekBalanceInfoPayload {
+  currency?: string;
+  total_balance?: string | number;
+  granted_balance?: string | number;
+  topped_up_balance?: string | number;
+}
+
+export interface DeepSeekBalancePayload {
+  is_available?: boolean;
+  balance_infos?: DeepSeekBalanceInfoPayload[];
+}
+
+export interface DeepSeekBalanceInfo {
+  currency: string;
+  totalBalance: number;
+  grantedBalance: number;
+  toppedUpBalance: number;
+}
+
+export interface DeepSeekQuotaState {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  isAvailable: boolean | null;
+  balances: DeepSeekBalanceInfo[];
+  error?: string;
+  errorStatus?: number;
+}
+
 // xAI/Grok API payload types
 export interface XaiBillingCent {
   val?: number | string;

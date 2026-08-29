@@ -58,6 +58,7 @@ describe('buildTabCounts', () => {
       xai: 1,
       kimi: 1,
       zai: 0,
+      deepseek: 0,
     });
   });
 });

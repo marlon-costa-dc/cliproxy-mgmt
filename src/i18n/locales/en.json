@@ -291,6 +291,7 @@
     "filter_gemini": "Gemini",
     "filter_kimi": "Kimi",
     "filter_zai": "Z.ai",
+    "filter_deepseek": "DeepSeek",
     "filter_aistudio": "AIStudio",
     "filter_claude": "Claude",
     "filter_codex": "Codex",
@@ -502,6 +503,20 @@
     "weekly": "Weekly limit",
     "credit_limit": "Credit limit",
     "remaining_credits": "{{remaining}} / {{total}} left"
+  },
+  "deepseek_quota": {
+    "title": "DeepSeek Balance",
+    "idle": "Click here to refresh balance",
+    "loading": "Loading balance...",
+    "load_failed": "Failed to load balance: {{message}}",
+    "missing_auth_index": "DeepSeek API key is not loaded by the server",
+    "empty_data": "No DeepSeek balance data available",
+    "status_label": "API balance",
+    "available": "Available",
+    "unavailable": "Insufficient balance",
+    "total_balance": "{{currency}} balance",
+    "topped_up": "Topped up {{amount}}",
+    "granted": "Granted {{amount}}"
   },
   "xai_quota": {
     "title": "Grok Quota",
@@ -1172,7 +1187,7 @@
   },
   "quota_management": {
     "title": "Quota Management",
-    "description": "Monitor quota status for OAuth credentials and Z.ai Coding Plan API keys.",
+    "description": "Monitor OAuth quotas, Z.ai Coding Plan limits, and DeepSeek API balances.",
     "refresh_all_credentials": "Refresh all credentials",
     "sort_label": "Sort",
     "sort_default": "Default",
@@ -1181,7 +1196,7 @@
     "meta_loaded": "{{count}} loaded",
     "meta_attention": "{{count}} need attention",
     "empty_title": "No quota-capable credentials",
-    "empty_desc": "Connect a supported OAuth credential or Z.ai Coding Plan API key to track its quota here.",
+    "empty_desc": "Connect a supported OAuth credential, Z.ai Coding Plan key, or DeepSeek API key.",
     "windows_title": "Quota windows",
     "windows_span_weekly": "two weeks",
     "windows_span_session": "three days",
