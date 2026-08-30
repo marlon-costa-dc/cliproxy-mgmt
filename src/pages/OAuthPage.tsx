@@ -11,6 +11,7 @@ import { vertexApi, type VertexImportResponse } from '@/services/api/vertex';
 import { copyToClipboard } from '@/utils/clipboard';
 import { getErrorMessage, isRecord } from '@/utils/helpers';
 import { notifyAuthFilesChanged } from '@/features/authFiles/authFilesEvents';
+import { KiroOAuthCard } from '@/features/kiro/KiroOAuthCard';
 import { getPluginTitle, resolvePluginAssetURL } from '@/features/plugins/pluginResources';
 import type { PluginListEntry } from '@/types';
 import styles from './OAuthPage.module.scss';
@@ -724,7 +725,13 @@ export function OAuthPage() {
 
         <section className={styles.providerSection}>
           <div className={styles.providerList}>
-            {otherOAuthProviders.map((provider) => renderOAuthProviderCard(provider))}
+            {otherOAuthProviders.map((provider) =>
+              provider.kind === 'plugin' && provider.id === 'kiro' ? (
+                <KiroOAuthCard key={provider.id} title={provider.title} icon={provider.icon} />
+              ) : (
+                renderOAuthProviderCard(provider)
+              )
+            )}
           </div>
         </section>
 

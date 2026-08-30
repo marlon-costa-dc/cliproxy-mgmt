@@ -8,6 +8,7 @@ export * from './apiKeys';
 export * from './providers';
 export * from './authFiles';
 export * from './oauth';
+export * from './kiro';
 export * from './logs';
 export * from './version';
 export * from './models';
