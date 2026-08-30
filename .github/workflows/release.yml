@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Set release version
+        run: echo "VERSION=vi-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
       - name: Build
         run: bun run build
 
@@ -37,7 +40,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="vi-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA::7}"
+          TAG="$VERSION"
           gh release create "$TAG" dist/management.html \
             --title "Vi panel $TAG" \
             --notes "Bản build fork tiếng Việt của Management Center. Commit: ${{ github.sha }}. Server CLIProxyAPI tự kéo qua panel-github-repository."
