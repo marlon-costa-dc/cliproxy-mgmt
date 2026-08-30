@@ -44,4 +44,13 @@ describe('Kiro OAuth flat panel integration', () => {
     expect(source).not.toContain('/v0/resource/plugins/kiro');
     expect(source).not.toContain('callbackUrl');
   });
+
+  test('OAuth polling is sequential so device-code requests cannot overlap', () => {
+    const source = readFileSync(
+      new URL('../src/features/kiro/KiroOAuthCard.tsx', import.meta.url),
+      'utf8'
+    );
+    expect(source).not.toContain('window.setInterval');
+    expect(source).toContain('window.setTimeout(poll, 3000)');
+  });
 });

@@ -81,24 +81,29 @@ export function KiroOAuthCard({ title, icon }: KiroOAuthCardProps) {
   const startPolling = useCallback(
     (state: string) => {
       stopPolling();
-      pollingTimer.current = window.setInterval(async () => {
+      const poll = async () => {
         try {
           const result = await oauthApi.getAuthStatus(state);
           if (result.status === 'ok') {
             finish();
+            return;
           } else if (result.status === 'error') {
             stopPolling();
             setLoading(false);
             setStatus('error');
             setError(result.error || t('auth_login.kiro_unknown_error'));
+            return;
           }
         } catch (pollError: unknown) {
           stopPolling();
           setLoading(false);
           setStatus('error');
           setError(getErrorMessage(pollError));
+          return;
         }
-      }, 3000);
+        pollingTimer.current = window.setTimeout(poll, 3000);
+      };
+      pollingTimer.current = window.setTimeout(poll, 3000);
     },
     [finish, stopPolling, t]
   );
