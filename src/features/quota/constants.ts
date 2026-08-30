@@ -9,6 +9,7 @@ export const QUOTA_TAB_ORDER: readonly QuotaProviderType[] = [
   'kimi',
   'deepseek',
   'zai',
+  'cursor',
 ];
 
 export type QuotaTabId = 'all' | QuotaProviderType;
