@@ -16,6 +16,12 @@ import { parseTimestampMs } from '@/utils/timestamp';
 type StatusError = { status?: number };
 type AuthFileStatusResponse = { status: string; disabled: boolean };
 type AuthFileEntry = AuthFilesResponse['files'][number];
+export type AuthFileModelItem = {
+  id: string;
+  display_name?: string;
+  type?: string;
+  owned_by?: string;
+};
 export type AuthFileFieldsPatch = {
   prefix?: string;
   proxy_url?: string;
@@ -539,7 +545,7 @@ export const authFilesApi = {
   /** Lấy và hợp nhất model động từ nhiều file xác thực của cùng provider. */
   async getModelsForAuthFiles(
     names: string[]
-  ): Promise<{ id: string; display_name?: string; type?: string; owned_by?: string }[]> {
+  ): Promise<AuthFileModelItem[]> {
     const uniqueNames = Array.from(
       new Set(names.map((name) => String(name ?? '').trim()).filter(Boolean))
     );
@@ -560,6 +566,54 @@ export const authFilesApi = {
       });
     });
     return Array.from(byId.values());
+  },
+
+  /**
+   * Nguồn model chung cho mọi màn hình cấu hình OAuth.
+   *
+   * CPA chỉ đưa model tĩnh vào /model-definitions. Plugin provider như Kiro còn
+   * có catalog theo từng credential, vì vậy không được dừng lại khi static có
+   * vài model. Luôn hợp nhất static + model động của toàn bộ auth file thuộc
+   * provider để bí danh, vô hiệu hóa và các picker nhìn thấy cùng một danh sách.
+   */
+  async getModelsForProvider(
+    provider: string,
+    files: Array<{ name: string; type?: string; provider?: string }>
+  ): Promise<AuthFileModelItem[]> {
+    const normalizedProvider = normalizeOAuthProviderKey(String(provider ?? ''));
+    if (!normalizedProvider) return [];
+
+    const authFileNames = files
+      .filter((file) => {
+        const fileType = normalizeOAuthProviderKey(String(file.type ?? ''));
+        const fileProvider = normalizeOAuthProviderKey(String(file.provider ?? ''));
+        return fileType === normalizedProvider || fileProvider === normalizedProvider;
+      })
+      .map((file) => file.name);
+
+    const [staticResult, dynamicResult] = await Promise.allSettled([
+      authFilesApi.getModelDefinitions(normalizedProvider),
+      authFilesApi.getModelsForAuthFiles(authFileNames),
+    ]);
+    const byId = new Map<string, AuthFileModelItem>();
+    const append = (models: AuthFileModelItem[]) => {
+      models.forEach((model) => {
+        const id = String(model.id ?? '').trim();
+        if (!id) return;
+        const key = id.toLowerCase();
+        const current = byId.get(key);
+        byId.set(key, current ? { ...model, ...current, id: current.id } : { ...model, id });
+      });
+    };
+
+    if (staticResult.status === 'fulfilled') append(staticResult.value);
+    if (dynamicResult.status === 'fulfilled') append(dynamicResult.value);
+    if (byId.size === 0 && staticResult.status === 'rejected' && dynamicResult.status === 'rejected') {
+      throw staticResult.reason;
+    }
+    return Array.from(byId.values()).sort((left, right) =>
+      left.id.localeCompare(right.id, undefined, { sensitivity: 'base' })
+    );
   },
 
   // 获取指定 channel 的模型定义

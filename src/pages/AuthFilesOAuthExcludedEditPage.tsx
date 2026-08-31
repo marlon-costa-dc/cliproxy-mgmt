@@ -233,10 +233,11 @@ export function AuthFilesOAuthExcludedEditPage() {
     setModelsError(null);
 
     authFilesApi
-      .getModelDefinitions(resolvedProviderKey)
+      .getModelsForProvider(resolvedProviderKey, files)
       .then((models) => {
         if (cancelled) return;
         setModelsList(models);
+        if (models.length === 0) setModelsError('unsupported');
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -262,7 +263,7 @@ export function AuthFilesOAuthExcludedEditPage() {
     return () => {
       cancelled = true;
     };
-  }, [excludedUnsupported, resolvedProviderKey, showNotification, t]);
+  }, [excludedUnsupported, files, resolvedProviderKey, showNotification, t]);
 
   const applyProviderChange = useCallback(
     (value: string) => {

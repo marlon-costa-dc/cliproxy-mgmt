@@ -248,30 +248,12 @@ export function AuthFilesOAuthModelAliasEditPage() {
     setModelsLoading(true);
     setModelsError(null);
 
-    const authFileNames = files
-      .filter((file) => {
-        const fileType = typeof file.type === 'string' ? normalizeProviderKey(file.type) : '';
-        const fileProvider =
-          typeof file.provider === 'string' ? normalizeProviderKey(file.provider) : '';
-        return fileType === resolvedProviderKey || fileProvider === resolvedProviderKey;
-      })
-      .map((file) => file.name);
-
-    const loadDynamicModels = () => authFilesApi.getModelsForAuthFiles(authFileNames);
-
     authFilesApi
-      .getModelDefinitions(resolvedProviderKey)
+      .getModelsForProvider(resolvedProviderKey, files)
       .then((models) => {
         if (cancelled) return;
-        if (models.length > 0 || authFileNames.length === 0) {
-          setModelsList(models);
-          return;
-        }
-        return loadDynamicModels().then((dynamicModels) => {
-          if (cancelled) return;
-          setModelsList(dynamicModels);
-          if (dynamicModels.length === 0) setModelsError('unsupported');
-        });
+        setModelsList(models);
+        if (models.length === 0) setModelsError('unsupported');
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -281,22 +263,9 @@ export function AuthFilesOAuthModelAliasEditPage() {
             : undefined;
 
         if (status === 400 || status === 404) {
-          if (authFileNames.length === 0) {
-            setModelsList([]);
-            setModelsError('unsupported');
-            return;
-          }
-          return loadDynamicModels()
-            .then((dynamicModels) => {
-              if (cancelled) return;
-              setModelsList(dynamicModels);
-              if (dynamicModels.length === 0) setModelsError('unsupported');
-            })
-            .catch(() => {
-              if (cancelled) return;
-              setModelsList([]);
-              setModelsError('unsupported');
-            });
+          setModelsList([]);
+          setModelsError('unsupported');
+          return;
         }
 
         const errorMessage = err instanceof Error ? err.message : '';
