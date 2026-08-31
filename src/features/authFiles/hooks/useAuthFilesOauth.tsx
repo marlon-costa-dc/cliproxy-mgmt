@@ -101,6 +101,22 @@ export function useAuthFilesOauth(options: UseAuthFilesOauthOptions): UseAuthFil
         providerList.map(async (provider) => {
           try {
             const models = await authFilesApi.getModelDefinitions(provider);
+            if (models.length > 0) return { provider, models };
+          } catch {
+            // Plugin providers are absent from CPA's static model definitions.
+          }
+
+          const authFileNames = files
+            .filter((file) => {
+              const fileType =
+                typeof file.type === 'string' ? normalizeProviderKey(file.type) : '';
+              const fileProvider =
+                typeof file.provider === 'string' ? normalizeProviderKey(file.provider) : '';
+              return fileType === provider || fileProvider === provider;
+            })
+            .map((file) => file.name);
+          try {
+            const models = await authFilesApi.getModelsForAuthFiles(authFileNames);
             return { provider, models };
           } catch {
             return { provider, models: [] as AuthFileModelItem[] };
@@ -125,7 +141,7 @@ export function useAuthFilesOauth(options: UseAuthFilesOauthOptions): UseAuthFil
     return () => {
       cancelled = true;
     };
-  }, [providerList, viewMode]);
+  }, [files, providerList, viewMode]);
 
   const loadExcluded = useCallback(async () => {
     const requestId = ++excludedLoadRequestRef.current;

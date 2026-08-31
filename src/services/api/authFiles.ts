@@ -536,6 +536,32 @@ export const authFilesApi = {
       : [];
   },
 
+  /** Lấy và hợp nhất model động từ nhiều file xác thực của cùng provider. */
+  async getModelsForAuthFiles(
+    names: string[]
+  ): Promise<{ id: string; display_name?: string; type?: string; owned_by?: string }[]> {
+    const uniqueNames = Array.from(
+      new Set(names.map((name) => String(name ?? '').trim()).filter(Boolean))
+    );
+    if (uniqueNames.length === 0) return [];
+
+    const results = await Promise.allSettled(
+      uniqueNames.map((name) => authFilesApi.getModelsForAuthFile(name))
+    );
+    const byId = new Map<
+      string,
+      { id: string; display_name?: string; type?: string; owned_by?: string }
+    >();
+    results.forEach((result) => {
+      if (result.status !== 'fulfilled') return;
+      result.value.forEach((model) => {
+        const id = String(model.id ?? '').trim();
+        if (id && !byId.has(id)) byId.set(id, { ...model, id });
+      });
+    });
+    return Array.from(byId.values());
+  },
+
   // 获取指定 channel 的模型定义
   async getModelDefinitions(
     channel: string

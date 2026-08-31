@@ -248,11 +248,30 @@ export function AuthFilesOAuthModelAliasEditPage() {
     setModelsLoading(true);
     setModelsError(null);
 
+    const authFileNames = files
+      .filter((file) => {
+        const fileType = typeof file.type === 'string' ? normalizeProviderKey(file.type) : '';
+        const fileProvider =
+          typeof file.provider === 'string' ? normalizeProviderKey(file.provider) : '';
+        return fileType === resolvedProviderKey || fileProvider === resolvedProviderKey;
+      })
+      .map((file) => file.name);
+
+    const loadDynamicModels = () => authFilesApi.getModelsForAuthFiles(authFileNames);
+
     authFilesApi
       .getModelDefinitions(resolvedProviderKey)
       .then((models) => {
         if (cancelled) return;
-        setModelsList(models);
+        if (models.length > 0 || authFileNames.length === 0) {
+          setModelsList(models);
+          return;
+        }
+        return loadDynamicModels().then((dynamicModels) => {
+          if (cancelled) return;
+          setModelsList(dynamicModels);
+          if (dynamicModels.length === 0) setModelsError('unsupported');
+        });
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -262,9 +281,22 @@ export function AuthFilesOAuthModelAliasEditPage() {
             : undefined;
 
         if (status === 400 || status === 404) {
-          setModelsList([]);
-          setModelsError('unsupported');
-          return;
+          if (authFileNames.length === 0) {
+            setModelsList([]);
+            setModelsError('unsupported');
+            return;
+          }
+          return loadDynamicModels()
+            .then((dynamicModels) => {
+              if (cancelled) return;
+              setModelsList(dynamicModels);
+              if (dynamicModels.length === 0) setModelsError('unsupported');
+            })
+            .catch(() => {
+              if (cancelled) return;
+              setModelsList([]);
+              setModelsError('unsupported');
+            });
         }
 
         const errorMessage = err instanceof Error ? err.message : '';
@@ -278,7 +310,7 @@ export function AuthFilesOAuthModelAliasEditPage() {
     return () => {
       cancelled = true;
     };
-  }, [modelAliasUnsupported, resolvedProviderKey, showNotification, t]);
+  }, [files, modelAliasUnsupported, resolvedProviderKey, showNotification, t]);
 
   const applyProviderChange = useCallback(
     (value: string) => {
