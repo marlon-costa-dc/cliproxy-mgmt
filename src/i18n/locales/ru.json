@@ -107,7 +107,8 @@
     "config_management": "Панель конфигурации",
     "logs": "Просмотр логов",
     "system_info": "Информация системы",
-    "usage_statistics": "Статистика использования"
+    "usage_statistics": "Статистика использования",
+    "model_pipeline": "Конвейер моделей"
   },
   "nav_groups": {
     "operate": "Работа",
@@ -127,7 +128,43 @@
     "logs": "Трассировка запросов",
     "config_management": "Базовая конфигурация шлюза",
     "system_info": "Состояние и диагностика",
-    "usage_statistics": "Запросы и токены"
+    "usage_statistics": "Запросы и токены",
+    "model_pipeline": "Только чтение: конвейер моделей v3"
+  },
+  "model_pipeline": {
+    "title": "Конвейер моделей",
+    "subtitle": "Только чтение: модель чтения Model Pipeline v3 — поколение {{generation}}, схема v{{schema}}",
+    "readonly_note": "Только чтение: панель отображает модель чтения конвейера и не предоставляет управление выбором или маршрутизацией.",
+    "load_failed_title": "Конвейер моделей недоступен",
+    "unavailable_title": "Нет активного поколения конвейера",
+    "unavailable_description": "Бэкенд сообщает об отсутствии активированного снимка конвейера.",
+    "no_lanes_title": "Нет опубликованных lane",
+    "no_models_title": "Нет опубликованных прямых моделей",
+    "sections": {
+      "activation": "Активация",
+      "lanes": "Участники lane",
+      "models": "Прямые модели"
+    },
+    "fields": {
+      "generation": "Поколение",
+      "activation_loaded_at": "Время загрузки",
+      "snapshot_digest": "Дайджест снимка",
+      "projection_digest": "Дайджест проекции",
+      "config_digest": "Дайджест конфигурации",
+      "routing_schema": "Схема маршрутизации"
+    },
+    "lane": {
+      "available": "Доступно",
+      "unavailable": "Недоступно",
+      "selectable_candidates": "{{count}} выбираемый кандидат",
+      "selectable_candidates_other": "{{count}} выбираемых кандидатов"
+    },
+    "models": {
+      "active": "Активна",
+      "inactive": "Неактивна",
+      "active_restrictions": "{{count}} активное ограничение",
+      "active_restrictions_other": "{{count}} активных ограничений"
+    }
   },
   "dashboard": {
     "hero_verdict_good": "Всё стабильно",

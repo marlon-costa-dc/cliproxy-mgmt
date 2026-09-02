@@ -107,7 +107,8 @@
     "config_management": "設定面板",
     "logs": "記錄檢視",
     "system_info": "中心資訊",
-    "usage_statistics": "使用統計"
+    "usage_statistics": "使用統計",
+    "model_pipeline": "模型流水線"
   },
   "nav_groups": {
     "operate": "運行",
@@ -128,7 +129,43 @@
     "logs": "請求追蹤與排查",
     "config_management": "閘道基礎設定",
     "system_info": "運行與診斷資訊",
-    "usage_statistics": "請求與 Token 用量"
+    "usage_statistics": "請求與 Token 用量",
+    "model_pipeline": "模型流水線 v3 唯讀檢視"
+  },
+  "model_pipeline": {
+    "title": "模型流水線",
+    "subtitle": "模型流水線 v3 唯讀檢視 — 生成代 {{generation}}，schema v{{schema}}",
+    "readonly_note": "唯讀：本面板僅展示流水線讀取模型，不提供任何選擇或路由控制。",
+    "load_failed_title": "模型流水線不可用",
+    "unavailable_title": "沒有已啟用的流水線代",
+    "unavailable_description": "後端報告沒有已啟用的流水線快照。",
+    "no_lanes_title": "沒有已發布的 lane",
+    "no_models_title": "沒有已發布的直接模型",
+    "sections": {
+      "activation": "啟用",
+      "lanes": "Lane 成員",
+      "models": "直接模型"
+    },
+    "fields": {
+      "generation": "生成代",
+      "activation_loaded_at": "加載時間",
+      "snapshot_digest": "快照摘要",
+      "projection_digest": "投影摘要",
+      "config_digest": "配置摘要",
+      "routing_schema": "路由 schema"
+    },
+    "lane": {
+      "available": "可用",
+      "unavailable": "不可用",
+      "selectable_candidates": "{{count}} 個可選候選",
+      "selectable_candidates_other": "{{count}} 個可選候選"
+    },
+    "models": {
+      "active": "已啟用",
+      "inactive": "未啟用",
+      "active_restrictions": "{{count}} 條生效限制",
+      "active_restrictions_other": "{{count}} 條生效限制"
+    }
   },
   "dashboard": {
     "hero_verdict_good": "運行平穩",
