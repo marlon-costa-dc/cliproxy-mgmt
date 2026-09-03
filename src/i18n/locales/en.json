@@ -107,7 +107,8 @@
     "config_management": "Config Panel",
     "logs": "Logs Viewer",
     "system_info": "Management Center Info",
-    "usage_statistics": "Usage Statistics"
+    "usage_statistics": "Usage Statistics",
+    "model_pipeline": "Model Pipeline"
   },
   "nav_groups": {
     "operate": "Operate",
@@ -128,8 +129,45 @@
     "logs": "Request tracing",
     "config_management": "Gateway configuration",
     "system_info": "Runtime & diagnostics",
-    "usage_statistics": "Request and token usage"
+    "usage_statistics": "Request and token usage",
+    "model_pipeline": "Read-only Model Pipeline v3 view"
   },
+  "model_pipeline": {
+    "title": "Model Pipeline",
+    "subtitle": "Read-only view of the Model Pipeline v3 read model — generation {{generation}}, schema v{{schema}}",
+    "readonly_note": "Read-only: this panel displays the pipeline read model and exposes no control over selection or routing.",
+    "load_failed_title": "Model pipeline unavailable",
+    "unavailable_title": "No active pipeline generation",
+    "unavailable_description": "The backend reports no activated pipeline snapshot.",
+    "no_lanes_title": "No lanes published",
+    "no_models_title": "No direct models published",
+    "sections": {
+      "activation": "Activation",
+      "lanes": "Lane members",
+      "models": "Direct models"
+    },
+    "fields": {
+      "generation": "Generation",
+      "activation_loaded_at": "Loaded at",
+      "snapshot_digest": "Snapshot digest",
+      "projection_digest": "Projection digest",
+      "config_digest": "Config digest",
+      "routing_schema": "Routing schema"
+    },
+    "lane": {
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "selectable_candidates": "{{count}} selectable candidate",
+      "selectable_candidates_other": "{{count}} selectable candidates"
+    },
+    "models": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "active_restrictions": "{{count}} active restriction",
+      "active_restrictions_other": "{{count}} active restrictions"
+    }
+  },
+
   "dashboard": {
     "hero_verdict_good": "All systems steady",
     "hero_verdict_warning": "Minor turbulence",

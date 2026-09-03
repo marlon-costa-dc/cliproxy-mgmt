@@ -435,6 +435,17 @@ export function IconSidebarDashboard({ size = 20, ...props }: IconProps) {
   );
 }
 
+export function IconSidebarPipeline({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...baseSvgProps} width={size} height={size} {...props}>
+      <rect width="8" height="8" x="3" y="3" rx="2" />
+      <rect width="12" height="12" x="9" y="9" rx="2" />
+      <path d="M3 17.5A2.5 2.5 0 0 1 5.5 15H9" />
+      <path d="M15 9V6.5A2.5 2.5 0 0 1 17.5 4" />
+    </svg>
+  );
+}
+
 export function IconSidebarQuickStart({ size = 20, ...props }: IconProps) {
   return (
     <svg {...baseSvgProps} width={size} height={size} {...props}>
