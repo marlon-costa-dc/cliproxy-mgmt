@@ -33,3 +33,7 @@ settings.local.json
 *.njsproj
 *.sln
 *.sw?
+
+# Gas City
+.beads/*
+!.beads/identity.toml
