@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - dev
+      - dc-use
 
 jobs:
   verify:

@@ -2,7 +2,7 @@ name: PR Test Build
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dc-use]
   workflow_dispatch:
 
 permissions:
