@@ -59,7 +59,9 @@ const modelFailureCount = (model: UsageModelSnapshot | undefined): number => {
   if (model?.failure_count !== undefined) {
     return numberValue(model.failure_count);
   }
-  return Array.isArray(model?.details) ? model.details.filter((detail) => detail?.failed).length : 0;
+  return Array.isArray(model?.details)
+    ? model.details.filter((detail) => detail?.failed).length
+    : 0;
 };
 
 export function formatLargeNumber(value: number): string {
@@ -69,7 +71,10 @@ export function formatLargeNumber(value: number): string {
   }).format(value);
 }
 
-export function toTrendPoints(source: Record<string, number> | undefined, limit = 24): UsageTrendPoint[] {
+export function toTrendPoints(
+  source: Record<string, number> | undefined,
+  limit = 24
+): UsageTrendPoint[] {
   if (!source) return [];
   return Object.entries(source)
     .map(([label, value]) => ({ label, value: numberValue(value) }))

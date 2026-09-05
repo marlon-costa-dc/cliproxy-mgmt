@@ -21,7 +21,13 @@ export type ProviderTabsProps = {
  * 提供商过滤 tabs：水平排布、移动端横向滚动。
  * 品牌色只出现在图标上，激活态是文字 + 2px 墨色下划线。
  */
-export function ProviderTabs({ types, counts, active, resolvedTheme, onChange }: ProviderTabsProps) {
+export function ProviderTabs({
+  types,
+  counts,
+  active,
+  resolvedTheme,
+  onChange,
+}: ProviderTabsProps) {
   const { t } = useTranslation();
 
   return (
@@ -54,9 +60,7 @@ export function ProviderTabs({ types, counts, active, resolvedTheme, onChange }:
                 {iconSrc ? (
                   <img src={iconSrc} alt="" className={styles.tabIcon} />
                 ) : (
-                  <span className={styles.tabIconFallback}>
-                    {label.slice(0, 1).toUpperCase()}
-                  </span>
+                  <span className={styles.tabIconFallback}>{label.slice(0, 1).toUpperCase()}</span>
                 )}
               </span>
             )}

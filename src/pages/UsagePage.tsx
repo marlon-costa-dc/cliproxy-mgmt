@@ -13,10 +13,7 @@ import {
   toTrendPoints,
   type UsageTrendPoint,
 } from '@/utils/usageStats';
-import {
-  createLatestUsageRequestGuard,
-  runLatestUsageRequest,
-} from './usage-page-request-guard';
+import { createLatestUsageRequestGuard, runLatestUsageRequest } from './usage-page-request-guard';
 import styles from './UsagePage.module.scss';
 
 function StatCard({ label, value, meta }: { label: string; value: number; meta?: string }) {
@@ -47,7 +44,11 @@ function TrendCard({
       ) : (
         <div className={styles.trendBars}>
           {points.map((point) => (
-            <div className={styles.trendBar} key={point.label} title={`${point.label}: ${point.value}`}>
+            <div
+              className={styles.trendBar}
+              key={point.label}
+              title={`${point.label}: ${point.value}`}
+            >
               <div
                 className={styles.trendBarFill}
                 style={{ height: `${Math.max(3, (point.value / max) * 100)}%` }}
@@ -210,7 +211,9 @@ export function UsagePage() {
                         <td className={styles.mono}>{row.displayApiName}</td>
                         <td className={styles.numberCell}>{formatLargeNumber(row.requests)}</td>
                         <td className={styles.numberCell}>{formatLargeNumber(row.tokens)}</td>
-                        <td className={styles.numberCell}>{formatLargeNumber(row.models.length)}</td>
+                        <td className={styles.numberCell}>
+                          {formatLargeNumber(row.models.length)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

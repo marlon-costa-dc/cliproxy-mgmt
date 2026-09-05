@@ -67,8 +67,7 @@ export const useAuthStore = create<AuthStoreState>()(
           const resolvedBase = normalizeApiBase(
             apiBase || (canUseLegacyCredentials ? migratedLegacyBase : '') || detectedBase
           );
-          const resolvedKey =
-            managementKey || (canUseLegacyCredentials ? legacyKey : '') || '';
+          const resolvedKey = managementKey || (canUseLegacyCredentials ? legacyKey : '') || '';
           const resolvedRememberPassword =
             rememberPassword ||
             Boolean(managementKey) ||

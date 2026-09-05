@@ -118,8 +118,7 @@ interface PersistedAuthEnvelope {
   [key: string]: unknown;
 }
 
-const normalizedStorageScope = (apiBase: string) =>
-  encodeURIComponent(normalizeApiBase(apiBase));
+const normalizedStorageScope = (apiBase: string) => encodeURIComponent(normalizeApiBase(apiBase));
 
 export const getScopedAuthStorageKey = (panelBase: string, apiBase: string): string =>
   `${STORAGE_KEY_AUTH_SCOPE_PREFIX}${normalizedStorageScope(panelBase)}:${normalizedStorageScope(apiBase)}`;
@@ -236,9 +235,9 @@ const LEGACY_AUTH_STORAGE_KEYS = [
 export const clearAllAuthStorage = (): void => {
   if (typeof localStorage === 'undefined') return;
 
-  const keys = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index)).filter(
-    (key): key is string => Boolean(key)
-  );
+  const keys = Array.from({ length: localStorage.length }, (_, index) =>
+    localStorage.key(index)
+  ).filter((key): key is string => Boolean(key));
   for (const key of keys) {
     if (
       LEGACY_AUTH_STORAGE_KEYS.includes(key as (typeof LEGACY_AUTH_STORAGE_KEYS)[number]) ||

@@ -25,10 +25,7 @@ export const qoderRemainingPercent = (usage: QoderUsageSnapshot): number | null 
   return remaining === null ? null : Math.max(0, Math.min(100, (remaining / total) * 100));
 };
 
-const fetchQoderQuota = async (
-  file: AuthFileItem,
-  t: TFunction
-): Promise<QoderUsageSnapshot> => {
+const fetchQoderQuota = async (file: AuthFileItem, t: TFunction): Promise<QoderUsageSnapshot> => {
   const usage = readQoderUsageSnapshot(file);
   if (!usage) throw new Error(t('qoder_quota.empty_data'));
   return usage;

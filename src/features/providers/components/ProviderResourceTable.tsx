@@ -133,10 +133,7 @@ export function ProviderResourceTable({
       if ((r.brand === 'claude' || r.brand === 'claudeApi') && r.flags.cloakEnabled) {
         items.push(renderFlagTag('cloak', t('providersPage.table.cloakTag')));
       }
-      if (
-        (r.brand === 'claude' || r.brand === 'claudeApi') &&
-        r.flags.claudeCodeCliProfile
-      ) {
+      if ((r.brand === 'claude' || r.brand === 'claudeApi') && r.flags.claudeCodeCliProfile) {
         items.push(renderFlagTag('cli-profile', t('providersPage.table.cliProfileTag')));
       }
     }
