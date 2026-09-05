@@ -116,14 +116,18 @@ export function AuthFilesOAuthModelAliasEditPage() {
   const orderedRanks = useMemo(() => {
     const counts = new Map<string, number>();
     const ranks: Array<number | null> = mappings.map((entry) => {
-      const alias = String(entry.alias ?? '').trim().toLowerCase();
+      const alias = String(entry.alias ?? '')
+        .trim()
+        .toLowerCase();
       if (!alias) return null;
       const next = (counts.get(alias) ?? 0) + 1;
       counts.set(alias, next);
       return next;
     });
     return ranks.map((rank, index) => {
-      const alias = String(mappings[index]?.alias ?? '').trim().toLowerCase();
+      const alias = String(mappings[index]?.alias ?? '')
+        .trim()
+        .toLowerCase();
       if (!alias || (counts.get(alias) ?? 0) < 2) return null;
       return rank;
     });
@@ -503,7 +507,9 @@ export function AuthFilesOAuthModelAliasEditPage() {
               <div className={styles.mappingsTitle}>
                 {t('oauth_model_alias.alias_label')}
                 {hasOrderedPool ? (
-                  <span className={styles.orderedHint}>{t('oauth_model_alias.ordered_pool_hint')}</span>
+                  <span className={styles.orderedHint}>
+                    {t('oauth_model_alias.ordered_pool_hint')}
+                  </span>
                 ) : null}
               </div>
               <Button

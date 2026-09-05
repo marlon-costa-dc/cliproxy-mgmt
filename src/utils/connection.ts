@@ -31,8 +31,8 @@ export const resolvePanelBasePath = (pathname: string): string => {
   const lastSlash = withoutTrailingSlash.lastIndexOf('/');
   const lastSegment = withoutTrailingSlash.slice(lastSlash + 1);
   const parentPath = withoutTrailingSlash.slice(0, lastSlash);
-  const isKnownStaticAsset = /(?:^|\/)(?:assets|static)$/.test(parentPath) &&
-    STATIC_ASSET_FILE.test(lastSegment);
+  const isKnownStaticAsset =
+    /(?:^|\/)(?:assets|static)$/.test(parentPath) && STATIC_ASSET_FILE.test(lastSegment);
   // Arbitrary dotted segments are ambiguous and therefore treated as mounts.
   // Strip only dashboard document names or files under explicit asset folders.
   if (DASHBOARD_DOCUMENT_FILE.test(lastSegment) || isKnownStaticAsset) {

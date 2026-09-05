@@ -1,7 +1,4 @@
-import type {
-  ModelPipelineInventory,
-  ModelPipelineLane,
-} from '@/types/modelPipeline';
+import type { ModelPipelineInventory, ModelPipelineLane } from '@/types/modelPipeline';
 
 /**
  * Canonical v3 lanes in display order. Unknown lanes are appended sorted by
@@ -34,9 +31,7 @@ export function healthTone(status: string): HealthStatus {
  * appended sorted by tier id.
  */
 export function sortLanes(aliases: ModelPipelineLane[]): ModelPipelineLane[] {
-  const rank = new Map<string, number>(
-    CANONICAL_LANES.map((tierId, index) => [tierId, index]),
-  );
+  const rank = new Map<string, number>(CANONICAL_LANES.map((tierId, index) => [tierId, index]));
   return [...aliases].sort((left, right) => {
     const leftRank = rank.get(left.tier_id) ?? CANONICAL_LANES.length;
     const rightRank = rank.get(right.tier_id) ?? CANONICAL_LANES.length;

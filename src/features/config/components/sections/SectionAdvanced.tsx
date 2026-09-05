@@ -242,9 +242,7 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
             <FieldGrid>
               <FieldAnchor fieldId="codexIdentityConfuse">
                 <ToggleRow
-                  title={t(
-                    'config_management.visual.sections.headers.codex_identity_confuse'
-                  )}
+                  title={t('config_management.visual.sections.headers.codex_identity_confuse')}
                   description={t(
                     'config_management.visual.sections.headers.codex_identity_confuse_desc'
                   )}

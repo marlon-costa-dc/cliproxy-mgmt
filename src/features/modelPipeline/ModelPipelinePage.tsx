@@ -6,12 +6,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuthStore } from '@/stores';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import type { ModelPipelineInventory } from '@/types/modelPipeline';
-import {
-  healthTone,
-  selectableCandidateCount,
-  shortenDigest,
-  sortLanes,
-} from './logic';
+import { healthTone, selectableCandidateCount, shortenDigest, sortLanes } from './logic';
 import styles from './ModelPipelinePage.module.scss';
 
 export function ModelPipelinePage() {
@@ -57,9 +52,7 @@ export function ModelPipelinePage() {
   }
 
   if (!inventory) {
-    return (
-      <EmptyState title={t('model_pipeline.load_failed_title')} />
-    );
+    return <EmptyState title={t('model_pipeline.load_failed_title')} />;
   }
 
   const lanes = sortLanes(inventory.aliases);
@@ -84,9 +77,7 @@ export function ModelPipelinePage() {
           <dl className={styles.dl}>
             <div className={styles.row}>
               <dt>{t('model_pipeline.fields.generation')}</dt>
-              <dd>
-                {active.generation}
-              </dd>
+              <dd>{active.generation}</dd>
             </div>
             <div className={styles.row}>
               <dt>{t('model_pipeline.fields.activation_loaded_at')}</dt>
@@ -107,19 +98,21 @@ export function ModelPipelinePage() {
             <div className={styles.row}>
               <dt>{t('model_pipeline.fields.routing_schema')}</dt>
               <dd className={styles.mono}>
-                v{inventory.routing_schema.version} · {shortenDigest(inventory.routing_schema.digest)}
+                v{inventory.routing_schema.version} ·{' '}
+                {shortenDigest(inventory.routing_schema.digest)}
               </dd>
             </div>
           </dl>
         ) : (
-          <EmptyState title={t('model_pipeline.unavailable_title')} description={t('model_pipeline.unavailable_description')} />
+          <EmptyState
+            title={t('model_pipeline.unavailable_title')}
+            description={t('model_pipeline.unavailable_description')}
+          />
         )}
       </section>
       <section className={styles.section} aria-labelledby="mp-lanes-heading">
         <h2 id="mp-lanes-heading">{t('model_pipeline.sections.lanes')}</h2>
-        {lanes.length === 0 && (
-          <EmptyState title={t('model_pipeline.no_lanes_title')} />
-        )}
+        {lanes.length === 0 && <EmptyState title={t('model_pipeline.no_lanes_title')} />}
         {lanes.map((lane) => {
           const selectableCount = selectableCandidateCount(lane);
           return (
@@ -127,7 +120,9 @@ export function ModelPipelinePage() {
               <header className={styles.laneHeader}>
                 <h3>{lane.name}</h3>
                 <span className={styles.laneTier}>{lane.tier_id}</span>
-                <span className={styles[`tone-${healthTone(lane.selectable ? 'healthy' : 'blocked')}`]}>
+                <span
+                  className={styles[`tone-${healthTone(lane.selectable ? 'healthy' : 'blocked')}`]}
+                >
                   {lane.selectable
                     ? t('model_pipeline.lane.available')
                     : t('model_pipeline.lane.unavailable')}
@@ -143,7 +138,9 @@ export function ModelPipelinePage() {
                     <span className={styles.rank}>#{member.member_rank}</span>
                     <span className={styles.modelId}>
                       {member.model_key.canonical_model_id}
-                      <span className={styles.provider}>@{member.model_key.catalog_provider_id}</span>
+                      <span className={styles.provider}>
+                        @{member.model_key.catalog_provider_id}
+                      </span>
                     </span>
                     <span className={styles.score}>{member.model_score}</span>
                     <span className={styles.reason}>{member.selection_reason}</span>

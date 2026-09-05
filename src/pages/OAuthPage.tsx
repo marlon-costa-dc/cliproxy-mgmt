@@ -429,24 +429,24 @@ export function OAuthPage() {
     pollingTimers.current[provider] = timer;
   };
 
-   const startAuth = async (provider: string) => {
-     clearProviderTimers(provider);
-     updateProviderState(provider, {
-       url: undefined,
-       state: undefined,
-       status: 'waiting',
-       polling: true,
-       error: undefined,
-       callbackStatus: undefined,
-       callbackError: undefined,
-       callbackUrl: '',
-     });
-     try {
-       let effectiveProvider = provider;
-       if (provider === 'zai' && zaiRegion === 'bigmodel') {
-         effectiveProvider = 'bigmodel';
-       }
-       const res = await oauthApi.startAuth(effectiveProvider);
+  const startAuth = async (provider: string) => {
+    clearProviderTimers(provider);
+    updateProviderState(provider, {
+      url: undefined,
+      state: undefined,
+      status: 'waiting',
+      polling: true,
+      error: undefined,
+      callbackStatus: undefined,
+      callbackError: undefined,
+      callbackUrl: '',
+    });
+    try {
+      let effectiveProvider = provider;
+      if (provider === 'zai' && zaiRegion === 'bigmodel') {
+        effectiveProvider = 'bigmodel';
+      }
+      const res = await oauthApi.startAuth(effectiveProvider);
       if (!res.state) {
         const message = t('auth_login.missing_state');
         updateProviderState(provider, {
@@ -808,9 +808,7 @@ export function OAuthPage() {
           {provider.id === 'zai' && (
             <div className={styles.zaiRegionToggle}>
               <span className={styles.zaiRegionLabel}>
-                {zaiRegion === 'zai'
-                  ? t('auth_login.zai_oauth_title')
-                  : 'BigModel'}
+                {zaiRegion === 'zai' ? t('auth_login.zai_oauth_title') : 'BigModel'}
               </span>
               <Button
                 variant="secondary"

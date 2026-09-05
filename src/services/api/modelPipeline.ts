@@ -43,4 +43,3 @@ export const modelPipelineApi = {
     return parseModelPipelineInventory(payload);
   },
 };
-
