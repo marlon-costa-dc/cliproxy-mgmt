@@ -34,6 +34,10 @@ settings.local.json
 *.sln
 *.sw?
 
+# Poolside agent harness
+.poolside/
+
 # Gas City
+.gc/tmp/
 .beads/*
 !.beads/identity.toml
