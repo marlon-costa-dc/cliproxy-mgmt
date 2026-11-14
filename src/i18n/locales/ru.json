@@ -110,13 +110,16 @@
     "plugins": "Плагины",
     "config_management": "Панель конфигурации",
     "logs": "Просмотр логов",
-    "system_info": "Информация системы"
+    "system_info": "Информация системы",
+    "plugin_store": "Магазин плагинов",
+    "usage_statistics": "Статистика использования"
   },
   "nav_groups": {
     "operate": "Работа",
     "gateway": "Шлюз",
     "observe": "Наблюдение",
-    "control": "Управление"
+    "control": "Управление",
+    "plugin_pages": "Plugins"
   },
   "nav_meta": {
     "dashboard": "Обзор работы",
@@ -129,7 +132,9 @@
     "plugins": "Установка, обновление и настройка",
     "logs": "Трассировка запросов",
     "config_management": "Базовая конфигурация шлюза",
-    "system_info": "Состояние и диагностика"
+    "system_info": "Состояние и диагностика",
+    "plugin_store": "Поиск и установка плагинов",
+    "usage_statistics": "Запросы и токены"
   },
   "dashboard": {
     "hero_verdict_good": "Всё стабильно",
@@ -444,7 +449,9 @@
     "quota_refresh_single": "Обновить квоту",
     "quota_refresh_hint": "Обновить квоту только для этих учётных данных",
     "quota_refresh_success": "Квота для \"{{name}}\" обновлена",
-    "quota_refresh_failed": "Не удалось обновить квоту для \"{{name}}\": {{message}}"
+    "quota_refresh_failed": "Не удалось обновить квоту для \"{{name}}\": {{message}}",
+    "compact_mode_label": "Компактный режим",
+    "filter_qoder": "Qoder"
   },
   "antigravity_subscription": {
     "plan_unknown": "Неизвестно",
@@ -520,7 +527,8 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "extra_usage_user_disabled": "Отключено пользователем"
   },
   "codex_quota": {
     "title": "Квота Codex",
@@ -735,7 +743,21 @@
     "list_empty_all": "Отключённых моделей пока нет. Выберите провайдера, чтобы начать.",
     "upgrade_required": "Текущая версия CPA не поддерживает отключение OAuth-моделей. Пожалуйста, обновите систему.",
     "upgrade_required_title": "Пожалуйста, обновите CLI Proxy API",
-    "upgrade_required_desc": "Текущая версия сервера не поддерживает получение отключения OAuth-моделей. Обновите CPA (CLI Proxy API) до последней версии и повторите попытку."
+    "upgrade_required_desc": "Текущая версия сервера не поддерживает получение отключения OAuth-моделей. Обновите CPA (CLI Proxy API) до последней версии и повторите попытку.",
+    "description": "Отключения моделей по провайдерам отображаются карточками; нажмите карточку, чтобы изменить или удалить. Поддерживаются шаблоны *. Область зависит от фильтра файлов авторизации.",
+    "add": "Добавить отключение",
+    "add_title": "Добавление отключения моделей для провайдера",
+    "edit_title": "Редактирование отключения моделей для {{provider}}",
+    "provider_label": "Провайдер",
+    "provider_placeholder": "например: codex / openai",
+    "provider_hint": "По умолчанию используется текущий фильтр; выберите существующего провайдера или введите новое имя.",
+    "save": "Сохранить/обновить",
+    "delete": "Удалить провайдера",
+    "delete_confirm": "Удалить отключение моделей для {{provider}}?",
+    "delete_success": "Отключение моделей провайдера удалено",
+    "delete_failed": "Не удалось удалить отключение моделей",
+    "model_count": "Отключено моделей: {{count}}",
+    "provider_required": "Сначала укажите провайдера"
   },
   "excluded_models": {
     "trigger_summary": "Исключено: {{excluded}} · доступно: {{available}}",
@@ -816,7 +838,25 @@
     "view_mode_list": "Список",
     "upgrade_required": "Эта функция требует более новой версии CLI Proxy API (CPA). Обновите систему.",
     "upgrade_required_title": "Пожалуйста, обновите CLI Proxy API",
-    "upgrade_required_desc": "Текущая версия сервера не поддерживает API псевдонимов моделей OAuth. Обновите CLI Proxy API (CPA) до последней версии."
+    "upgrade_required_desc": "Текущая версия сервера не поддерживает API псевдонимов моделей OAuth. Обновите CLI Proxy API (CPA) до последней версии.",
+    "edit_title": "Редактирование псевдонимов моделей {{provider}}",
+    "mapping_hint": "Выберите исходную модель и укажите псевдоним для клиентов.",
+    "add": "Добавить псевдоним",
+    "add_title": "Добавление псевдонимов моделей провайдера",
+    "provider_label": "Провайдер",
+    "provider_placeholder": "например: codex / vertex",
+    "provider_hint": "По умолчанию используется текущий фильтр; выберите существующего провайдера или введите новое имя.",
+    "alias_label": "Псевдонимы моделей",
+    "save": "Сохранить/обновить",
+    "delete_confirm": "Удалить псевдонимы моделей для {{provider}}?",
+    "delete_link_title": "Убрать сопоставление",
+    "delete_link_confirm": "Удалить сопоставление из <code>{{sourceModel}}</code> ({{provider}}) к псевдониму <code>{{alias}}</code>?",
+    "delete_alias_title": "Удалить псевдоним",
+    "delete_alias_confirm": "Удалить псевдоним <code>{{alias}}</code> и все связанные сопоставления?",
+    "delete_success": "Псевдонимы моделей удалены",
+    "delete_failed": "Не удалось удалить псевдонимы моделей",
+    "model_count": "Количество псевдонимов: {{count}}",
+    "provider_required": "Сначала укажите провайдера"
   },
   "model_rules": {
     "section_label": "Правила моделей",
@@ -1022,7 +1062,17 @@
     "login_proxy_in_use": "Вход выполняется через прокси",
     "success_saved_hint": "Учётные данные сохранены — управляйте ими в файлах аутентификации.",
     "sign_up_prompt": "Нет аккаунта?",
-    "copied": "Скопировано"
+    "copied": "Скопировано",
+    "qoder_oauth_title": "Qoder OAuth",
+    "qoder_oauth_button": "Начать вход Qoder",
+    "qoder_oauth_hint": "Выполните вход в Qoder через поток авторизации устройства, затем автоматически сохраните учётные данные.",
+    "qoder_oauth_url_label": "URL авторизации:",
+    "qoder_open_link": "Открыть ссылку",
+    "qoder_copy_link": "Скопировать ссылку",
+    "qoder_oauth_status_waiting": "Ожидание аутентификации...",
+    "qoder_oauth_status_success": "Аутентификация успешна!",
+    "qoder_oauth_status_error": "Ошибка аутентификации:",
+    "qoder_oauth_start_error": "Не удалось запустить Qoder OAuth:"
   },
   "stats": {
     "success": "Успех",
@@ -1464,7 +1514,9 @@
           "timeout": "Timeout",
           "stabilize_device": "Стабилизировать профиль устройства",
           "stabilize_device_desc": "Фиксировать OS/Arch и стабилизировать программный отпечаток для учётных данных/API-ключа",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "codex_identity_confuse": "Codex identity-confuse",
+          "codex_identity_confuse_desc": "При fill-first routing или session affinity переопределяет Codex prompt_cache_key и installation identity под выбранную auth-запись"
         },
         "network": {
           "title": "Сетевые настройки",
@@ -1858,7 +1910,13 @@
     "invalid_json": "Введите корректный JSON",
     "expected_array": "Введите JSON-массив",
     "expected_object": "Введите JSON-объект",
-    "invalid_enum": "Выберите одно из объявленных значений enum"
+    "invalid_enum": "Выберите одно из объявленных значений enum",
+    "refresh": "Обновить",
+    "global_status": "Глобальный статус",
+    "global_enabled": "Включено",
+    "global_disabled": "Отключено",
+    "discovered": "Найдено",
+    "effective": "Активно"
   },
   "plugin_store": {
     "description_show_more": "Показать больше",
@@ -1934,7 +1992,28 @@
     "gate_step2_action": "Я прочитал и понимаю эти риски",
     "gate_step3_prompt": "Для подтверждения введите «{{token}}» в поле ниже",
     "gate_step3_action": "Установить этот плагин",
-    "gate_step3_hint": "Введите точный идентификатор, показанный выше, чтобы включить установку."
+    "gate_step3_hint": "Введите точный идентификатор, показанный выше, чтобы включить установку.",
+    "title": "Магазин плагинов",
+    "description": "Просматривайте реестр плагинов, устанавливайте и обновляйте плагины для текущего бэкенда.",
+    "global_status": "Глобальный статус",
+    "global_enabled": "Включено",
+    "global_disabled": "Отключено",
+    "plugins_dir": "Каталог плагинов",
+    "stat_available": "Доступно",
+    "search_placeholder": "Поиск по ID, названию, автору или тегу...",
+    "search_label": "Поиск в магазине плагинов",
+    "filter_label": "Фильтр по статусу установки",
+    "filter_all": "Все",
+    "filter_installed": "Установленные",
+    "filter_not_installed": "Не установленные",
+    "filter_updates": "Обновления",
+    "badge_update": "Доступно обновление",
+    "badge_effective": "Активен",
+    "version_arrow": "v{{from}} → v{{to}}",
+    "manage": "Управлять",
+    "no_matches": "Нет подходящих плагинов",
+    "no_matches_desc": "Нет плагинов, соответствующих текущему поиску или фильтру.",
+    "clear_filters": "Сбросить фильтры"
   },
   "system_info": {
     "models_refresh_button": "Обновить список",
@@ -2133,7 +2212,7 @@
       "activeCount": "{{active}}/{{total}} активных"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2196,8 +2275,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "Все URL используют одинаковые правила API. При сохранении записывается только endpoint текущего группового протокола.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "Глобальный маршрут с усиленной защитой",
-         "aiCodeMirrorDomestic": "Оптимизированный маршрут для материкового Китая",
+        "aiCodeMirrorGlobal": "Глобальный маршрут с усиленной защитой",
+        "aiCodeMirrorDomestic": "Оптимизированный маршрут для материкового Китая",
         "standard": "Обычный URL",
         "direct": "Прямой URL",
         "domestic": "Маршрут для материкового Китая",
@@ -2206,8 +2285,8 @@
         "global": "Глобальный"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "Маршрут с усиленной защитой для доступа по всему миру.",
-         "aiCodeMirrorDomestic": "Маршрут, оптимизированный для сетей материкового Китая.",
+        "aiCodeMirrorGlobal": "Маршрут с усиленной защитой для доступа по всему миру.",
+        "aiCodeMirrorDomestic": "Маршрут, оптимизированный для сетей материкового Китая.",
         "domestic": "Для пользователей и нагрузок в материковом Китае; обычно дает меньшую задержку в сетях материкового Китая.",
         "overseas": "Для зарубежных развертываний, трансграничного доступа или задач, которым нужны зарубежные модели.",
         "mainlandChinaRecommended": "Рекомендуется для пользователей и нагрузок в сетях материкового Китая.",
@@ -2493,5 +2572,53 @@
     "error": "Привязка не удалась. Начните заново.",
     "unsupported": "Этот сервер не поддерживает привязку SIWC.",
     "expired": "Сеанс привязки истёк. Начните заново."
+  },
+  "qoder_quota": {
+    "title": "Квота Qoder",
+    "empty_title": "Файлы авторизации Qoder отсутствуют",
+    "empty_desc": "Войдите в Qoder, чтобы увидеть оставшуюся квоту.",
+    "idle": "Нажмите, чтобы обновить квоту",
+    "loading": "Загрузка квоты...",
+    "load_failed": "Не удалось загрузить квоту: {{message}}",
+    "empty_data": "Снимок квоты Qoder отсутствует. Обновите файлы авторизации после синхронизации моделей Qoder.",
+    "refresh_button": "Обновить квоту",
+    "fetch_all": "Получить все",
+    "usage_label": "Использование",
+    "remaining_amount": "Осталось {{amount}}",
+    "expires_at": "Истекает {{time}}",
+    "org_resource_remaining": "Остаток ресурса организации",
+    "quota_exceeded": "Квота исчерпана",
+    "unit_default": "credits"
+  },
+  "usage_stats": {
+    "title": "Статистика использования",
+    "subtitle": "Запросы и токены из runtime прокси.",
+    "refresh": "Обновить",
+    "last_updated": "Обновлено",
+    "load_failed": "Не удалось загрузить статистику",
+    "total_requests": "Всего запросов",
+    "total_tokens": "Всего токенов",
+    "success": "Успешно",
+    "failure": "Ошибки",
+    "requests_by_hour": "Запросы по часам",
+    "tokens_by_hour": "Токены по часам",
+    "top_models": "Топ моделей",
+    "api_breakdown": "API разбивка",
+    "api": "API",
+    "model": "Модель",
+    "requests": "Запросы",
+    "tokens": "Токены",
+    "failures": "Ошибки",
+    "models": "Модели",
+    "no_data": "Нет данных использования"
+  },
+  "plugin_resource": {
+    "empty_src": "Plugin page URL is empty",
+    "empty_src_desc": "This plugin menu does not provide an embeddable page URL.",
+    "load_failed": "Failed to load plugin page",
+    "not_found": "Plugin page not found",
+    "not_found_desc": "This plugin page is not declared by the current backend plugin list.",
+    "page_count": "{{count}} pages",
+    "unavailable": "Plugin page unavailable"
   }
 }

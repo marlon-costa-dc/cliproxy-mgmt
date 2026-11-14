@@ -16,6 +16,7 @@ import iconGrok from '@/assets/icons/grok.svg';
 import iconGrokDark from '@/assets/icons/grok-dark.svg';
 import iconDevin from '@/assets/icons/devin.svg';
 import iconDevinDark from '@/assets/icons/devin-dark.svg';
+import iconQoder from '@/assets/icons/qoder.svg';
 
 export type ThemedIcon = string | { light: string; dark: string };
 
@@ -110,6 +111,14 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
     titleKey: 'auth_login.antigravity_oauth_title',
     icon: iconAntigravity,
     flow: 'browser',
+  },
+  {
+    kind: 'builtin',
+    id: 'qoder',
+    label: 'Qoder',
+    titleKey: 'auth_login.qoder_oauth_title',
+    icon: iconQoder,
+    flow: 'device',
   },
   {
     kind: 'builtin',

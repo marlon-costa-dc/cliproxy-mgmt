@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { obfuscatedStorage } from '@/services/storage/secureStorage';
+import {
+  createScopedAuthStorage,
+  getAuthLoginStateStorageKey,
+} from '@/services/storage/secureStorage';
+import { detectApiBaseFromLocation } from '@/utils/connection';
 import { STORAGE_KEY_AUTH } from '@/utils/constants';
 import { resolveLoginRedirect } from '@/router/loginRedirect';
 import { shouldAttemptAutoLogin, useAuthStore } from '@/stores/useAuthStore';
@@ -64,12 +68,13 @@ describe('restorable session detection', () => {
     useAuthStore.setState({ apiBase: 'http://proxy.example.com', managementKey: 'sk-demo' });
     expect(hasRestorableSession()).toBe(false); // 已登出 / 未记住密码：无 isLoggedIn 标记
 
-    values.set('isLoggedIn', 'true');
+    const loginStateKey = getAuthLoginStateStorageKey(detectApiBaseFromLocation());
+    values.set(loginStateKey, 'true');
     expect(hasRestorableSession()).toBe(true);
 
     useAuthStore.setState({ managementKey: '' });
     expect(hasRestorableSession()).toBe(false);
-    expect(values.get('isLoggedIn')).toBe('true'); // 只读判断，不改存储
+    expect(values.get(loginStateKey)).toBe('true'); // 只读判断，不改存储
   });
 
   test('the login page only shows the splash when it will actually auto-login', async () => {
@@ -113,15 +118,18 @@ describe('v2 login persistence', () => {
   });
 
   test('restores a new remembered login', async () => {
-    obfuscatedStorage.setItem(STORAGE_KEY_AUTH, {
-      state: {
-        apiBase: 'http://proxy.example.com',
-        managementKey: 'test-key',
-        rememberPassword: true,
-      },
-      version: 0,
-    });
-    values.set('isLoggedIn', 'true');
+    createScopedAuthStorage().setItem(
+      STORAGE_KEY_AUTH,
+      JSON.stringify({
+        state: {
+          apiBase: 'http://proxy.example.com',
+          managementKey: 'test-key',
+          rememberPassword: true,
+        },
+        version: 0,
+      })
+    );
+    values.set(getAuthLoginStateStorageKey(detectApiBaseFromLocation()), 'true');
     await useAuthStore.persist.rehydrate();
     expect(useAuthStore.getState().managementKey).toBe('test-key');
     expect(useAuthStore.getState().hasRestorableSession()).toBe(true);
@@ -129,9 +137,8 @@ describe('v2 login persistence', () => {
 
   test('does not persist a key when remember password is disabled', () => {
     useAuthStore.setState({ managementKey: 'not-persisted', rememberPassword: false });
-    const saved = obfuscatedStorage.getItem<{ state: { managementKey?: string } }>(
-      STORAGE_KEY_AUTH
-    );
+    const raw = createScopedAuthStorage().getItem(STORAGE_KEY_AUTH);
+    const saved = raw ? (JSON.parse(raw) as { state: { managementKey?: string } }) : null;
     expect(saved?.state.managementKey).toBeUndefined();
   });
 });

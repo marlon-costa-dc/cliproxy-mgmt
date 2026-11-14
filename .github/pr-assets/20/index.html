@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PR 20 · Dashboard upstream sync and hardening</title>
+    <style>
+      :root {
+        --bg: #0d0d0d;
+        --fg: #e8e4df;
+        --card: #1a1714;
+        --border: #2d2923;
+        --muted: #8a837d;
+        --accent: #ef4444;
+      }
+      :root.light {
+        --bg: #f8f6f3;
+        --fg: #1a1714;
+        --card: #ffffff;
+        --border: #e5e0da;
+        --muted: #6b6560;
+        --accent: #dc2626;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      main { width: min(1180px, calc(100% - 40px)); margin: 40px auto 72px; }
+      header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+      h1 { margin: 0; font-size: clamp(24px, 4vw, 38px); line-height: 1.15; }
+      h2 { margin: 0 0 8px; font-size: 20px; }
+      p { margin: 6px 0 0; }
+      .muted { color: var(--muted); }
+      button {
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 9px 14px;
+        background: var(--card);
+        color: var(--fg);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 28px 0; }
+      .card, .shot { background: var(--card); border: 1px solid var(--border); border-radius: 14px; }
+      .card { padding: 18px; }
+      .card strong { display: block; margin-bottom: 6px; }
+      section { margin-top: 24px; }
+      .section-heading { margin-bottom: 12px; }
+      .shot { overflow: hidden; }
+      .shot-header { padding: 14px 18px; border-bottom: 1px solid var(--border); }
+      .label { color: var(--accent); font-weight: 800; letter-spacing: .08em; font-size: 12px; }
+      img { display: block; width: 100%; height: auto; }
+      pre {
+        margin: 0;
+        padding: 18px;
+        overflow-x: auto;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        color: var(--fg);
+        font: 13px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      .good { color: #15803d; font-weight: 700; }
+      @media (max-width: 900px) {
+        .summary { grid-template-columns: 1fr; }
+        main { width: min(100% - 24px, 1180px); margin-top: 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>PR 20 · Dashboard upstream sync and hardening</h1>
+          <p class="muted">Screenshots captured from local build fc473b6 · behavioral proof rerun at fixed head 0778c02 · light theme · 1440×1000 viewport · controlled local API fixture with non-sensitive demo data.</p>
+        </div>
+        <button id="theme-toggle" type="button">● Dark</button>
+      </header>
+
+      <div class="summary">
+        <div class="card"><strong>What changed</strong>Upstream v1.22.2 integrated with safer auth storage, usage refreshes, reverse-proxy paths, and Qoder quota state.</div>
+        <div class="card"><strong>Why it matters</strong>Concurrent requests and multiple dashboard profiles no longer overwrite or reuse the wrong state.</div>
+        <div class="card"><strong>Review cue</strong>Red callout borders mark the protected usage surface and exhausted-quota state; focused tests prove non-visual race and isolation behavior.</div>
+      </div>
+
+      <section>
+        <div class="section-heading">
+          <h2>1. Usage state remains intact across competing refreshes</h2>
+          <p class="muted">The callout marks the page state protected by latest-request ownership; concurrency behavior itself is proven in the focused test evidence below.</p>
+        </div>
+        <div class="shot">
+          <div class="shot-header"><span class="label">IMPLEMENTED</span> · Populated usage state after overlapping refresh handling</div>
+          <img src="usage-statistics.png" alt="Usage statistics state protected from stale request commits" />
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <h2>2. Focused behavioral proof</h2>
+          <p class="muted">These deterministic regressions cover the non-visual request-ordering, profile-isolation, cleanup, and reverse-proxy path contracts.</p>
+        </div>
+        <pre><span class="good">PASS</span> UsagePage: newest request exclusively owns state and loading
+<span class="good">PASS</span> UsagePage: unmount invalidates an in-flight request
+<span class="good">PASS</span> UsagePage: newer success suppresses stale rejection across production orchestration
+<span class="good">PASS</span> UsagePage: current failure renders locally and rejects to Refresh All
+<span class="good">PASS</span> Auth: same backend remains isolated across panel paths
+<span class="good">PASS</span> Auth: root credentials never migrate or submit to a same-origin subpath
+<span class="good">PASS</span> Auth: scoped and legacy records clear without unrelated data loss
+<span class="good">PASS</span> Paths: extensionless, explicit served-file, and arbitrary dotted mounts normalize correctly
+<span class="good">PASS</span> Qoder: exhausted quota renders warning severity
+
+Focused application runs: 26 pass, 0 fail
+Full verification: 443 tests, lint, typecheck, and production build passed</pre>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <h2>3. Qoder exhausted quota is explicit</h2>
+          <p class="muted">Both quota hosts expose the exhausted state as a visually distinct alert.</p>
+        </div>
+        <div class="shot">
+          <div class="shot-header"><span class="label">IMPLEMENTED</span> · Exhausted Qoder quota alert</div>
+          <img src="qoder-quota-exceeded.png" alt="Qoder quota exhausted warning highlighted" />
+        </div>
+      </section>
+    </main>
+    <script>
+      const root = document.documentElement;
+      const toggle = document.getElementById('theme-toggle');
+      toggle.addEventListener('click', () => {
+        root.classList.toggle('light');
+        toggle.textContent = root.classList.contains('light') ? '● Dark' : '○ Light';
+      });
+    </script>
+  </body>
+</html>

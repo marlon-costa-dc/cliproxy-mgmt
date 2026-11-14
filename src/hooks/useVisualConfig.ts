@@ -1229,6 +1229,7 @@ function getNextDirtyFields(
       'claudeHeaderStabilizeDeviceProfile',
       'codexHeaderUserAgent',
       'codexHeaderBetaFeatures',
+      'codexIdentityConfuse',
       'host',
       'port',
       'tlsEnable',
@@ -1520,6 +1521,7 @@ function parseVisualValuesFromYaml(yamlContent: string): VisualConfigValues {
       typeof codexHeaderDefaults?.['beta-features'] === 'string'
         ? codexHeaderDefaults['beta-features']
         : '',
+    codexIdentityConfuse: Boolean(v8OauthProvidersCodex?.['identity-confuse']),
 
     quotaAntigravityCredits: Boolean(antigravity?.['antigravity-credits'] ?? false),
 
@@ -1968,6 +1970,16 @@ export function useVisualConfig() {
             );
           }
           deleteIfMapEmpty(doc, ['oauth', 'providers', 'codex', 'header-defaults']);
+        }
+
+        if (dirtyFields.has('codexIdentityConfuse')) {
+          ensureMapInDoc(doc, ['oauth', 'providers', 'codex']);
+          setBooleanInDoc(
+            doc,
+            ['oauth', 'providers', 'codex', 'identity-confuse'],
+            values.codexIdentityConfuse
+          );
+          deleteIfMapEmpty(doc, ['oauth', 'providers', 'codex']);
         }
 
         if (dirtyFields.has('quotaAntigravityCredits')) {

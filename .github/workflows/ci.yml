@@ -6,6 +6,10 @@ on:
     branches:
       - main
       - dev
+      - dc-use
+
+permissions:
+  contents: read
 
 jobs:
   verify:

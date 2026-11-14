@@ -14,10 +14,11 @@ import i18n from '@/i18n';
 import { CodexQuotaBody } from '@/features/quota/providers/codex/CodexQuotaBody';
 import { ClaudeQuotaBody } from '@/features/quota/providers/claude/ClaudeQuotaBody';
 import { KimiQuotaBody } from '@/features/quota/providers/kimi/KimiQuotaBody';
+import { QoderQuotaBody } from '@/features/quota/providers/qoder/QoderQuotaBody';
 import { QUOTA_CLASS_KEYS, bindQuotaClasses } from '@/features/quota/types';
 import { formatInstantShort } from '@/utils/quota';
 import { DAY_MS, HOUR_MS } from '@/utils/time/durations';
-import type { ClaudeQuotaState, CodexQuotaState, KimiQuotaState } from '@/types';
+import type { ClaudeQuotaState, CodexQuotaState, KimiQuotaState, QoderQuotaState } from '@/types';
 
 const classes = bindQuotaClasses(
   Object.fromEntries(QUOTA_CLASS_KEYS.map((key) => [key, key])),
@@ -257,5 +258,19 @@ describe('ClaudeQuotaBody', () => {
     expect(markup).toContain('08-06 04:00');
     expect(markup).toMatch(/2 hours/);
     expect(markup).toMatch(/4 days/);
+  });
+});
+
+describe('QoderQuotaBody', () => {
+  test('renders exhausted quota with warning severity', () => {
+    const quota: QoderQuotaState = {
+      status: 'success',
+      usage: { used: 100, total: 100, is_quota_exceeded: true },
+    };
+
+    const markup = renderToStaticMarkup(createElement(QoderQuotaBody, { quota, classes }));
+
+    expect(markup).toContain('quotaWarningMessage');
+    expect(markup).toContain('role="alert"');
   });
 });

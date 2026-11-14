@@ -673,6 +673,15 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['oauth', 'providers', 'codex', 'header-defaults', 'beta-features'],
     keywords: ['codex'],
   },
+  {
+    fieldId: 'codexIdentityConfuse',
+    sectionId: 'advanced',
+    labelKey: L('sections.headers.codex_identity_confuse'),
+    qualifierKey: L('sections.headers.codex_title'),
+    hintKey: L('sections.headers.codex_identity_confuse_desc'),
+    yamlKeys: ['oauth', 'providers', 'codex', 'identity-confuse'],
+    keywords: ['codex'],
+  },
   // ── payload (coarse: one entry per rule group) ──────────────────────────────
   {
     fieldId: 'payloadDefaultRules',

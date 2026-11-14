@@ -110,7 +110,9 @@
     "plugins": "插件",
     "config_management": "設定面板",
     "logs": "記錄檢視",
-    "system_info": "中心資訊"
+    "system_info": "中心資訊",
+    "plugin_store": "插件商店",
+    "usage_statistics": "使用統計"
   },
   "nav_groups": {
     "operate": "運行",
@@ -130,7 +132,9 @@
     "plugins": "安裝、更新與設定",
     "logs": "請求追蹤與排查",
     "config_management": "閘道基礎設定",
-    "system_info": "運行與診斷資訊"
+    "system_info": "運行與診斷資訊",
+    "plugin_store": "探索並安裝插件",
+    "usage_statistics": "請求與 Token 用量"
   },
   "dashboard": {
     "hero_verdict_good": "運行平穩",
@@ -439,7 +443,13 @@
     "quota_refresh_single": "重新整理配額",
     "quota_refresh_hint": "僅重新整理該驗證檔案的配額",
     "quota_refresh_success": "已重新整理「{{name}}」的配額",
-    "quota_refresh_failed": "重新整理「{{name}}」的配額失敗：{{message}}"
+    "quota_refresh_failed": "重新整理「{{name}}」的配額失敗：{{message}}",
+    "compact_mode_label": "簡略模式",
+    "filter_qoder": "Qoder",
+    "cooldown_credential_and_models_one": "憑證及 {{count}} 個模型冷卻",
+    "cooldown_credential_and_models_other": "憑證及 {{count}} 個模型冷卻",
+    "cooldown_models_one": "{{count}} 個模型冷卻",
+    "cooldown_models_other": "{{count}} 個模型冷卻"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -515,7 +525,8 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "extra_usage_user_disabled": "使用者已停用"
   },
   "codex_quota": {
     "title": "Codex 配額",
@@ -554,7 +565,6 @@
     "reset_confirm_button": "確認重置",
     "reset_not_confirmed": "尚未確認額度重置成功，請重新整理額度後再決定是否重試。",
     "reset_cooldown_failed": "額度已重置，但代理冷卻清除失敗。請在原連線的認證檔案頁面使用「清除冷卻」，不要再次消耗重置卡。",
-
     "reset_success": "已重置「{{name}}」的 Codex 配額",
     "reset_failed": "重置「{{name}}」的 Codex 配額失敗：{{message}}",
     "plan_plus": "Plus",
@@ -731,7 +741,21 @@
     "list_empty_all": "暫無任何模型停用，選擇一個供應商開始設定。",
     "upgrade_required": "目前 CPA 版本不支援 OAuth 模型停用，請升級 CPA 版本",
     "upgrade_required_title": "需要升級 CPA 版本",
-    "upgrade_required_desc": "目前伺服器版本不支援取得 OAuth 模型停用功能，請升級到最新版本的 CPA（CLI Proxy API）後重試。"
+    "upgrade_required_desc": "目前伺服器版本不支援取得 OAuth 模型停用功能，請升級到最新版本的 CPA（CLI Proxy API）後重試。",
+    "description": "按供應商分列展示，點擊卡片編輯或刪除；支援 * 萬用字元，範圍跟隨上方的設定檔篩選標籤。",
+    "add": "新增停用",
+    "add_title": "新增供應商模型停用",
+    "edit_title": "編輯 {{provider}} 的模型停用",
+    "provider_label": "供應商",
+    "provider_placeholder": "例如 codex / openai",
+    "provider_hint": "預設選取目前篩選的供應商，也可直接輸入或選擇其他名稱。",
+    "save": "儲存/更新",
+    "delete": "刪除供應商",
+    "delete_confirm": "確定要刪除 {{provider}} 的模型停用嗎？",
+    "delete_success": "已刪除該供應商的模型停用",
+    "delete_failed": "刪除模型停用失敗",
+    "model_count": "停用 {{count}} 個模型",
+    "provider_required": "請先填寫供應商名稱"
   },
   "excluded_models": {
     "trigger_summary": "已排除 {{excluded}} · {{available}} 可用",
@@ -812,7 +836,25 @@
     "view_mode_list": "清單",
     "upgrade_required": "目前 CPA 版本不支援模型別名功能，請升級 CPA 版本",
     "upgrade_required_title": "需要升級 CPA 版本",
-    "upgrade_required_desc": "目前伺服器版本不支援 OAuth 模型別名功能，請升級到最新版本的 CPA（CLI Proxy API）後重試。"
+    "upgrade_required_desc": "目前伺服器版本不支援 OAuth 模型別名功能，請升級到最新版本的 CPA（CLI Proxy API）後重試。",
+    "edit_title": "編輯 {{provider}} 的模型別名",
+    "mapping_hint": "選取原模型，並填寫用戶端使用的別名。",
+    "add": "新增別名",
+    "add_title": "新增供應商模型別名",
+    "provider_label": "供應商",
+    "provider_placeholder": "例如 codex / vertex",
+    "provider_hint": "預設選取目前篩選的供應商，也可直接輸入或選擇其他名稱。",
+    "alias_label": "模型別名",
+    "save": "儲存/更新",
+    "delete_confirm": "確定要刪除 {{provider}} 的模型別名嗎？",
+    "delete_link_title": "取消連結",
+    "delete_link_confirm": "確定取消 <code>{{sourceModel}}</code>（{{provider}}）到別名 <code>{{alias}}</code> 的映射？",
+    "delete_alias_title": "刪除別名",
+    "delete_alias_confirm": "確定刪除別名 <code>{{alias}}</code> 並取消所有關聯模型的映射？",
+    "delete_success": "已刪除該供應商的模型別名",
+    "delete_failed": "刪除模型別名失敗",
+    "model_count": "{{count}} 條別名",
+    "provider_required": "請先填寫供應商名稱"
   },
   "model_rules": {
     "section_label": "模型規則",
@@ -836,7 +878,17 @@
     "graph_hint": "將來源模型拖曳到別名上即可建立對應，在節點上按右鍵可檢視更多操作。變更會先保留在草稿中，儲存後才會生效。",
     "graph_empty_hint": "請先在清單檢視中新增一條對應，圖譜會顯示模型與別名之間的連結關係。",
     "search_alias_placeholder": "搜尋模型或別名",
-    "search_empty": "沒有符合的對應"
+    "search_empty": "沒有符合的對應",
+    "meta_aliases_one": "{{count}} 個別名",
+    "meta_aliases_other": "{{count}} 個別名",
+    "meta_mappings_one": "{{count}} 條對應",
+    "meta_mappings_other": "{{count}} 條對應",
+    "meta_providers_one": "{{count}} 個供應商",
+    "meta_providers_other": "{{count}} 個供應商",
+    "meta_rules_one": "{{count}} 條規則",
+    "meta_rules_other": "{{count}} 條規則",
+    "unsaved_count_one": "{{count}} 個供應商有未儲存的變更",
+    "unsaved_count_other": "{{count}} 個供應商有未儲存的變更"
   },
   "auth_login": {
     "devin_oauth_cancel": "取消 Devin 登入",
@@ -1031,7 +1083,17 @@
     "sign_up_prompt": "還沒有帳號？",
     "copied": "已複製",
     "login_another_account": "登入另一個帳號",
-    "view_auth_files": "查看驗證檔案"
+    "view_auth_files": "查看驗證檔案",
+    "qoder_oauth_title": "Qoder OAuth",
+    "qoder_oauth_button": "開始 Qoder 登入",
+    "qoder_oauth_hint": "透過裝置授權流程登入 Qoder，自動取得並儲存驗證檔案。",
+    "qoder_oauth_url_label": "授權連結:",
+    "qoder_open_link": "開啟連結",
+    "qoder_copy_link": "複製連結",
+    "qoder_oauth_status_waiting": "等待驗證中...",
+    "qoder_oauth_status_success": "驗證成功！",
+    "qoder_oauth_status_error": "驗證失敗:",
+    "qoder_oauth_start_error": "啟動 Qoder OAuth 失敗:"
   },
   "stats": {
     "success": "成功",
@@ -1473,7 +1535,9 @@
           "timeout": "Timeout",
           "stabilize_device": "穩定設備指紋",
           "stabilize_device_desc": "固定 OS/Arch，並按憑證/API Key 穩定軟體指紋",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "codex_identity_confuse": "Codex 身分混淆",
+          "codex_identity_confuse_desc": "在 fill-first 或會話黏性路由下，按所選驗證重映射 Codex prompt_cache_key 與安裝身分"
         },
         "network": {
           "title": "網路設定",
@@ -1867,7 +1931,13 @@
     "invalid_json": "請輸入有效 JSON",
     "expected_array": "請輸入 JSON 陣列",
     "expected_object": "請輸入 JSON 物件",
-    "invalid_enum": "請選擇宣告的枚舉值"
+    "invalid_enum": "請選擇宣告的枚舉值",
+    "refresh": "重新整理",
+    "global_status": "全域狀態",
+    "global_enabled": "已啟用",
+    "global_disabled": "已停用",
+    "discovered": "發現插件",
+    "effective": "生效插件"
   },
   "plugin_store": {
     "description_show_more": "展開描述",
@@ -1943,7 +2013,28 @@
     "gate_step2_action": "我已閱讀並理解上述風險",
     "gate_step3_prompt": "如需確認，請在下方輸入框中鍵入 “{{token}}”",
     "gate_step3_action": "安裝此插件",
-    "gate_step3_hint": "請輸入上方顯示的完整識別碼以啟用安裝。"
+    "gate_step3_hint": "請輸入上方顯示的完整識別碼以啟用安裝。",
+    "title": "插件商店",
+    "description": "瀏覽插件註冊表,為目前後端安裝或更新插件。",
+    "global_status": "全域狀態",
+    "global_enabled": "已啟用",
+    "global_disabled": "已停用",
+    "plugins_dir": "插件目錄",
+    "stat_available": "可用插件",
+    "search_placeholder": "搜尋插件 ID、名稱、作者或標籤...",
+    "search_label": "搜尋插件商店",
+    "filter_label": "依安裝狀態篩選",
+    "filter_all": "全部",
+    "filter_installed": "已安裝",
+    "filter_not_installed": "未安裝",
+    "filter_updates": "可更新",
+    "badge_update": "可更新",
+    "badge_effective": "生效中",
+    "version_arrow": "v{{from}} → v{{to}}",
+    "manage": "管理",
+    "no_matches": "沒有符合的插件",
+    "no_matches_desc": "目前搜尋或篩選條件下沒有插件。",
+    "clear_filters": "清除篩選"
   },
   "plugin_resource": {
     "page_count": "{{count}} 個頁面",
@@ -2151,7 +2242,7 @@
       "activeCount": "{{active}}/{{total}} 活躍"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2214,8 +2305,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "不同 URL 的使用規範一致,儲存時只會寫入目前分組協議對應位址。",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "全球高保線路",
-         "aiCodeMirrorDomestic": "國內優化線路",
+        "aiCodeMirrorGlobal": "全球高保線路",
+        "aiCodeMirrorDomestic": "國內優化線路",
         "standard": "普通 URL",
         "direct": "專線直連 URL",
         "domestic": "中國大陸線路",
@@ -2224,8 +2315,8 @@
         "global": "全球"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "適用於全球存取的高防護線路。",
-         "aiCodeMirrorDomestic": "針對中國大陸網路最佳化的線路。",
+        "aiCodeMirrorGlobal": "適用於全球存取的高防護線路。",
+        "aiCodeMirrorDomestic": "針對中國大陸網路最佳化的線路。",
         "domestic": "面向中國大陸使用者和部署在中國大陸網路環境中的業務，通常可獲得更低延遲。",
         "overseas": "面向海外部署、跨境存取或需要存取境外模型的業務。",
         "mainlandChinaRecommended": "推薦中國大陸使用者和部署在中國大陸網路環境中的業務使用。",
@@ -2511,5 +2602,44 @@
     "error": "綁定失敗，請重新開始。",
     "unsupported": "目前後端不支援 SIWC 綁定。",
     "expired": "綁定工作階段已過期，請重新開始。"
+  },
+  "qoder_quota": {
+    "title": "Qoder 配額",
+    "empty_title": "暫無 Qoder 驗證",
+    "empty_desc": "登入 Qoder 後即可查看剩餘配額。",
+    "idle": "點擊此處重新整理配額",
+    "loading": "正在載入配額...",
+    "load_failed": "配額取得失敗：{{message}}",
+    "empty_data": "暫無 Qoder 配額快照。請在 Qoder 模型同步後重新整理驗證檔案。",
+    "refresh_button": "重新整理配額",
+    "fetch_all": "取得全部",
+    "usage_label": "使用量",
+    "remaining_amount": "剩餘 {{amount}}",
+    "expires_at": "{{time}} 到期",
+    "org_resource_remaining": "組織資源剩餘",
+    "quota_exceeded": "配額已用盡",
+    "unit_default": "credits"
+  },
+  "usage_stats": {
+    "title": "使用統計",
+    "subtitle": "來自代理執行階段的請求與 Token 使用情況。",
+    "refresh": "重新整理",
+    "last_updated": "最後更新",
+    "load_failed": "無法載入使用統計",
+    "total_requests": "總請求數",
+    "total_tokens": "總 Token 數",
+    "success": "成功",
+    "failure": "失敗",
+    "requests_by_hour": "每小時請求",
+    "tokens_by_hour": "每小時 Token",
+    "top_models": "熱門模型",
+    "api_breakdown": "API 明細",
+    "api": "API",
+    "model": "模型",
+    "requests": "請求",
+    "tokens": "Token",
+    "failures": "失敗",
+    "models": "模型",
+    "no_data": "暫無使用資料"
   }
 }

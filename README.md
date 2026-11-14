@@ -97,7 +97,7 @@ Use `bun run preview` to preview locally. Prefer an HTTP server over opening the
 <details>
 <summary><strong>Release details</strong></summary>
 
-- Tags matching `vX.Y.Z` trigger [the release workflow](.github/workflows/release.yml).
+- Tags matching `v*` trigger [the release workflow](.github/workflows/release.yml), including fork revision tags such as `vX.Y.Z-N`.
 - The UI version is injected at build time from `VERSION`, then git tags, then the package version, with `dev` as the final fallback.
 - Hash routing and an ES2020 build target keep deployment simple.
 

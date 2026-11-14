@@ -9,7 +9,15 @@ import {
 } from '@/utils/providerKeys';
 
 export type BuiltInOAuthProvider =
-  'codex' | 'anthropic' | 'antigravity' | 'kimi' | 'kimi-ai' | 'xai' | 'devin' | 'meta';
+  | 'codex'
+  | 'anthropic'
+  | 'antigravity'
+  | 'kimi'
+  | 'kimi-ai'
+  | 'qoder'
+  | 'xai'
+  | 'devin'
+  | 'meta';
 
 export interface OAuthStartResponse {
   url: string;
@@ -28,7 +36,14 @@ export interface OAuthCancelResponse {
   cancelled: boolean;
 }
 
-const WEBUI_SUPPORTED = new Set<string>(['codex', 'claude', 'antigravity', 'xai', 'devin']);
+const WEBUI_SUPPORTED = new Set<string>([
+  'codex',
+  'claude',
+  'antigravity',
+  'devin',
+  'qoder',
+  'xai',
+]);
 
 const normalizeProviderForManagementPath = (provider: string): string => {
   const key = normalizeManagementOAuthProviderKey(provider);
