@@ -76,7 +76,14 @@ export interface CodexRateLimitResetCredit {
   expiresAt: string;
 }
 
+export interface CodexAccountCredits {
+  has_credits?: boolean;
+  unlimited?: boolean;
+  balance?: string | number | null;
+}
+
 export interface CodexUsagePayload {
+  credits?: CodexAccountCredits | null;
   plan_type?: string;
   planType?: string;
   rate_limit?: CodexRateLimitInfo | null;
@@ -91,8 +98,11 @@ export interface CodexUsagePayload {
 
 // Claude API payload types
 export interface ClaudeUsageWindow {
-  utilization: number;
+  utilization: number | null;
   resets_at: string | null;
+  limit_dollars?: number | null;
+  used_dollars?: number | null;
+  remaining_dollars?: number | null;
 }
 
 export interface ClaudeUsageLimit {
@@ -109,11 +119,46 @@ export interface ClaudeUsageLimit {
   } | null;
 }
 
+export interface ClaudeExtraUsagePayload {
+  is_enabled?: boolean | null;
+  monthly_limit?: number | null;
+  used_credits?: number | null;
+  utilization?: number | null;
+  currency?: string | null;
+  disabled_reason?: string | null;
+  user_disabled?: boolean | null;
+  spend_limit_reached?: boolean | null;
+}
+
+/** Amounts are in minor currency units, unlike the separate dollar windows. */
 export interface ClaudeExtraUsage {
-  is_enabled: boolean;
-  monthly_limit: number;
-  used_credits: number;
+  /** Anthropic's extra-usage setting, independent of CPA credential enablement. */
+  isEnabled: boolean | null;
+  monthlyLimit: number | null;
+  usedCredits: number | null;
   utilization: number | null;
+  currency: string | null;
+  disabledReason: string | null;
+  /** Raw extra_usage.user_disabled flag; never AuthFileItem.disabled. */
+  userDisabled: boolean | null;
+  spendLimitReached: boolean | null;
+}
+
+export interface ClaudeDollarWindow {
+  /** Original upstream key; never conflated with extra usage. */
+  key: string;
+  limitDollars: number | null;
+  usedDollars: number | null;
+  remainingDollars: number | null;
+  utilization: number | null;
+  resetsAt: string | null;
+}
+
+export interface ClaudeUsageSnapshot {
+  fiveHour: { utilization: number | null; resetsAt: string | null } | null;
+  sevenDay: { utilization: number | null; resetsAt: string | null } | null;
+  extraUsage: ClaudeExtraUsage | null;
+  dollarWindows: ClaudeDollarWindow[];
 }
 
 export interface ClaudeUsagePayload {
@@ -125,7 +170,8 @@ export interface ClaudeUsagePayload {
   seven_day_cowork?: ClaudeUsageWindow | null;
   iguana_necktie?: ClaudeUsageWindow | null;
   limits?: ClaudeUsageLimit[] | null;
-  extra_usage?: ClaudeExtraUsage | null;
+  extra_usage?: ClaudeExtraUsagePayload | null;
+  [key: string]: unknown;
 }
 
 export interface ClaudeProfileResponse {
@@ -170,6 +216,9 @@ export interface ClaudeQuotaState {
   status: 'idle' | 'loading' | 'success' | 'error';
   windows: ClaudeQuotaWindow[];
   extraUsage?: ClaudeExtraUsage | null;
+  dollarWindows?: ClaudeDollarWindow[];
+  observedAt?: string | null;
+  stale?: boolean;
   planType?: string | null;
   error?: string;
   errorStatus?: number;
@@ -219,6 +268,20 @@ export interface AntigravityQuotaState {
   errorStatus?: number;
 }
 
+/** A provider-defined numeric/currency value rendered above generic quota windows. */
+export interface PluginQuotaMetric {
+  key: string;
+  label: string;
+  value: number;
+  unit?: string;
+  format?: 'number' | 'currency';
+  currency?: string;
+}
+
+export interface PluginQuotaState extends AntigravityQuotaState {
+  summary: PluginQuotaMetric[];
+}
+
 export interface CodexQuotaWindow {
   id: string;
   label: string;
@@ -237,10 +300,72 @@ export interface CodexQuotaState {
   windows: CodexQuotaWindow[];
   planType?: string | null;
   subscriptionActiveUntil?: string | number | null;
+  creditBalance?: string | null;
+  creditsUnlimited?: boolean;
   rateLimitResetCreditsAvailableCount?: number | null;
   rateLimitResetCreditsApplicableAvailableCount?: number | null;
   rateLimitResetCredits?: CodexRateLimitResetCredit[];
   rateLimitResetCreditsError?: string;
+  error?: string;
+  errorStatus?: number;
+}
+
+/**
+ * Session knowledge of the account-level "use credits after the usage limit" setting.
+ * This feature records confirmed writes; an absent entry means the value is unknown.
+ */
+export type CodexCreditOverageEntry =
+  | { status: 'writing'; target: boolean }
+  | { status: 'known'; value: boolean; at: number }
+  | { status: 'unconfirmed'; target: boolean; at: number };
+
+/** Account-wide mutex and unresolved-write journal, separate from user snapshots. */
+export type CodexCreditOverageOperation =
+  | { status: 'writing'; target: boolean; unconfirmed: boolean }
+  | { status: 'unconfirmed'; target: boolean; at: number };
+
+export interface DevinQuotaWindow {
+  id: 'daily' | 'weekly';
+  label?: string;
+  remainingPercent: number | null;
+  resetAtMs: number | null;
+  periodHours: number;
+}
+
+/** Only quota observations, never the credential-bearing refresh response. */
+export interface DevinQuotaData {
+  windows: DevinQuotaWindow[];
+  observedAtMs: number | null;
+  plan: string | null;
+  planStartMs: number | null;
+  planEndMs: number | null;
+}
+
+export interface DevinQuotaState extends DevinQuotaData {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  error?: string;
+  errorStatus?: number;
+}
+
+/** A whitelisted quota observation from Meta's Muse key endpoint. */
+export interface MetaQuotaWindow {
+  id: 'window' | 'weekly';
+  usedPercent: number | null;
+  /** Reset instant as Unix seconds, matching the upstream contract. */
+  resetAt?: number;
+  durationMinutes?: number;
+}
+
+/** Contains quota/display fields only; credential-bearing response fields are discarded. */
+export interface MetaQuotaData {
+  planName?: string;
+  isSubscriptionActive?: boolean;
+  windows: MetaQuotaWindow[];
+}
+
+export interface MetaQuotaState {
+  status: 'idle' | 'loading' | 'success' | 'error';
+  data?: MetaQuotaData;
   error?: string;
   errorStatus?: number;
 }
@@ -284,9 +409,18 @@ export interface KimiLimitItem {
   ttl?: number | string;
 }
 
+export interface KimiUsageRatio {
+  used_ratio?: number | string;
+  reset_time?: string;
+}
+
 export interface KimiUsagePayload {
   usage?: KimiUsageDetail;
   limits?: KimiLimitItem[];
+  /** Plans without a weekly limit report their monthly total here as a 0–1 ratio. */
+  usages?: {
+    limit_month_total?: KimiUsageRatio;
+  };
 }
 
 export interface KimiQuotaRow {
@@ -306,27 +440,8 @@ export interface KimiQuotaRow {
 export interface KimiQuotaState {
   status: 'idle' | 'loading' | 'success' | 'error';
   rows: KimiQuotaRow[];
-  error?: string;
-  errorStatus?: number;
-}
-
-export interface QoderUsageSnapshot {
-  used?: number | string;
-  total?: number | string;
-  remaining?: number | string;
-  percentage?: number | string;
-  unit?: string;
-  is_quota_exceeded?: boolean;
-  isQuotaExceeded?: boolean;
-  expires_at?: number | string;
-  expiresAt?: number | string;
-  org_resource_remaining?: number | string;
-  orgResourceRemaining?: number | string;
-}
-
-export interface QoderQuotaState {
-  status: 'idle' | 'loading' | 'success' | 'error';
-  usage?: QoderUsageSnapshot | null;
+  /** Official user_level_name from /me; absent for unavailable account information. */
+  planName?: string | null;
   error?: string;
   errorStatus?: number;
 }
@@ -362,6 +477,8 @@ export interface XaiBillingConfig {
   on_demand_cap?: XaiBillingCent | number | string | null;
   onDemandUsed?: XaiBillingCent | number | string | null;
   on_demand_used?: XaiBillingCent | number | string | null;
+  prepaidBalance?: XaiBillingCent | number | string | null;
+  prepaid_balance?: XaiBillingCent | number | string | null;
   billingPeriodStart?: string;
   billing_period_start?: string;
   billingPeriodEnd?: string;
@@ -397,6 +514,10 @@ export interface XaiBillingSummary {
   onDemandCapCents: number | null;
   onDemandUsedCents: number | null;
   onDemandUsedPercent: number | null;
+  prepaidBalanceCents?: number | null;
+  /** Display name from Grok settings, for example "SuperGrok Heavy". */
+  planLabel?: string;
+  planTier?: 'elite' | 'premium' | 'standard';
   billingPeriodStart?: string;
   billingPeriodEnd?: string;
   usedPercent: number | null;

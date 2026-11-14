@@ -8,6 +8,7 @@ import { isRecord } from '@/utils/helpers';
 
 export interface ApiCallRequest {
   authIndex?: string;
+  proxy_url?: string;
   method: string;
   url: string;
   header?: Record<string, string>;
@@ -75,9 +76,13 @@ export const getApiCallErrorMessage = (result: ApiCallResult): string => {
   return message || 'Request failed';
 };
 
-export const apiCallApi = {
+const createApiCallApi = (client: Pick<typeof apiClient, 'post'>) => ({
   request: async (payload: ApiCallRequest, config?: AxiosRequestConfig): Promise<ApiCallResult> => {
-    const response = await apiClient.post<Record<string, unknown>>('/api-call', payload, config);
+    const response = await client.post<Record<string, unknown>>(
+      '/requests/api-call',
+      payload,
+      config
+    );
     const statusCode = Number(response?.status_code ?? 0);
     const header = (response?.header ?? {}) as Record<string, string[]>;
     const { bodyText, body } = normalizeBody(response?.body);
@@ -89,4 +94,10 @@ export const apiCallApi = {
       body,
     };
   },
-};
+});
+
+export const apiCallApi = createApiCallApi(apiClient);
+
+/** Pin a mutation to its initiating connection, including response event ownership. */
+export const captureApiCallApi = (isCurrent?: () => boolean) =>
+  createApiCallApi(apiClient.captureConnection(isCurrent));

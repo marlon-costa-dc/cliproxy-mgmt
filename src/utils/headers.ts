@@ -6,6 +6,7 @@ export interface HeaderEntry {
   key: string;
   value: string;
 }
+
 export function buildHeaderObject(
   input?: HeaderEntry[] | Record<string, string | undefined | null>
 ): Record<string, string> {
@@ -40,3 +41,4 @@ export function hasHeader(
   const target = name.toLowerCase();
   return Object.keys(headers).some((key) => key.toLowerCase() === target);
 }
+

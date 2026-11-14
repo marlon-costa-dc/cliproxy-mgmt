@@ -47,6 +47,24 @@ const pickModel = (testModel: string | undefined, models: ModelEntryInput[]): st
   return '';
 };
 
+// Match the backend compatibility helper: trim, strip the last parenthesized suffix,
+// and compare names before aliases without changing the model sent by pickModel.
+const resolveModelConfig = (model: string, models: ModelEntryInput[]) => {
+  const normalize = (value: string): string => {
+    const trimmed = value.trim();
+    const lastOpen = trimmed.lastIndexOf('(');
+    return (lastOpen !== -1 && trimmed.endsWith(')') ? trimmed.slice(0, lastOpen) : trimmed)
+      .trim()
+      .toLowerCase();
+  };
+  const normalized = normalize(model);
+  if (!normalized) return undefined;
+  return (
+    models.find((entry) => normalize(entry.name) === normalized) ??
+    models.find((entry) => normalize(entry.alias ?? '') === normalized)
+  );
+};
+
 const resolveBearerToken = (headers: Record<string, string>): string => {
   const auth = Object.entries(headers).find(([k]) => k.toLowerCase() === 'authorization')?.[1];
   if (!auth) return '';
@@ -57,6 +75,7 @@ const resolveBearerToken = (headers: Record<string, string>): string => {
 export interface UseConnectivityTestArgs {
   brand: ProviderBrand;
   baseUrl: string;
+  proxyUrl?: string;
   testModel?: string;
   models: ModelEntryInput[];
   formHeaders: Array<{ key: string; value: string }>;
@@ -95,6 +114,7 @@ export function useConnectivityTest(
   const {
     brand,
     baseUrl,
+    proxyUrl,
     testModel,
     models,
     formHeaders,
@@ -150,9 +170,12 @@ export function useConnectivityTest(
 
   const signature = useMemo(() => {
     const h = formHeaders.map((it) => `${it.key}:${it.value}`).join('|');
-    const m = models.map((it) => `${it.name}:${it.alias ?? ''}`).join('|');
+    const m = models
+      .map((it) => `${it.name}:${it.alias ?? ''}:${it.useMaxCompletionTokens === true}`)
+      .join('|');
     return [
       baseUrl,
+      proxyUrl ?? '',
       (testModel ?? '').trim(),
       apiKey ?? '',
       fallbackApiKey ?? '',
@@ -160,7 +183,7 @@ export function useConnectivityTest(
       h,
       m,
     ].join('||');
-  }, [apiKey, authIndex, baseUrl, fallbackApiKey, testModel, formHeaders, models]);
+  }, [apiKey, authIndex, baseUrl, proxyUrl, fallbackApiKey, testModel, formHeaders, models]);
 
   const lastSignatureRef = useRef(signature);
   useEffect(() => {
@@ -238,6 +261,7 @@ export function useConnectivityTest(
         const result = await apiCallApi.request(
           {
             authIndex: resolvedAuthIndex,
+            proxy_url: entry?.proxyUrl?.trim() || undefined,
             method: 'POST',
             url: endpoint,
             header: headerObj,
@@ -245,7 +269,9 @@ export function useConnectivityTest(
               model,
               messages: [{ role: 'user', content: 'Hi' }],
               stream: false,
-              max_tokens: 5,
+              ...(resolveModelConfig(model, models)?.useMaxCompletionTokens === true
+                ? { max_completion_tokens: 5 }
+                : { max_tokens: 5 }),
             }),
           },
           { timeout: DEFAULT_TIMEOUT_MS }
@@ -286,7 +312,7 @@ export function useConnectivityTest(
   }, [apiKeyEntries, brand, runOpenAIKey]);
 
   const runCodex = useCallback(async (): Promise<void> => {
-    if (brand !== 'codex' && brand !== 'xai') return;
+    if (brand !== 'codex' && brand !== 'meta' && brand !== 'xai') return;
 
     const trimmedBase = baseUrl.trim();
     if (!trimmedBase) {
@@ -336,6 +362,7 @@ export function useConnectivityTest(
       const result = await apiCallApi.request(
         {
           authIndex: resolvedAuthIndex,
+          proxy_url: proxyUrl?.trim() || undefined,
           method: 'POST',
           url: endpoint,
           header: headerObj,
@@ -359,7 +386,18 @@ export function useConnectivityTest(
     } finally {
       setInFlight((n) => n - 1);
     }
-  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, messages, models, testModel]);
+  }, [
+    apiKey,
+    authIndex,
+    baseUrl,
+    brand,
+    fallbackApiKey,
+    formHeaders,
+    messages,
+    models,
+    testModel,
+    proxyUrl,
+  ]);
 
   const runGemini = useCallback(async (): Promise<void> => {
     if (brand !== 'gemini' && brand !== 'interactions') return;
@@ -412,6 +450,7 @@ export function useConnectivityTest(
       const result = await apiCallApi.request(
         {
           authIndex: resolvedAuthIndex,
+          proxy_url: proxyUrl?.trim() || undefined,
           method: 'POST',
           url: endpoint,
           header: headerObj,
@@ -438,10 +477,21 @@ export function useConnectivityTest(
     } finally {
       setInFlight((n) => n - 1);
     }
-  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, messages, models, testModel]);
+  }, [
+    apiKey,
+    authIndex,
+    baseUrl,
+    brand,
+    fallbackApiKey,
+    formHeaders,
+    messages,
+    models,
+    testModel,
+    proxyUrl,
+  ]);
 
   const runClaude = useCallback(async (): Promise<void> => {
-    if (brand !== 'claude' && brand !== 'claudeApi') return;
+    if (brand !== 'claude') return;
 
     const endpoint = buildClaudeMessagesEndpoint(baseUrl ?? '');
     if (!endpoint) {
@@ -486,6 +536,7 @@ export function useConnectivityTest(
       const result = await apiCallApi.request(
         {
           authIndex: resolvedAuthIndex,
+          proxy_url: proxyUrl?.trim() || undefined,
           method: 'POST',
           url: endpoint,
           header: headerObj,
@@ -509,7 +560,18 @@ export function useConnectivityTest(
     } finally {
       setInFlight((n) => n - 1);
     }
-  }, [apiKey, authIndex, baseUrl, brand, fallbackApiKey, formHeaders, messages, models, testModel]);
+  }, [
+    apiKey,
+    authIndex,
+    baseUrl,
+    brand,
+    fallbackApiKey,
+    formHeaders,
+    messages,
+    models,
+    testModel,
+    proxyUrl,
+  ]);
 
   return {
     openaiStatuses,

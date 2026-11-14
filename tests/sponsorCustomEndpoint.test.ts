@@ -1,11 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { openaiToResource } from '../src/features/providers/adapters';
 import {
-  buildCode0Raw,
-  CODE0_OPENAI_BASE_URL,
-  CODE0_PROVIDER_NAME,
-} from '../src/features/providers/code0';
-import {
   buildQiniuCloudRaw,
   QINIU_CLOUD_BASE_URL_OPTIONS,
   QINIU_CLOUD_PROVIDER_NAME,
@@ -49,10 +44,6 @@ describe('sponsor custom endpoint isolation', () => {
     expect(buildApiKeyFunRaw(customOpenAIConfig(APIKEY_FUN_PROVIDER_NAME)).openai).toEqual([]);
   });
 
-  test('keeps Code0-named custom endpoints in the generic OpenAI group', () => {
-    expect(buildCode0Raw(customOpenAIConfig(CODE0_PROVIDER_NAME)).openai).toEqual([]);
-  });
-
   test('keeps Qiniu-named custom endpoints in the generic OpenAI group', () => {
     expect(buildQiniuCloudRaw(customOpenAIConfig(QINIU_CLOUD_PROVIDER_NAME)).openai).toEqual([]);
   });
@@ -64,11 +55,6 @@ describe('sponsor custom endpoint isolation', () => {
       ).openai.map((item) => item.index)
     ).toEqual([0]);
     expect(
-      buildCode0Raw(mixedOpenAIConfig(CODE0_PROVIDER_NAME, CODE0_OPENAI_BASE_URL)).openai.map(
-        (item) => item.index
-      )
-    ).toEqual([0]);
-    expect(
       buildQiniuCloudRaw(
         mixedOpenAIConfig(QINIU_CLOUD_PROVIDER_NAME, QINIU_CLOUD_BASE_URL_OPTIONS[0].openaiBaseUrl)
       ).openai.map((item) => item.index)
@@ -77,24 +63,26 @@ describe('sponsor custom endpoint isolation', () => {
 
   test('keeps backend indexes when normalization filters an unnamed item', () => {
     const config = normalizeConfigResponse({
-      'openai-compatibility': [
-        { 'base-url': 'https://invalid.example.com/v1' },
-        {
-          name: APIKEY_FUN_PROVIDER_NAME,
-          'base-url': APIKEY_FUN_OPENAI_BASE_URL,
-          'api-key-entries': [{ 'api-key': 'official-a' }],
-        },
-        {
-          name: APIKEY_FUN_PROVIDER_NAME,
-          'base-url': 'https://gateway.example.com/v1',
-          'api-key-entries': [{ 'api-key': 'custom-key' }],
-        },
-        {
-          name: APIKEY_FUN_PROVIDER_NAME,
-          'base-url': APIKEY_FUN_OPENAI_BASE_URL,
-          'api-key-entries': [{ 'api-key': 'official-b' }],
-        },
-      ],
+      'api-keys': {
+        'openai-compatibility': [
+          { 'base-url': 'https://invalid.example.com/v1', keys: [] },
+          {
+            name: APIKEY_FUN_PROVIDER_NAME,
+            'base-url': APIKEY_FUN_OPENAI_BASE_URL,
+            keys: [{ 'api-key': 'official-a' }],
+          },
+          {
+            name: APIKEY_FUN_PROVIDER_NAME,
+            'base-url': 'https://gateway.example.com/v1',
+            keys: [{ 'api-key': 'custom-key' }],
+          },
+          {
+            name: APIKEY_FUN_PROVIDER_NAME,
+            'base-url': APIKEY_FUN_OPENAI_BASE_URL,
+            keys: [{ 'api-key': 'official-b' }],
+          },
+        ],
+      },
     });
 
     expect(config.openaiCompatibility?.map((item) => item.sourceIndex)).toEqual([1, 2, 3]);
@@ -106,7 +94,6 @@ describe('sponsor custom endpoint isolation', () => {
     expect(
       buildApiKeyFunRaw(openAIConfig('custom-name', APIKEY_FUN_OPENAI_BASE_URL)).openai.length
     ).toBe(1);
-    expect(buildCode0Raw(openAIConfig('custom-name', CODE0_OPENAI_BASE_URL)).openai.length).toBe(1);
     expect(
       buildQiniuCloudRaw(openAIConfig('custom-name', QINIU_CLOUD_BASE_URL_OPTIONS[0].openaiBaseUrl))
         .openai.length

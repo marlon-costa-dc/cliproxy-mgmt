@@ -27,13 +27,7 @@ function installSessionStorage() {
       return store.size;
     },
   };
-  // defineProperty stays writable on platforms where bun exposes a readonly
-  // global `window` (Linux runners); plain assignment throws there.
-  Object.defineProperty(globalThis, 'window', {
-    value: { sessionStorage: storage },
-    configurable: true,
-    writable: true,
-  });
+  (globalThis as unknown as { window: unknown }).window = { sessionStorage: storage };
   return storage;
 }
 
@@ -55,6 +49,11 @@ describe('quota ui state', () => {
   test('round-trips both preferences', () => {
     writeQuotaUiState({ tab: 'codex', sortMode: 'soonest' });
     expect(readQuotaUiState()).toEqual({ tab: 'codex', sortMode: 'soonest' });
+  });
+
+  test('retains the Devin tab across visits', () => {
+    writeQuotaUiState({ tab: 'devin', sortMode: 'soonest' });
+    expect(readQuotaUiState()).toEqual({ tab: 'devin', sortMode: 'soonest' });
   });
 
   test('writing one preference preserves the other', () => {

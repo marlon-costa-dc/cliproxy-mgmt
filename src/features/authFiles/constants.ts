@@ -2,13 +2,15 @@ import type { TFunction } from 'i18next';
 import iconAntigravity from '@/assets/icons/antigravity.svg';
 import iconClaude from '@/assets/icons/claude.svg';
 import iconCodex from '@/assets/icons/codex.svg';
+import iconMeta from '@/assets/icons/meta.svg';
+import iconDevin from '@/assets/icons/devin.svg';
+import iconDevinDark from '@/assets/icons/devin-dark.svg';
 import iconGemini from '@/assets/icons/gemini.svg';
 import iconGrok from '@/assets/icons/grok.svg';
 import iconGrokDark from '@/assets/icons/grok-dark.svg';
 import iconIflow from '@/assets/icons/iflow.svg';
 import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconKimiLight from '@/assets/icons/kimi-light.svg';
-import iconQoder from '@/assets/icons/qoder.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
@@ -25,25 +27,38 @@ export type AuthFileModelItem = {
 };
 export type AuthFileIconAsset = string | { light: string; dark: string };
 
-export type QuotaProviderType = 'antigravity' | 'claude' | 'codex' | 'kimi' | 'qoder' | 'xai';
+export type QuotaProviderType =
+  | 'antigravity'
+  | 'claude'
+  | 'codex'
+  | 'devin'
+  | 'kimi'
+  | 'meta'
+  | 'plugin'
+  | 'xai';
+export type AuthFileQuotaFilter = string | null;
 export type OAuthConfigLoadError = 'loading' | 'unsupported' | 'load' | null;
 
 export const QUOTA_PROVIDER_TYPES = new Set<QuotaProviderType>([
+  'meta',
   'antigravity',
   'claude',
   'codex',
+  'devin',
   'kimi',
-  'qoder',
+  'plugin',
   'xai',
 ]);
 
 export const OAUTH_PROVIDER_PRESETS = [
+  'meta',
   'vertex',
   'aistudio',
   'antigravity',
   'xai',
   'claude',
   'codex',
+  'devin',
   'kimi',
 ];
 
@@ -58,6 +73,7 @@ export const FALSY_TEXT_VALUES = new Set(['false', '0', 'no', 'n', 'off']);
 export const AUTH_FILE_WEBSOCKET_PROVIDERS = new Set(['codex', 'xai']);
 export const AUTH_FILE_USING_API_PROVIDERS = new Set(['xai']);
 export const AUTH_FILE_MANUAL_REFRESH_PROVIDERS = new Set([
+  'meta',
   'antigravity',
   'claude',
   'codex',
@@ -73,11 +89,12 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   aistudio: iconGemini,
   claude: iconClaude,
   codex: iconCodex,
+  meta: iconMeta,
+  devin: { light: iconDevin, dark: iconDevinDark },
   gemini: iconGemini,
   xai: { light: iconGrok, dark: iconGrokDark },
   iflow: iconIflow,
   kimi: { light: iconKimiDark, dark: iconKimiLight },
-  qoder: iconQoder,
   qwen: iconQwen,
   vertex: iconVertex,
 };
@@ -218,6 +235,12 @@ export const applyAuthFileWebsockets = (
   next.websockets = websockets;
   return next;
 };
+
+export const supportsAuthFileSiwc = (providerKey: string): boolean =>
+  normalizeProviderKey(providerKey) === 'codex';
+
+export const readAuthFileUseSiwc = (value: Record<string, unknown>): boolean =>
+  parseDisableCoolingValue(value.use_siwc) ?? false;
 
 export const supportsAuthFileUsingApi = (providerKey: string): boolean =>
   AUTH_FILE_USING_API_PROVIDERS.has(normalizeProviderKey(providerKey));

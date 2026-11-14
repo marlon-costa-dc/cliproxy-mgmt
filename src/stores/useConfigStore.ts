@@ -68,9 +68,10 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
 
   updateConfigValue: (section, value) => {
     set((state) => {
-      const raw = { ...(state.config?.raw || {}) };
-      raw[section] = value;
-      const nextConfig: Config = { ...(state.config || {}), raw };
+      // Optimistic values are UI models, not serialized v8 config nodes (provider
+      // rows in particular are not upstream groups). Keep the last server document
+      // intact until the invalidated cache is fetched again.
+      const nextConfig: Config = { ...(state.config || {}) };
 
       switch (section) {
         case 'debug':
@@ -114,6 +115,9 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
           break;
         case 'codex-api-key':
           nextConfig.codexApiKeys = value as Config['codexApiKeys'];
+          break;
+        case 'meta-api-key':
+          nextConfig.metaApiKeys = value as Config['metaApiKeys'];
           break;
         case 'xai-api-key':
           nextConfig.xaiApiKeys = value as Config['xaiApiKeys'];

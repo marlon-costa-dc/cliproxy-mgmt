@@ -3,12 +3,17 @@
  */
 
 import { create } from 'zustand';
+import { getQuotaCacheFileName } from '@/utils/quota/identity';
 import type {
   AntigravityQuotaState,
   ClaudeQuotaState,
+  CodexCreditOverageEntry,
+  CodexCreditOverageOperation,
   CodexQuotaState,
+  DevinQuotaState,
   KimiQuotaState,
-  QoderQuotaState,
+  MetaQuotaState,
+  PluginQuotaState,
   XaiQuotaState,
 } from '@/types';
 
@@ -16,19 +21,37 @@ type QuotaUpdater<T> = T | ((prev: T) => T);
 
 interface QuotaStoreState {
   cacheGeneration: number;
+  fileGenerations: Record<string, number>;
   antigravityQuota: Record<string, AntigravityQuotaState>;
   claudeQuota: Record<string, ClaudeQuotaState>;
   codexQuota: Record<string, CodexQuotaState>;
+  /**
+   * Account-level, keyed by codexCreditOverageKey(). Survives per-file invalidation
+   * because removing one credential does not change the account setting.
+   */
+  codexCreditOverage: Record<string, CodexCreditOverageEntry>;
+  /** A quota refresh must not release a pending or ambiguous mutation; auth resets it. */
+  codexCreditOverageOperations: Record<string, CodexCreditOverageOperation>;
+  devinQuota: Record<string, DevinQuotaState>;
   kimiQuota: Record<string, KimiQuotaState>;
-  qoderQuota: Record<string, QoderQuotaState>;
+  metaQuota: Record<string, MetaQuotaState>;
+  pluginQuota: Record<string, PluginQuotaState>;
   xaiQuota: Record<string, XaiQuotaState>;
+  setCodexCreditOverage: (key: string, entry: CodexCreditOverageEntry | undefined) => void;
+  setCodexCreditOverageOperation: (
+    accountId: string,
+    operation: CodexCreditOverageOperation | undefined
+  ) => void;
+  clearCodexCreditOverageOperations: () => void;
   setAntigravityQuota: (updater: QuotaUpdater<Record<string, AntigravityQuotaState>>) => void;
   setClaudeQuota: (updater: QuotaUpdater<Record<string, ClaudeQuotaState>>) => void;
   setCodexQuota: (updater: QuotaUpdater<Record<string, CodexQuotaState>>) => void;
+  setDevinQuota: (updater: QuotaUpdater<Record<string, DevinQuotaState>>) => void;
   setKimiQuota: (updater: QuotaUpdater<Record<string, KimiQuotaState>>) => void;
-  setQoderQuota: (updater: QuotaUpdater<Record<string, QoderQuotaState>>) => void;
+  setMetaQuota: (updater: QuotaUpdater<Record<string, MetaQuotaState>>) => void;
+  setPluginQuota: (updater: QuotaUpdater<Record<string, PluginQuotaState>>) => void;
   setXaiQuota: (updater: QuotaUpdater<Record<string, XaiQuotaState>>) => void;
-  clearQuotaCache: () => void;
+  clearQuotaCache: (names?: string[]) => void;
 }
 
 const resolveUpdater = <T>(updater: QuotaUpdater<T>, prev: T): T => {
@@ -40,56 +63,161 @@ const resolveUpdater = <T>(updater: QuotaUpdater<T>, prev: T): T => {
 
 export const useQuotaStore = create<QuotaStoreState>((set) => ({
   cacheGeneration: 0,
+  fileGenerations: {},
   antigravityQuota: {},
   claudeQuota: {},
   codexQuota: {},
+  codexCreditOverage: {},
+  codexCreditOverageOperations: {},
+  devinQuota: {},
   kimiQuota: {},
-  qoderQuota: {},
+  metaQuota: {},
+  pluginQuota: {},
   xaiQuota: {},
+  setCodexCreditOverage: (key, entry) =>
+    set((state) => {
+      if (state.codexCreditOverage[key] === entry) return state;
+      const codexCreditOverage = { ...state.codexCreditOverage };
+      if (entry) {
+        codexCreditOverage[key] = entry;
+      } else {
+        delete codexCreditOverage[key];
+      }
+      return { codexCreditOverage };
+    }),
+  setCodexCreditOverageOperation: (accountId, operation) =>
+    set((state) => {
+      const codexCreditOverageOperations = { ...state.codexCreditOverageOperations };
+      if (operation) {
+        codexCreditOverageOperations[accountId] = operation;
+      } else {
+        delete codexCreditOverageOperations[accountId];
+      }
+      return { codexCreditOverageOperations };
+    }),
+  clearCodexCreditOverageOperations: () => set({ codexCreditOverageOperations: {} }),
   setAntigravityQuota: (updater) =>
     set((state) => ({
       antigravityQuota: resolveUpdater(updater, state.antigravityQuota),
     })),
   setClaudeQuota: (updater) =>
-    set((state) => ({
-      claudeQuota: resolveUpdater(updater, state.claudeQuota),
-    })),
+    set((state) => {
+      const next = resolveUpdater(updater, state.claudeQuota);
+      let retained = next;
+      for (const [key, quota] of Object.entries(next)) {
+        const previous = state.claudeQuota[key];
+        if (
+          previous &&
+          quota !== previous &&
+          (quota.status === 'loading' || quota.status === 'error') &&
+          !quota.observedAt &&
+          (previous.observedAt ||
+            previous.windows.length ||
+            previous.extraUsage ||
+            previous.dollarWindows?.length)
+        ) {
+          if (retained === next) retained = { ...next };
+          retained[key] = {
+            ...quota,
+            windows: previous.windows,
+            extraUsage: previous.extraUsage,
+            dollarWindows: previous.dollarWindows,
+            observedAt: previous.observedAt,
+            planType: previous.planType,
+            stale: quota.status === 'error' || previous.stale,
+          };
+        }
+      }
+      return { claudeQuota: retained };
+    }),
   setCodexQuota: (updater) =>
     set((state) => ({
       codexQuota: resolveUpdater(updater, state.codexQuota),
+    })),
+  setDevinQuota: (updater) =>
+    set((state) => ({
+      devinQuota: resolveUpdater(updater, state.devinQuota),
     })),
   setKimiQuota: (updater) =>
     set((state) => ({
       kimiQuota: resolveUpdater(updater, state.kimiQuota),
     })),
-  setQoderQuota: (updater) =>
+  setMetaQuota: (updater) =>
+    set((state) => ({ metaQuota: resolveUpdater(updater, state.metaQuota) })),
+  setPluginQuota: (updater) =>
     set((state) => ({
-      qoderQuota: resolveUpdater(updater, state.qoderQuota),
+      pluginQuota: resolveUpdater(updater, state.pluginQuota),
     })),
   setXaiQuota: (updater) =>
     set((state) => ({
       xaiQuota: resolveUpdater(updater, state.xaiQuota),
     })),
-  clearQuotaCache: () =>
-    set((state) => ({
-      cacheGeneration: state.cacheGeneration + 1,
-      antigravityQuota: {},
-      claudeQuota: {},
-      codexQuota: {},
-      kimiQuota: {},
-      qoderQuota: {},
-      xaiQuota: {},
-    })),
+  clearQuotaCache: (names) =>
+    set((state) => {
+      if (names) {
+        if (names.length === 0) return state;
+        const fileGenerations = { ...state.fileGenerations };
+        names.forEach((name) => {
+          fileGenerations[name] = (fileGenerations[name] ?? 0) + 1;
+        });
+        const invalidatedNames = new Set(names);
+        const omitNames = <T>(cache: Record<string, T>): Record<string, T> => {
+          const keysToDelete = Object.keys(cache).filter((key) =>
+            invalidatedNames.has(getQuotaCacheFileName(key))
+          );
+          if (keysToDelete.length === 0) return cache;
+          const next = { ...cache };
+          keysToDelete.forEach((key) => delete next[key]);
+          return next;
+        };
+        return {
+          fileGenerations,
+          antigravityQuota: omitNames(state.antigravityQuota),
+          claudeQuota: omitNames(state.claudeQuota),
+          codexQuota: omitNames(state.codexQuota),
+          devinQuota: omitNames(state.devinQuota),
+          kimiQuota: omitNames(state.kimiQuota),
+          metaQuota: omitNames(state.metaQuota),
+          pluginQuota: omitNames(state.pluginQuota),
+          xaiQuota: omitNames(state.xaiQuota),
+        };
+      }
+      return {
+        cacheGeneration: state.cacheGeneration + 1,
+        fileGenerations: {},
+        antigravityQuota: {},
+        claudeQuota: {},
+        codexQuota: {},
+        codexCreditOverage: {},
+        devinQuota: {},
+        kimiQuota: {},
+        metaQuota: {},
+        pluginQuota: {},
+        xaiQuota: {},
+      };
+    }),
 }));
 
-export const captureQuotaCacheGeneration = (): number =>
-  useQuotaStore.getState().cacheGeneration;
+export const captureQuotaCacheGeneration = (name?: string) => {
+  const { cacheGeneration, fileGenerations } = useQuotaStore.getState();
+  return { cacheGeneration, fileGenerations, name };
+};
 
 export const commitIfQuotaCacheCurrent = (
-  generation: number,
-  commit: () => void
+  generation: ReturnType<typeof captureQuotaCacheGeneration>,
+  commit: () => void,
+  name: string | undefined = generation.name
 ): boolean => {
-  if (useQuotaStore.getState().cacheGeneration !== generation) return false;
+  const current = useQuotaStore.getState();
+  if (current.cacheGeneration !== generation.cacheGeneration) return false;
+  // File-scoped requests survive mutations to unrelated credentials.
+  if (name !== undefined) {
+    if ((current.fileGenerations[name] ?? 0) !== (generation.fileGenerations[name] ?? 0)) {
+      return false;
+    }
+  } else if (current.fileGenerations !== generation.fileGenerations) {
+    return false;
+  }
   commit();
   return true;
 };
