@@ -67,3 +67,12 @@ Never commit real management keys, provider credentials, auth files, or other se
 Use Conventional Commits, such as `feat(providers): add a provider` or `fix(auth-files): preserve disabled actions`. Keep changes focused. Pull requests should include a summary, linked issue when applicable, backend version/reproduction details for integration work, UI screenshots or notes when relevant, and verification results.
 
 Maintain shared repository guidance in `AGENTS.md`. When updating it, synchronize the local `CLAUDE.md` to identical content if present; `CLAUDE.md` is currently ignored and untracked, so shared guidance must not depend on it. Keep guidance aligned with source and configuration rather than duplicating long implementation details.
+
+## Fork workflow delta (DataCosmos/ai-hub)
+
+This fork follows [docs/fork-workflow.md](docs/fork-workflow.md): `main` mirrors `router-for-me`,
+`plus` mirrors `kaitranntt`, `datacosmos/ai-hub` owns release/sync operations, `contrib/*` carries
+upstream-worthy patches, and `dc-use` integrates and releases stable `v<UPSTREAM_TAG>-dc<N>` builds.
+Do not add DataCosmos files to `main`, `plus` or `contrib/*`; do not add upstream panel features to
+`datacosmos/ai-hub`. Releases are contract-gated by `CLIPROXY_BACKEND_API_PREFIX`; never publish a
+panel whose `/v8/management` (or `/v0/management`) prefix differs from the deployed backend.

@@ -7,9 +7,14 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing fork tag to release, for example v1.10.2-0
+        description: Existing fork tag to release, for example v1.28.0-dc1
         required: true
         type: string
+      dry_run:
+        description: Build and verify without publishing a release
+        required: false
+        type: boolean
+        default: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -17,7 +22,7 @@ env:
 
 concurrency:
   group: build-and-release
-  queue: max
+  cancel-in-progress: false
 
 jobs:
   build-and-release:
@@ -185,6 +190,7 @@ jobs:
           git log --pretty=format:"- %h %s" "${range}" >> release-notes.md
 
       - name: Create Release
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run != true }}
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.RELEASE_TAG }}
