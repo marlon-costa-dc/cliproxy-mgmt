@@ -1,0 +1,45 @@
+name: Integrate mirrors into dc-use
+
+on:
+  schedule:
+    - cron: '37 6 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Print the integration status without creating a branch or PR
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: dc-integrate
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  DRY_RUN: ${{ inputs.dry_run || false }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v4
+        with:
+          ref: dc-use
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Configure git
+        run: |
+          git config user.name "cpamc-fork-sync[bot]"
+          git config user.email "cpamc-fork-sync@users.noreply.github.com"
+
+      - name: Integrate mirrors
+        run: ./.github/scripts/integrate-mirrors.sh
