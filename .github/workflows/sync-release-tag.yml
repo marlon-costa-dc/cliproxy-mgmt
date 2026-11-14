@@ -34,6 +34,12 @@ jobs:
           git config user.name "cpamc-fork-sync[bot]"
           git config user.email "cpamc-fork-sync@users.noreply.github.com"
 
+      - name: Verify backend API contract
+        env:
+          BACKEND_API_PREFIX: ${{ vars.CLIPROXY_BACKEND_API_PREFIX }}
+          PANEL_ROOT: ${{ github.workspace }}
+        run: ./.github/scripts/verify-backend-api-contract.sh
+
       - name: Fetch upstream tags
         run: |
           git remote add upstream https://github.com/router-for-me/Cli-Proxy-API-Management-Center.git
