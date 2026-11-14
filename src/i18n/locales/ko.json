@@ -2587,24 +2587,18 @@
   },
   "usage_stats": {
     "title": "사용 통계",
-    "subtitle": "프록시 런타임의 요청 및 토큰 사용량입니다.",
+    "subtitle": "프록시 런타임의 공급자별 요청 결과입니다.",
     "refresh": "새로 고침",
     "last_updated": "마지막 업데이트",
     "load_failed": "사용 통계 로드 실패",
     "total_requests": "총 요청",
-    "total_tokens": "총 토큰",
     "success": "성공",
     "failure": "실패",
-    "requests_by_hour": "시간별 요청",
-    "tokens_by_hour": "시간별 토큰",
-    "top_models": "상위 모델",
     "api_breakdown": "API별 사용량",
     "api": "API",
-    "model": "모델",
-    "requests": "요청",
-    "tokens": "토큰",
     "failures": "실패",
-    "models": "모델",
-    "no_data": "사용 데이터 없음"
+    "no_data": "사용 데이터 없음",
+    "recent_requests": "최근 요청 (10분 단위)",
+    "credentials": "자격 증명"
   }
 }

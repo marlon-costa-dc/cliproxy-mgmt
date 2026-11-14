@@ -4,15 +4,9 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
-import { usageApi } from '@/services/api';
-import type { UsageResponse } from '@/types/usage';
-import {
-  buildTopModelRows,
-  buildUsageRows,
-  formatLargeNumber,
-  toTrendPoints,
-  type UsageTrendPoint,
-} from '@/utils/usageStats';
+import { apiKeyUsageApi } from '@/services/api';
+import type { ApiKeyUsageResponse } from '@/utils/recentRequests';
+import { formatLargeNumber, summarizeApiKeyUsage } from '@/utils/usageStats';
 import { createLatestUsageRequestGuard, runLatestUsageRequest } from './usage-page-request-guard';
 import styles from './UsagePage.module.scss';
 
@@ -32,7 +26,7 @@ function TrendCard({
   emptyText,
 }: {
   title: string;
-  points: UsageTrendPoint[];
+  points: { label: string; value: number }[];
   emptyText: string;
 }) {
   const max = Math.max(0, ...points.map((point) => point.value));
@@ -63,7 +57,7 @@ function TrendCard({
 
 export function UsagePage() {
   const { t } = useTranslation();
-  const [payload, setPayload] = useState<UsageResponse | null>(null);
+  const [payload, setPayload] = useState<ApiKeyUsageResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -73,7 +67,7 @@ export function UsagePage() {
     () =>
       runLatestUsageRequest({
         guard: requestGuard.current,
-        request: () => usageApi.getUsage(),
+        request: () => apiKeyUsageApi.getUsage(),
         fallbackError: t('usage_stats.load_failed'),
         onStart: () => {
           setLoading(true);
@@ -97,16 +91,15 @@ export function UsagePage() {
 
   useHeaderRefresh(loadUsage);
 
-  const usage = payload?.usage ?? null;
-  const apiRows = useMemo(() => buildUsageRows(usage), [usage]);
-  const topModels = useMemo(() => buildTopModelRows(apiRows), [apiRows]);
-  const requestPoints = useMemo(() => toTrendPoints(usage?.requests_by_hour), [usage]);
-  const tokenPoints = useMemo(() => toTrendPoints(usage?.tokens_by_hour), [usage]);
-
-  const totalRequests = usage?.total_requests ?? 0;
-  const successCount = usage?.success_count ?? 0;
-  const failureCount = usage?.failure_count ?? 0;
-  const totalTokens = usage?.total_tokens ?? 0;
+  const summary = useMemo(() => summarizeApiKeyUsage(payload), [payload]);
+  const requestPoints = useMemo(
+    () =>
+      summary.recent.map((bucket, index) => ({
+        label: bucket.time ?? String(index),
+        value: bucket.success + bucket.failed,
+      })),
+    [summary]
+  );
 
   return (
     <div className={styles.container}>
@@ -135,10 +128,12 @@ export function UsagePage() {
       {error && <div className={styles.errorBox}>{error}</div>}
 
       <div className={styles.statGrid} aria-busy={loading}>
-        <StatCard label={t('usage_stats.total_requests')} value={totalRequests} />
-        <StatCard label={t('usage_stats.total_tokens')} value={totalTokens} />
-        <StatCard label={t('usage_stats.success')} value={successCount} />
-        <StatCard label={t('usage_stats.failure')} value={failureCount} />
+        <StatCard
+          label={t('usage_stats.total_requests')}
+          value={summary.success + summary.failures}
+        />
+        <StatCard label={t('usage_stats.success')} value={summary.success} />
+        <StatCard label={t('usage_stats.failure')} value={summary.failures} />
       </div>
 
       {loading && !payload ? (
@@ -149,19 +144,14 @@ export function UsagePage() {
         <>
           <div className={styles.chartGrid}>
             <TrendCard
-              title={t('usage_stats.requests_by_hour')}
+              title={t('usage_stats.recent_requests')}
               points={requestPoints}
-              emptyText={t('usage_stats.no_data')}
-            />
-            <TrendCard
-              title={t('usage_stats.tokens_by_hour')}
-              points={tokenPoints}
               emptyText={t('usage_stats.no_data')}
             />
           </div>
 
-          <Card title={t('usage_stats.top_models')}>
-            {topModels.length === 0 ? (
+          <Card title={t('usage_stats.api_breakdown')}>
+            {summary.providers.length === 0 ? (
               <div className={styles.emptyState}>{t('usage_stats.no_data')}</div>
             ) : (
               <div className={styles.tableWrap}>
@@ -169,51 +159,18 @@ export function UsagePage() {
                   <thead>
                     <tr>
                       <th>{t('usage_stats.api')}</th>
-                      <th>{t('usage_stats.model')}</th>
-                      <th className={styles.numberCell}>{t('usage_stats.requests')}</th>
-                      <th className={styles.numberCell}>{t('usage_stats.tokens')}</th>
+                      <th className={styles.numberCell}>{t('usage_stats.credentials')}</th>
+                      <th className={styles.numberCell}>{t('usage_stats.success')}</th>
                       <th className={styles.numberCell}>{t('usage_stats.failures')}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {topModels.map((row) => (
-                      <tr key={`${row.apiName}:${row.modelName}`}>
-                        <td className={styles.mono}>{row.displayApiName}</td>
-                        <td className={styles.mono}>{row.modelName}</td>
-                        <td className={styles.numberCell}>{formatLargeNumber(row.requests)}</td>
-                        <td className={styles.numberCell}>{formatLargeNumber(row.tokens)}</td>
+                    {summary.providers.map((row) => (
+                      <tr key={row.provider}>
+                        <td className={styles.mono}>{row.provider}</td>
+                        <td className={styles.numberCell}>{formatLargeNumber(row.credentials)}</td>
+                        <td className={styles.numberCell}>{formatLargeNumber(row.success)}</td>
                         <td className={styles.numberCell}>{formatLargeNumber(row.failures)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
-
-          <Card title={t('usage_stats.api_breakdown')}>
-            {apiRows.length === 0 ? (
-              <div className={styles.emptyState}>{t('usage_stats.no_data')}</div>
-            ) : (
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>{t('usage_stats.api')}</th>
-                      <th className={styles.numberCell}>{t('usage_stats.requests')}</th>
-                      <th className={styles.numberCell}>{t('usage_stats.tokens')}</th>
-                      <th className={styles.numberCell}>{t('usage_stats.models')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {apiRows.map((row) => (
-                      <tr key={row.apiName}>
-                        <td className={styles.mono}>{row.displayApiName}</td>
-                        <td className={styles.numberCell}>{formatLargeNumber(row.requests)}</td>
-                        <td className={styles.numberCell}>{formatLargeNumber(row.tokens)}</td>
-                        <td className={styles.numberCell}>
-                          {formatLargeNumber(row.models.length)}
-                        </td>
                       </tr>
                     ))}
                   </tbody>
