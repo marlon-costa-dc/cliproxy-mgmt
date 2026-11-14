@@ -6,7 +6,8 @@ if [ -z "${BACKEND_API_PREFIX:-}" ]; then
   exit 1
 fi
 
-panel_api_prefix="$(sed -n "s/.*MANAGEMENT_API_PREFIX = '\\([^']*\\)'.*/\\1/p" src/utils/constants.ts)"
+panel_root="${PANEL_ROOT:-.}"
+panel_api_prefix="$(sed -n "s/.*MANAGEMENT_API_PREFIX = '\\([^']*\\)'.*/\\1/p" "${panel_root}/src/utils/constants.ts")"
 if [ -z "${panel_api_prefix}" ]; then
   echo "[!] Cannot read MANAGEMENT_API_PREFIX from src/utils/constants.ts."
   exit 1

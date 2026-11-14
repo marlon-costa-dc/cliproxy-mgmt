@@ -37,6 +37,7 @@ jobs:
       - name: Verify backend API contract
         env:
           BACKEND_API_PREFIX: ${{ vars.CLIPROXY_BACKEND_API_PREFIX }}
+          PANEL_ROOT: ${{ github.workspace }}
         run: ./.github/scripts/verify-backend-api-contract.sh
 
       - name: Fetch upstream tags
