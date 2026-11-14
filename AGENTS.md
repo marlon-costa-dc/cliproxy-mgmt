@@ -70,9 +70,11 @@ Maintain shared repository guidance in `AGENTS.md`. When updating it, synchroniz
 
 ## Fork workflow delta (DataCosmos/ai-hub)
 
-This fork follows [docs/fork-workflow.md](docs/fork-workflow.md): `main` mirrors `router-for-me`,
-`plus` mirrors `kaitranntt`, `datacosmos/ai-hub` owns release/sync operations, `contrib/*` carries
-upstream-worthy patches, and `dc-use` integrates and releases stable `v<UPSTREAM_TAG>-dc<N>` builds.
-Do not add DataCosmos files to `main`, `plus` or `contrib/*`; do not add upstream panel features to
+This fork follows [docs/fork-workflow.md](docs/fork-workflow.md): `main` is the stable full line
+(official upstream + preserved plus fork + DataCosmos operations + accepted contributions), kept on
+upstream by the sync job; `plus` preserves the third-party plus fork; `datacosmos/ai-hub` owns
+release/sync operations; `contrib/*` carries upstream-worthy patches; `dc-use` integrates, releases
+stable `v<UPSTREAM_TAG>-dc<N>` builds, and feeds validated lines back into `main`. Do not add
+DataCosmos files to `plus` or `contrib/*`; do not add upstream panel features to
 `datacosmos/ai-hub`. Releases are contract-gated by `CLIPROXY_BACKEND_API_PREFIX`; never publish a
 panel whose `/v8/management` (or `/v0/management`) prefix differs from the deployed backend.
