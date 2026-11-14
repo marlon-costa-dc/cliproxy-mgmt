@@ -11,6 +11,11 @@ if git merge-base --is-ancestor origin/main HEAD && git merge-base --is-ancestor
   exit 0
 fi
 
+if git diff --quiet HEAD origin/main && git diff --quiet HEAD origin/plus; then
+  echo "[i] dc-use already matches the mirror trees; nothing to integrate."
+  exit 0
+fi
+
 upstream_sha="$(git rev-parse origin/main)"
 plus_sha="$(git rev-parse origin/plus)"
 upstream_tag="$(git describe --tags --abbrev=0 "${upstream_sha}" 2>/dev/null || git rev-parse --short "${upstream_sha}")"
