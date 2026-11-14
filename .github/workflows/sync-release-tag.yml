@@ -35,10 +35,18 @@ jobs:
           git config user.email "cpamc-fork-sync@users.noreply.github.com"
 
       - name: Verify backend API contract
+        id: contract
         env:
           BACKEND_API_PREFIX: ${{ vars.CLIPROXY_BACKEND_API_PREFIX }}
           PANEL_ROOT: ${{ github.workspace }}
-        run: ./.github/scripts/verify-backend-api-contract.sh
+        run: |
+          set -euo pipefail
+          if ./.github/scripts/verify-backend-api-contract.sh; then
+            echo "eligible=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "eligible=false" >> "$GITHUB_OUTPUT"
+            echo "[i] Panel/backend API contract mismatch; holding the automatic tag until they match."
+          fi
 
       - name: Fetch upstream tags
         run: |
@@ -46,6 +54,7 @@ jobs:
           git fetch upstream main
 
       - name: Create missing fork release tag
+        if: steps.contract.outputs.eligible == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
