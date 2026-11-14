@@ -3,6 +3,7 @@
  */
 
 import axios from 'axios';
+import { apiClient } from './client';
 import { normalizeModelList } from '@/utils/models';
 import { normalizeApiBase } from '@/utils/connection';
 import { apiCallApi, getApiCallErrorMessage } from './apiCall';
@@ -17,13 +18,14 @@ const GEMINI_MODELS_IN_FLIGHT = new Map<string, Promise<ReturnType<typeof normal
 const buildRequestSignature = (
   url: string,
   headers: Record<string, string>,
-  authIndex?: string
+  authIndex?: string,
+  proxyUrl?: string
 ) => {
   const headerSignature = Object.entries(headers)
     .sort(([a], [b]) => a.toLowerCase().localeCompare(b.toLowerCase()))
     .map(([key, value]) => `${key}:${value}`)
     .join('|');
-  return `${url}||${headerSignature}||auth=${authIndex ?? ''}`;
+  return JSON.stringify([url, headerSignature, authIndex ?? '', proxyUrl ?? '']);
 };
 
 const buildModelsEndpoint = (baseUrl: string): string => {
@@ -82,6 +84,13 @@ const resolveBearerTokenFromAuthorization = (headers: Record<string, string>): s
 };
 
 export const modelsApi = {
+  /** Refresh the global backend catalogs, not auth-file credentials. */
+  async refreshCatalog(isCurrent?: () => boolean): Promise<{ changedProviders: string[] }> {
+    const client = isCurrent ? apiClient.captureConnection(isCurrent) : apiClient;
+    const response = await client.post<{ changed_providers: string[] | null }>('/models/refresh');
+    return { changedProviders: response.changed_providers ?? [] };
+  },
+
   /**
    * Fetch available models from /v1/models endpoint (for system info page)
    */
@@ -111,7 +120,8 @@ export const modelsApi = {
     baseUrl: string,
     apiKey?: string,
     headers: Record<string, string> = {},
-    authIndex?: string
+    authIndex?: string,
+    proxyUrl?: string
   ) {
     const endpoint = buildV1ModelsEndpoint(baseUrl);
     if (!endpoint) {
@@ -128,6 +138,7 @@ export const modelsApi = {
 
     const result = await apiCallApi.request({
       authIndex: trimmedAuthIndex,
+      proxy_url: proxyUrl?.trim() || undefined,
       method: 'GET',
       url: endpoint,
       header: Object.keys(resolvedHeaders).length ? resolvedHeaders : undefined,
@@ -148,7 +159,8 @@ export const modelsApi = {
     baseUrl: string,
     apiKey?: string,
     headers: Record<string, string> = {},
-    authIndex?: string
+    authIndex?: string,
+    proxyUrl?: string
   ) {
     const endpoint = buildModelsEndpoint(baseUrl);
     if (!endpoint) {
@@ -165,6 +177,7 @@ export const modelsApi = {
 
     const result = await apiCallApi.request({
       authIndex: trimmedAuthIndex,
+      proxy_url: proxyUrl?.trim() || undefined,
       method: 'GET',
       url: endpoint,
       header: Object.keys(resolvedHeaders).length ? resolvedHeaders : undefined,
@@ -186,7 +199,8 @@ export const modelsApi = {
     baseUrl: string,
     apiKey?: string,
     headers: Record<string, string> = {},
-    authIndex?: string
+    authIndex?: string,
+    proxyUrl?: string
   ) {
     const endpoint = buildClaudeModelsEndpoint(baseUrl);
     if (!endpoint) {
@@ -209,13 +223,19 @@ export const modelsApi = {
       resolvedHeaders['anthropic-version'] = DEFAULT_ANTHROPIC_VERSION;
     }
 
-    const signature = buildRequestSignature(endpoint, resolvedHeaders, trimmedAuthIndex);
+    const signature = buildRequestSignature(
+      endpoint,
+      resolvedHeaders,
+      trimmedAuthIndex,
+      proxyUrl?.trim() || undefined
+    );
     const existing = CLAUDE_MODELS_IN_FLIGHT.get(signature);
     if (existing) return existing;
 
     const request = (async () => {
       const result = await apiCallApi.request({
         authIndex: trimmedAuthIndex,
+        proxy_url: proxyUrl?.trim() || undefined,
         method: 'GET',
         url: endpoint,
         header: Object.keys(resolvedHeaders).length ? resolvedHeaders : undefined,
@@ -245,7 +265,8 @@ export const modelsApi = {
     baseUrl: string,
     apiKey?: string,
     headers: Record<string, string> = {},
-    authIndex?: string
+    authIndex?: string,
+    proxyUrl?: string
   ) {
     const endpoint = buildGeminiModelsEndpoint(baseUrl);
     if (!endpoint) {
@@ -261,7 +282,12 @@ export const modelsApi = {
       resolvedHeaders['x-goog-api-key'] = '$TOKEN$';
     }
 
-    const signature = buildRequestSignature(endpoint, resolvedHeaders, trimmedAuthIndex);
+    const signature = buildRequestSignature(
+      endpoint,
+      resolvedHeaders,
+      trimmedAuthIndex,
+      proxyUrl?.trim() || undefined
+    );
     const existing = GEMINI_MODELS_IN_FLIGHT.get(signature);
     if (existing) return existing;
 
@@ -278,6 +304,7 @@ export const modelsApi = {
 
         const result = await apiCallApi.request({
           authIndex: trimmedAuthIndex,
+          proxy_url: proxyUrl?.trim() || undefined,
           method: 'GET',
           url: url.toString(),
           header: Object.keys(resolvedHeaders).length ? resolvedHeaders : undefined,
