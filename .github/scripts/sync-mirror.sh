@@ -16,6 +16,11 @@ if [ "${source_sha}" = "${base_sha}" ]; then
   exit 0
 fi
 
+if git merge-base --is-ancestor "${source_sha}" "${base_sha}"; then
+  echo "[i] ${MIRROR} already contains ${source_sha}; nothing to sync."
+  exit 0
+fi
+
 if [ "${DRY_RUN:-false}" = "true" ]; then
   echo "[dry-run] ${MIRROR} would merge ${source_sha} (current ${base_sha})."
   exit 0
