@@ -34,6 +34,26 @@ jobs:
           fetch-tags: true
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
+      - name: Verify backend API contract
+        env:
+          BACKEND_API_PREFIX: ${{ vars.CLIPROXY_BACKEND_API_PREFIX }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BACKEND_API_PREFIX}" ]; then
+            echo "[!] CLIPROXY_BACKEND_API_PREFIX repository variable is required."
+            exit 1
+          fi
+          panel_api_prefix="$(sed -n "s/.*MANAGEMENT_API_PREFIX = '\\([^']*\\)'.*/\\1/p" src/utils/constants.ts)"
+          if [ -z "${panel_api_prefix}" ]; then
+            echo "[!] Cannot read MANAGEMENT_API_PREFIX from src/utils/constants.ts."
+            exit 1
+          fi
+          if [ "${panel_api_prefix}" != "${BACKEND_API_PREFIX}" ]; then
+            echo "[!] Refusing to release: panel requires ${panel_api_prefix} but the deployed backend contract is ${BACKEND_API_PREFIX}."
+            exit 1
+          fi
+          echo "[i] API contract matches: ${panel_api_prefix}."
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
