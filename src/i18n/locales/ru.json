@@ -118,7 +118,8 @@
     "operate": "Работа",
     "gateway": "Шлюз",
     "observe": "Наблюдение",
-    "control": "Управление"
+    "control": "Управление",
+    "plugin_pages": "Plugins"
   },
   "nav_meta": {
     "dashboard": "Обзор работы",
@@ -2610,5 +2611,14 @@
     "failures": "Ошибки",
     "models": "Модели",
     "no_data": "Нет данных использования"
+  },
+  "plugin_resource": {
+    "empty_src": "Plugin page URL is empty",
+    "empty_src_desc": "This plugin menu does not provide an embeddable page URL.",
+    "load_failed": "Failed to load plugin page",
+    "not_found": "Plugin page not found",
+    "not_found_desc": "This plugin page is not declared by the current backend plugin list.",
+    "page_count": "{{count}} pages",
+    "unavailable": "Plugin page unavailable"
   }
 }

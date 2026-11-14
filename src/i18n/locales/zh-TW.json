@@ -445,7 +445,11 @@
     "quota_refresh_success": "已重新整理「{{name}}」的配額",
     "quota_refresh_failed": "重新整理「{{name}}」的配額失敗：{{message}}",
     "compact_mode_label": "簡略模式",
-    "filter_qoder": "Qoder"
+    "filter_qoder": "Qoder",
+    "cooldown_credential_and_models_one": "憑證及 {{count}} 個模型冷卻",
+    "cooldown_credential_and_models_other": "憑證及 {{count}} 個模型冷卻",
+    "cooldown_models_one": "{{count}} 個模型冷卻",
+    "cooldown_models_other": "{{count}} 個模型冷卻"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -874,7 +878,17 @@
     "graph_hint": "將來源模型拖曳到別名上即可建立對應，在節點上按右鍵可檢視更多操作。變更會先保留在草稿中，儲存後才會生效。",
     "graph_empty_hint": "請先在清單檢視中新增一條對應，圖譜會顯示模型與別名之間的連結關係。",
     "search_alias_placeholder": "搜尋模型或別名",
-    "search_empty": "沒有符合的對應"
+    "search_empty": "沒有符合的對應",
+    "meta_aliases_one": "{{count}} 個別名",
+    "meta_aliases_other": "{{count}} 個別名",
+    "meta_mappings_one": "{{count}} 條對應",
+    "meta_mappings_other": "{{count}} 條對應",
+    "meta_providers_one": "{{count}} 個供應商",
+    "meta_providers_other": "{{count}} 個供應商",
+    "meta_rules_one": "{{count}} 條規則",
+    "meta_rules_other": "{{count}} 條規則",
+    "unsaved_count_one": "{{count}} 個供應商有未儲存的變更",
+    "unsaved_count_other": "{{count}} 個供應商有未儲存的變更"
   },
   "auth_login": {
     "devin_oauth_cancel": "取消 Devin 登入",

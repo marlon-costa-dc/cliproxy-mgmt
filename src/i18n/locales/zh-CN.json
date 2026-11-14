@@ -445,7 +445,11 @@
     "quota_refresh_success": "已刷新 \"{{name}}\" 的额度",
     "quota_refresh_failed": "刷新 \"{{name}}\" 的额度失败：{{message}}",
     "compact_mode_label": "简略模式",
-    "filter_qoder": "Qoder"
+    "filter_qoder": "Qoder",
+    "cooldown_credential_and_models_one": "凭证及 {{count}} 个模型冷却",
+    "cooldown_credential_and_models_other": "凭证及 {{count}} 个模型冷却",
+    "cooldown_models_one": "{{count}} 个模型冷却",
+    "cooldown_models_other": "{{count}} 个模型冷却"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -874,7 +878,17 @@
     "graph_hint": "把源模型拖到别名上即可建立映射，右键节点查看更多操作。改动先保存在草稿里，点击保存后才会生效。",
     "graph_empty_hint": "先在清单视图里添加一条映射，图谱会展示模型与别名之间的连接关系。",
     "search_alias_placeholder": "搜索模型或别名",
-    "search_empty": "没有匹配的映射"
+    "search_empty": "没有匹配的映射",
+    "meta_aliases_one": "{{count}} 个别名",
+    "meta_aliases_other": "{{count}} 个别名",
+    "meta_mappings_one": "{{count}} 条映射",
+    "meta_mappings_other": "{{count}} 条映射",
+    "meta_providers_one": "{{count}} 个提供商",
+    "meta_providers_other": "{{count}} 个提供商",
+    "meta_rules_one": "{{count}} 条规则",
+    "meta_rules_other": "{{count}} 条规则",
+    "unsaved_count_one": "{{count}} 个提供商有未保存的更改",
+    "unsaved_count_other": "{{count}} 个提供商有未保存的更改"
   },
   "auth_login": {
     "devin_oauth_cancel": "取消 Devin 登录",
