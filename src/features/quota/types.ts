@@ -21,6 +21,7 @@ export interface QuotaClassMap {
   quotaResetRelativeSoon: string;
   quotaAmount: string;
   quotaMessage: string;
+  quotaWarningMessage: string;
   // Claude extra usage: state stays beside the label in both hosts.
   claudeExtraUsageTitle: string;
   claudeExtraUsageStatus: string;
@@ -64,6 +65,7 @@ export const QUOTA_CLASS_KEYS: readonly (keyof QuotaClassMap)[] = [
   'quotaResetRelativeSoon',
   'quotaAmount',
   'quotaMessage',
+  'quotaWarningMessage',
   'claudeExtraUsageTitle',
   'claudeExtraUsageStatus',
   'codexPlan',
