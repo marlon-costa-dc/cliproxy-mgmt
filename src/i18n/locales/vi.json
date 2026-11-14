@@ -110,7 +110,9 @@
     "plugins": "Plugin",
     "config_management": "Bảng cấu hình",
     "logs": "Trình xem Log",
-    "system_info": "Thông tin Trung tâm Quản lý"
+    "system_info": "Thông tin Trung tâm Quản lý",
+    "usage_statistics": "Thống kê sử dụng",
+    "plugin_store": "Cửa hàng Plugin"
   },
   "nav_groups": {
     "operate": "Vận hành",
@@ -130,7 +132,9 @@
     "plugins": "Cài đặt, cập nhật & cấu hình",
     "logs": "Truy vết yêu cầu",
     "config_management": "Cấu hình gateway",
-    "system_info": "Runtime & chẩn đoán"
+    "system_info": "Runtime & chẩn đoán",
+    "usage_statistics": "Lượng yêu cầu và token",
+    "plugin_store": "Khám phá & cài đặt plugin"
   },
   "dashboard": {
     "hero_verdict_good": "Mọi hệ thống ổn định",
@@ -441,7 +445,9 @@
     "policy_rules_hint": "Các quy tắc tùy chỉnh được ưu tiên theo thứ tự danh sách. Kế thừa hoặc danh sách trống sẽ sử dụng quy tắc kế thừa; điều này không vô hiệu hóa chúng. Mẫu biểu thức chính quy (Regex) dùng cú pháp của Go.",
     "policy_retry_invalid": "Nhập một số nguyên an toàn không âm, hoặc chọn Kế thừa.",
     "policy_aliases_invalid": "Nhập tên model và bí danh không để trống cho mỗi hàng mới hoặc đã chỉnh sửa.",
-    "policy_rules_invalid": "Hoàn thành mỗi quy tắc đã chỉnh sửa với mã trạng thái dương, một hành động và ít nhất một điều kiện khớp không để trống."
+    "policy_rules_invalid": "Hoàn thành mỗi quy tắc đã chỉnh sửa với mã trạng thái dương, một hành động và ít nhất một điều kiện khớp không để trống.",
+    "compact_mode_label": "Chế độ thu gọn",
+    "filter_qoder": "Qoder"
   },
   "antigravity_subscription": {
     "plan_unknown": "Không rõ",
@@ -530,7 +536,8 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "extra_usage_user_disabled": "Người dùng đã tắt"
   },
   "codex_quota": {
     "title": "Quota Codex",
@@ -688,7 +695,21 @@
     "upgrade_required_title": "Vui lòng nâng cấp CLI Proxy API",
     "upgrade_required_desc": "Phiên bản máy chủ hiện tại không hỗ trợ lấy danh sách vô hiệu hóa model OAuth. Vui lòng nâng cấp lên phiên bản CPA (CLI Proxy API) mới nhất và thử lại.",
     "editor_description": "Chọn các model mà provider hiển thị bằng cách chọn riêng lẻ hoặc dùng quy tắc ký tự đại diện (wildcard).",
-    "models_hint": "Mở rộng danh sách để chọn model hoặc nhập quy tắc ký tự đại diện bên dưới."
+    "models_hint": "Mở rộng danh sách để chọn model hoặc nhập quy tắc ký tự đại diện bên dưới.",
+    "description": "Việc vô hiệu hóa model theo từng provider được hiển thị dưới dạng thẻ; nhấn vào thẻ để chỉnh sửa hoặc xóa. Hỗ trợ ký tự đại diện * và phạm vi áp dụng theo bộ lọc file xác thực.",
+    "add": "Thêm vô hiệu hóa",
+    "add_title": "Thêm vô hiệu hóa model của provider",
+    "edit_title": "Chỉnh sửa vô hiệu hóa model cho {{provider}}",
+    "provider_label": "Provider",
+    "provider_placeholder": "ví dụ codex / openai",
+    "provider_hint": "Mặc định theo bộ lọc hiện tại; chọn provider có sẵn hoặc nhập tên mới.",
+    "save": "Lưu/Cập nhật",
+    "delete": "Xóa Provider",
+    "delete_confirm": "Xóa vô hiệu hóa model của {{provider}}?",
+    "delete_success": "Đã xóa vô hiệu hóa model của provider",
+    "delete_failed": "Không thể xóa vô hiệu hóa model",
+    "model_count": "{{count}} model bị vô hiệu hóa",
+    "provider_required": "Vui lòng nhập provider trước"
   },
   "excluded_models": {
     "trigger_summary": "{{excluded}} bị loại trừ · {{available}} khả dụng",
@@ -769,7 +790,25 @@
     "upgrade_required_desc": "Máy chủ hiện tại không hỗ trợ API bí danh model OAuth. Vui lòng nâng cấp lên phiên bản CLI Proxy API (CPA) mới nhất.",
     "editor_description": "Đặt tên gọi nhất quán cho các model của provider để sử dụng trong client của bạn.",
     "mapping_row": "Ánh xạ bí danh {{number}}",
-    "remove_mapping": "Xóa ánh xạ bí danh {{number}}"
+    "remove_mapping": "Xóa ánh xạ bí danh {{number}}",
+    "add": "Thêm bí danh",
+    "add_title": "Thêm bí danh model của provider",
+    "provider_label": "Provider",
+    "provider_placeholder": "ví dụ codex / vertex",
+    "provider_hint": "Mặc định theo bộ lọc hiện tại; chọn provider có sẵn hoặc nhập tên mới.",
+    "alias_label": "Bí danh model",
+    "save": "Lưu/Cập nhật",
+    "delete_confirm": "Xóa bí danh model của {{provider}}?",
+    "delete_link_title": "Bỏ liên kết ánh xạ",
+    "delete_link_confirm": "Bỏ liên kết ánh xạ từ <code>{{sourceModel}}</code> ({{provider}}) sang bí danh <code>{{alias}}</code>?",
+    "delete_alias_title": "Xóa bí danh",
+    "delete_alias_confirm": "Xóa bí danh <code>{{alias}}</code> và bỏ ánh xạ tất cả model liên quan?",
+    "delete_success": "Đã xóa bí danh model",
+    "delete_failed": "Không thể xóa bí danh model",
+    "model_count": "{{count}} bí danh",
+    "provider_required": "Vui lòng nhập provider trước",
+    "edit_title": "Chỉnh sửa bí danh model cho {{provider}}",
+    "mapping_hint": "Chọn model gốc, sau đó nhập bí danh mà client của bạn sẽ dùng."
   },
   "model_rules": {
     "section_label": "Quy tắc model",
@@ -965,7 +1004,17 @@
     "kimi_ai_oauth_status_success": "Xác thực thành công!",
     "kimi_ai_oauth_status_error": "Xác thực thất bại:",
     "kimi_ai_oauth_start_error": "Không thể bắt đầu đăng nhập Kimi quốc tế:",
-    "kimi_ai_oauth_polling_error": "Không thể kiểm tra trạng thái xác thực:"
+    "kimi_ai_oauth_polling_error": "Không thể kiểm tra trạng thái xác thực:",
+    "qoder_oauth_title": "Qoder OAuth",
+    "qoder_oauth_button": "Bắt đầu đăng nhập Qoder",
+    "qoder_oauth_hint": "Đăng nhập Qoder bằng mã thiết bị và tự động lưu thông tin xác thực.",
+    "qoder_oauth_url_label": "Liên kết ủy quyền:",
+    "qoder_open_link": "Mở liên kết",
+    "qoder_copy_link": "Sao chép liên kết",
+    "qoder_oauth_status_waiting": "Đang chờ xác thực...",
+    "qoder_oauth_status_success": "Xác thực thành công!",
+    "qoder_oauth_status_error": "Xác thực thất bại:",
+    "qoder_oauth_start_error": "Không thể bắt đầu Qoder OAuth:"
   },
   "stats": {
     "success": "Thành công",
@@ -1243,7 +1292,9 @@
           "timeout": "Timeout",
           "stabilize_device": "Ổn định hồ sơ thiết bị",
           "stabilize_device_desc": "Cố định OS/Kiến trúc và ổn định vân tay phần mềm theo từng credential/API key",
-          "beta_features": "Tính năng Beta"
+          "beta_features": "Tính năng Beta",
+          "codex_identity_confuse": "Làm mờ danh tính Codex",
+          "codex_identity_confuse_desc": "Khi định tuyến fill-first hoặc gắn kết phiên, ánh xạ lại prompt_cache_key và danh tính cài đặt Codex theo thông tin xác thực đã chọn."
         },
         "network": {
           "title": "Cấu hình mạng",
@@ -1801,7 +1852,13 @@
     "invalid_json": "Nhập JSON hợp lệ",
     "expected_array": "Nhập mảng JSON",
     "expected_object": "Nhập đối tượng JSON",
-    "invalid_enum": "Chọn một trong các giá trị enum đã khai báo"
+    "invalid_enum": "Chọn một trong các giá trị enum đã khai báo",
+    "refresh": "Làm mới",
+    "global_status": "Trạng thái toàn cục",
+    "global_enabled": "Đang bật",
+    "global_disabled": "Đã tắt",
+    "discovered": "Đã phát hiện",
+    "effective": "Có hiệu lực"
   },
   "plugin_store": {
     "description_show_more": "Hiện thêm",
@@ -1877,7 +1934,28 @@
     "gate_step2_action": "Tôi đã đọc và hiểu các rủi ro này",
     "gate_step3_prompt": "Để xác nhận, nhập \"{{token}}\" vào ô bên dưới",
     "gate_step3_action": "Cài đặt plugin này",
-    "gate_step3_hint": "Nhập chính xác mã định danh hiển thị ở trên để cho phép cài đặt."
+    "gate_step3_hint": "Nhập chính xác mã định danh hiển thị ở trên để cho phép cài đặt.",
+    "title": "Cửa hàng Plugin",
+    "description": "Duyệt registry plugin, sau đó cài đặt hoặc cập nhật plugin cho backend hiện tại.",
+    "global_status": "Trạng thái toàn cục",
+    "global_enabled": "Đang bật",
+    "global_disabled": "Đã tắt",
+    "plugins_dir": "Thư mục plugin",
+    "stat_available": "Khả dụng",
+    "search_placeholder": "Tìm ID, tên, tác giả hoặc tag plugin...",
+    "search_label": "Tìm cửa hàng plugin",
+    "filter_label": "Lọc theo trạng thái cài đặt",
+    "filter_all": "Tất cả",
+    "filter_installed": "Đã cài",
+    "filter_not_installed": "Chưa cài",
+    "filter_updates": "Có bản cập nhật",
+    "badge_update": "Có bản cập nhật",
+    "badge_effective": "Có hiệu lực",
+    "version_arrow": "v{{from}} → v{{to}}",
+    "manage": "Quản lý",
+    "no_matches": "Không có plugin phù hợp",
+    "no_matches_desc": "Không có plugin nào khớp tìm kiếm hoặc bộ lọc hiện tại.",
+    "clear_filters": "Xóa bộ lọc"
   },
   "plugin_resource": {
     "page_count": "{{count}} trang",
@@ -2001,7 +2079,7 @@
       "activeCount": "{{active}}/{{total}} đang hoạt động"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "gemini": "Gemini",
       "interactions": "Interactions API",
       "codex": "Codex",
@@ -2067,8 +2145,8 @@
       "urlMode": "URL {{provider}}",
       "urlHint": "Mọi URL dùng cùng quy ước API. Lưu chỉ ghi endpoint của giao thức được nhóm hiện tại.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "Tuyến toàn cầu được bảo vệ cao",
-         "aiCodeMirrorDomestic": "Tuyến tối ưu cho Trung Quốc đại lục",
+        "aiCodeMirrorGlobal": "Tuyến toàn cầu được bảo vệ cao",
+        "aiCodeMirrorDomestic": "Tuyến tối ưu cho Trung Quốc đại lục",
         "standard": "URL chuẩn",
         "direct": "URL trực tiếp",
         "domestic": "Tuyến Trung Quốc đại lục",
@@ -2077,8 +2155,8 @@
         "global": "Toàn cầu"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "Tuyến có mức bảo vệ cao dành cho truy cập toàn cầu.",
-         "aiCodeMirrorDomestic": "Tuyến được tối ưu cho mạng tại Trung Quốc đại lục.",
+        "aiCodeMirrorGlobal": "Tuyến có mức bảo vệ cao dành cho truy cập toàn cầu.",
+        "aiCodeMirrorDomestic": "Tuyến được tối ưu cho mạng tại Trung Quốc đại lục.",
         "domestic": "Dành cho người dùng và khối lượng công việc tại Trung Quốc đại lục; thường có độ trễ thấp hơn trên mạng đại lục.",
         "overseas": "Dành cho triển khai nước ngoài, truy cập xuyên biên giới hoặc khối lượng công việc cần model nước ngoài.",
         "mainlandChinaRecommended": "Khuyến nghị cho người dùng và khối lượng công việc trên mạng Trung Quốc đại lục.",
@@ -2495,5 +2573,44 @@
     "error": "Liên kết thất bại. Hãy bắt đầu lại.",
     "unsupported": "Máy chủ này không hỗ trợ liên kết SIWC.",
     "expired": "Phiên liên kết đã hết hạn. Hãy bắt đầu lại."
+  },
+  "qoder_quota": {
+    "title": "Quota Qoder",
+    "empty_title": "Chưa có file xác thực Qoder",
+    "empty_desc": "Đăng nhập Qoder để xem quota còn lại.",
+    "idle": "Nhấn để làm mới quota",
+    "loading": "Đang tải quota...",
+    "load_failed": "Không thể tải quota: {{message}}",
+    "empty_data": "Chưa có dữ liệu quota Qoder. Hãy làm mới file xác thực sau khi đồng bộ model Qoder.",
+    "refresh_button": "Làm mới quota",
+    "fetch_all": "Tải tất cả",
+    "usage_label": "Mức sử dụng",
+    "remaining_amount": "Còn lại {{amount}}",
+    "expires_at": "Hết hạn {{time}}",
+    "org_resource_remaining": "Tài nguyên tổ chức còn lại",
+    "quota_exceeded": "Đã vượt quota",
+    "unit_default": "tín dụng"
+  },
+  "usage_stats": {
+    "title": "Thống kê sử dụng",
+    "subtitle": "Lượng yêu cầu và token từ runtime proxy.",
+    "refresh": "Làm mới",
+    "last_updated": "Cập nhật lần cuối",
+    "load_failed": "Không thể tải thống kê sử dụng",
+    "total_requests": "Tổng yêu cầu",
+    "total_tokens": "Tổng token",
+    "success": "Thành công",
+    "failure": "Thất bại",
+    "requests_by_hour": "Yêu cầu theo giờ",
+    "tokens_by_hour": "Token theo giờ",
+    "top_models": "Model hàng đầu",
+    "api_breakdown": "Chi tiết theo API",
+    "api": "API",
+    "model": "Model",
+    "requests": "Yêu cầu",
+    "tokens": "Token",
+    "failures": "Lỗi",
+    "models": "Model",
+    "no_data": "Chưa có dữ liệu sử dụng"
   }
 }

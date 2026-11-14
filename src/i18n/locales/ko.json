@@ -110,7 +110,9 @@
     "plugins": "플러그인",
     "config_management": "설정 패널",
     "logs": "로그 뷰어",
-    "system_info": "관리 센터 정보"
+    "system_info": "관리 센터 정보",
+    "usage_statistics": "사용 통계",
+    "plugin_store": "플러그인 스토어"
   },
   "nav_groups": {
     "operate": "운영",
@@ -130,7 +132,9 @@
     "plugins": "설치, 업데이트 및 설정",
     "logs": "요청 추적",
     "config_management": "게이트웨이 설정",
-    "system_info": "런타임 및 진단"
+    "system_info": "런타임 및 진단",
+    "usage_statistics": "요청 및 토큰 사용량",
+    "plugin_store": "플러그인 탐색 및 설치"
   },
   "dashboard": {
     "hero_verdict_good": "모든 시스템 정상",
@@ -441,7 +445,9 @@
     "quota_refresh_single": "할당량 새로 고침",
     "quota_refresh_hint": "이 자격 증명의 할당량만 새로 고침합니다",
     "quota_refresh_success": "\"{{name}}\"의 할당량을 새로 고쳤습니다",
-    "quota_refresh_failed": "\"{{name}}\"의 할당량 새로 고침 실패: {{message}}"
+    "quota_refresh_failed": "\"{{name}}\"의 할당량 새로 고침 실패: {{message}}",
+    "compact_mode_label": "컴팩트 모드",
+    "filter_qoder": "Qoder"
   },
   "antigravity_subscription": {
     "plan_unknown": "알 수 없음",
@@ -530,7 +536,8 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "extra_usage_user_disabled": "사용자가 비활성화함"
   },
   "codex_quota": {
     "title": "Codex 할당량",
@@ -732,7 +739,21 @@
     "list_empty_all": "아직 비활성화된 모델이 없습니다. 공급자를 선택해 시작하세요.",
     "upgrade_required": "현재 CPA 버전에서는 OAuth 모델 비활성화를 지원하지 않습니다. 업그레이드하세요.",
     "upgrade_required_title": "CLI Proxy API를 업그레이드하세요",
-    "upgrade_required_desc": "현재 서버 버전은 OAuth 모델 비활성화 조회를 지원하지 않습니다. 최신 CPA(CLI Proxy API) 버전으로 업그레이드한 후 다시 시도하세요."
+    "upgrade_required_desc": "현재 서버 버전은 OAuth 모델 비활성화 조회를 지원하지 않습니다. 최신 CPA(CLI Proxy API) 버전으로 업그레이드한 후 다시 시도하세요.",
+    "description": "공급자별 모델 비활성화가 카드로 표시됩니다. 카드를 클릭하여 수정하거나 삭제하세요. 와일드카드 * 가 지원되며 범위는 인증 파일 필터를 따릅니다.",
+    "add": "비활성화 추가",
+    "add_title": "공급자 모델 비활성화 추가",
+    "edit_title": "{{provider}}의 모델 비활성화 수정",
+    "provider_label": "공급자",
+    "provider_placeholder": "예: codex / openai",
+    "provider_hint": "기본값은 현재 필터입니다. 기존 공급자를 선택하거나 새 이름을 입력하세요.",
+    "save": "저장/업데이트",
+    "delete": "공급자 삭제",
+    "delete_confirm": "{{provider}}의 모델 비활성화를 삭제하시겠습니까?",
+    "delete_success": "공급자 모델 비활성화가 제거되었습니다.",
+    "delete_failed": "모델 비활성화 삭제에 실패했습니다.",
+    "model_count": "모델 {{count}}개 비활성화됨",
+    "provider_required": "먼저 공급자를 입력하세요."
   },
   "excluded_models": {
     "trigger_summary": "{{excluded}}개 제외됨 · {{available}}개 사용 가능",
@@ -813,7 +834,25 @@
     "view_mode_list": "목록",
     "upgrade_required": "이 기능은 최신 버전의 CLI Proxy API(CPA)가 필요합니다. 업그레이드하세요.",
     "upgrade_required_title": "CLI Proxy API를 업그레이드하세요",
-    "upgrade_required_desc": "현재 서버는 OAuth 모델 별칭 API를 지원하지 않습니다. 최신 버전의 CLI Proxy API(CPA)로 업그레이드하세요."
+    "upgrade_required_desc": "현재 서버는 OAuth 모델 별칭 API를 지원하지 않습니다. 최신 버전의 CLI Proxy API(CPA)로 업그레이드하세요.",
+    "edit_title": "{{provider}}의 모델 별칭 편집",
+    "mapping_hint": "원본 모델을 선택한 후 클라이언트에서 사용할 별칭을 입력하세요.",
+    "add": "별칭 추가",
+    "add_title": "공급자 모델 별칭 추가",
+    "provider_label": "공급자",
+    "provider_placeholder": "예: codex / vertex",
+    "provider_hint": "현재 필터의 공급자가 기본으로 지정됩니다. 기존 공급자를 선택하거나 새 이름을 입력하세요.",
+    "alias_label": "모델 별칭",
+    "save": "저장/업데이트",
+    "delete_confirm": "{{provider}}의 모델 별칭을 삭제하시겠습니까?",
+    "delete_link_title": "매핑 연결 해제",
+    "delete_link_confirm": "<code>{{sourceModel}}</code>({{provider}})에서 별칭 <code>{{alias}}</code>(으)로의 매핑 연결을 해제하시겠습니까?",
+    "delete_alias_title": "별칭 삭제",
+    "delete_alias_confirm": "별칭 <code>{{alias}}</code>을(를) 삭제하고 연결된 모든 모델의 매핑을 해제하시겠습니까?",
+    "delete_success": "모델 별칭이 삭제되었습니다",
+    "delete_failed": "모델 별칭 삭제에 실패했습니다",
+    "model_count": "{{count}}개 별칭",
+    "provider_required": "먼저 공급자를 입력하세요"
   },
   "model_rules": {
     "section_label": "모델 규칙",
@@ -1009,7 +1048,17 @@
     "login_proxy_in_use": "프록시를 통해 로그인 중",
     "success_saved_hint": "자격 증명이 저장되었습니다. 인증 파일에서 관리할 수 있습니다.",
     "sign_up_prompt": "계정이 없나요?",
-    "copied": "복사됨"
+    "copied": "복사됨",
+    "qoder_oauth_title": "Qoder OAuth",
+    "qoder_oauth_button": "Qoder 로그인 시작",
+    "qoder_oauth_hint": "기기 인증으로 Qoder에 로그인하고 자격 증명을 자동 저장합니다.",
+    "qoder_oauth_url_label": "인증 URL:",
+    "qoder_open_link": "링크 열기",
+    "qoder_copy_link": "링크 복사",
+    "qoder_oauth_status_waiting": "인증 대기 중...",
+    "qoder_oauth_status_success": "인증에 성공했습니다!",
+    "qoder_oauth_status_error": "인증 실패:",
+    "qoder_oauth_start_error": "Qoder OAuth 시작 실패:"
   },
   "stats": {
     "success": "성공",
@@ -1451,7 +1500,9 @@
           "timeout": "Timeout",
           "stabilize_device": "기기 프로필 안정화",
           "stabilize_device_desc": "자격 증명/API 키별로 OS/Arch를 고정하고 소프트웨어 지문을 안정화합니다.",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "codex_identity_confuse": "Codex 식별 정보 난독화",
+          "codex_identity_confuse_desc": "fill-first 또는 세션 고정 라우팅에서 선택한 인증에 맞게 Codex prompt_cache_key와 설치 식별 정보를 다시 매핑합니다."
         },
         "network": {
           "title": "네트워크 설정",
@@ -1845,7 +1896,13 @@
     "invalid_json": "유효한 JSON을 입력하세요",
     "expected_array": "JSON 배열을 입력하세요",
     "expected_object": "JSON 객체를 입력하세요",
-    "invalid_enum": "선언된 열거형 값 중 하나를 선택하세요"
+    "invalid_enum": "선언된 열거형 값 중 하나를 선택하세요",
+    "refresh": "새로 고침",
+    "global_status": "전역 상태",
+    "global_enabled": "활성화됨",
+    "global_disabled": "비활성화됨",
+    "discovered": "발견됨",
+    "effective": "적용됨"
   },
   "plugin_store": {
     "description_show_more": "더 보기",
@@ -1921,7 +1978,28 @@
     "gate_step2_action": "이러한 위험을 읽었으며 이해했습니다",
     "gate_step3_prompt": "확인하려면 아래 입력란에 \"{{token}}\"을(를) 입력하세요",
     "gate_step3_action": "이 플러그인 설치",
-    "gate_step3_hint": "설치를 활성화하려면 위에 표시된 식별자를 정확히 입력하세요."
+    "gate_step3_hint": "설치를 활성화하려면 위에 표시된 식별자를 정확히 입력하세요.",
+    "title": "플러그인 스토어",
+    "description": "플러그인 레지스트리를 탐색하고 현재 백엔드용 플러그인을 설치하거나 업데이트합니다.",
+    "global_status": "전역 상태",
+    "global_enabled": "활성화됨",
+    "global_disabled": "비활성화됨",
+    "plugins_dir": "플러그인 디렉터리",
+    "stat_available": "사용 가능",
+    "search_placeholder": "플러그인 ID, 이름, 작성자 또는 태그 검색...",
+    "search_label": "플러그인 스토어 검색",
+    "filter_label": "설치 상태별 필터",
+    "filter_all": "전체",
+    "filter_installed": "설치됨",
+    "filter_not_installed": "미설치",
+    "filter_updates": "업데이트 가능",
+    "badge_update": "업데이트 가능",
+    "badge_effective": "적용 중",
+    "version_arrow": "v{{from}} → v{{to}}",
+    "manage": "관리",
+    "no_matches": "일치하는 플러그인이 없습니다",
+    "no_matches_desc": "현재 검색 또는 필터와 일치하는 플러그인이 없습니다.",
+    "clear_filters": "필터 초기화"
   },
   "plugin_resource": {
     "page_count": "페이지 {{count}}개",
@@ -2129,7 +2207,7 @@
       "activeCount": "활성 {{active}}/{{total}}"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2192,8 +2270,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "모든 URL은 동일한 API 규칙을 사용합니다. 저장 시 현재 그룹화된 프로토콜의 엔드포인트만 기록됩니다.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "글로벌 고보호 경로",
-         "aiCodeMirrorDomestic": "중국 본토 최적화 경로",
+        "aiCodeMirrorGlobal": "글로벌 고보호 경로",
+        "aiCodeMirrorDomestic": "중국 본토 최적화 경로",
         "standard": "표준 URL",
         "direct": "직접 연결 URL",
         "domestic": "중국 본토 경로",
@@ -2202,8 +2280,8 @@
         "global": "글로벌"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "전 세계 접속을 위한 보호 수준이 높은 경로입니다.",
-         "aiCodeMirrorDomestic": "중국 본토 네트워크에 최적화된 경로입니다.",
+        "aiCodeMirrorGlobal": "전 세계 접속을 위한 보호 수준이 높은 경로입니다.",
+        "aiCodeMirrorDomestic": "중국 본토 네트워크에 최적화된 경로입니다.",
         "domestic": "중국 본토의 사용자 및 워크로드용입니다. 본토 네트워크에서 일반적으로 대기 시간이 더 짧습니다.",
         "overseas": "해외 배포, 국경 간 액세스 또는 해외 모델이 필요한 워크로드용입니다.",
         "mainlandChinaRecommended": "중국 본토 네트워크의 사용자 및 워크로드에 권장됩니다.",
@@ -2489,5 +2567,44 @@
     "error": "바인딩에 실패했습니다. 다시 시작하세요.",
     "unsupported": "이 서버는 SIWC 바인딩을 지원하지 않습니다.",
     "expired": "바인딩 세션이 만료되었습니다. 다시 시작하세요."
+  },
+  "qoder_quota": {
+    "title": "Qoder 할당량",
+    "empty_title": "Qoder 인증 파일 없음",
+    "empty_desc": "남은 할당량을 보려면 Qoder에 로그인하세요.",
+    "idle": "클릭하여 할당량 새로 고침",
+    "loading": "할당량 로드 중...",
+    "load_failed": "할당량 로드 실패: {{message}}",
+    "empty_data": "Qoder 할당량 스냅샷이 없습니다. 모델 동기화 후 인증 파일을 새로 고치세요.",
+    "refresh_button": "할당량 새로 고침",
+    "fetch_all": "모두 가져오기",
+    "usage_label": "사용량",
+    "remaining_amount": "{{amount}} 남음",
+    "expires_at": "만료 {{time}}",
+    "org_resource_remaining": "조직 리소스 잔여량",
+    "quota_exceeded": "할당량 초과",
+    "unit_default": "크레딧"
+  },
+  "usage_stats": {
+    "title": "사용 통계",
+    "subtitle": "프록시 런타임의 요청 및 토큰 사용량입니다.",
+    "refresh": "새로 고침",
+    "last_updated": "마지막 업데이트",
+    "load_failed": "사용 통계 로드 실패",
+    "total_requests": "총 요청",
+    "total_tokens": "총 토큰",
+    "success": "성공",
+    "failure": "실패",
+    "requests_by_hour": "시간별 요청",
+    "tokens_by_hour": "시간별 토큰",
+    "top_models": "상위 모델",
+    "api_breakdown": "API별 사용량",
+    "api": "API",
+    "model": "모델",
+    "requests": "요청",
+    "tokens": "토큰",
+    "failures": "실패",
+    "models": "모델",
+    "no_data": "사용 데이터 없음"
   }
 }

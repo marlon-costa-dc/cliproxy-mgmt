@@ -145,6 +145,7 @@ export function QuotaPage() {
   const devinQuota = useQuotaStore((state) => state.devinQuota);
   const kimiQuota = useQuotaStore((state) => state.kimiQuota);
   const metaQuota = useQuotaStore((state) => state.metaQuota);
+  const qoderQuota = useQuotaStore((state) => state.qoderQuota);
   const pluginQuota = useQuotaStore((state) => state.pluginQuota);
   const xaiQuota = useQuotaStore((state) => state.xaiQuota);
 
@@ -157,6 +158,7 @@ export function QuotaPage() {
         devin: devinQuota,
         kimi: kimiQuota,
         meta: metaQuota,
+        qoder: qoderQuota,
         plugin: pluginQuota,
         xai: xaiQuota,
       }) as unknown as Record<QuotaProviderType, Record<string, QuotaCardState>>,
@@ -167,6 +169,7 @@ export function QuotaPage() {
       devinQuota,
       kimiQuota,
       metaQuota,
+      qoderQuota,
       pluginQuota,
       xaiQuota,
     ]

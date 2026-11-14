@@ -120,6 +120,14 @@ describe('plugin OAuth tiles', () => {
 });
 
 describe('OAuth provider gallery', () => {
+  test('preserves the Plus Qoder device flow without a manual callback', () => {
+    expect(OAUTH_PROVIDERS.find((provider) => provider.id === 'qoder')).toMatchObject({
+      kind: 'builtin',
+      label: 'Qoder',
+      titleKey: 'auth_login.qoder_oauth_title',
+      flow: 'device',
+    });
+  });
   const locales = { en, 'zh-CN': zhCN, 'zh-TW': zhTW, ru, ko, vi } as const;
 
   for (const [lng, translation] of Object.entries(locales)) {

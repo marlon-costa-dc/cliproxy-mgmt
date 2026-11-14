@@ -322,6 +322,16 @@ export function SectionAdvanced({
               onChange={(codexHeaderBetaFeatures) => onChange({ codexHeaderBetaFeatures })}
               disabled={disabled}
             />
+            <ToggleSetting
+              fieldId="codexIdentityConfuse"
+              label={t('config_management.visual.sections.headers.codex_identity_confuse')}
+              description={t(
+                'config_management.visual.sections.headers.codex_identity_confuse_desc'
+              )}
+              checked={values.codexIdentityConfuse}
+              disabled={disabled}
+              onChange={(codexIdentityConfuse) => onChange({ codexIdentityConfuse })}
+            />
           </SettingList>
         </FieldStack>
       </Collapsible>

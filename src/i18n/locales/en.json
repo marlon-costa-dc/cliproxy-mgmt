@@ -110,7 +110,9 @@
     "plugins": "Plugins",
     "config_management": "Config Panel",
     "logs": "Logs Viewer",
-    "system_info": "Management Center Info"
+    "system_info": "Management Center Info",
+    "plugin_store": "Plugin Store",
+    "usage_statistics": "Usage Statistics"
   },
   "nav_groups": {
     "operate": "Operate",
@@ -130,7 +132,9 @@
     "plugins": "Install, update & configure",
     "logs": "Request tracing",
     "config_management": "Gateway configuration",
-    "system_info": "Runtime & diagnostics"
+    "system_info": "Runtime & diagnostics",
+    "plugin_store": "Discover & install plugins",
+    "usage_statistics": "Request and token usage"
   },
   "dashboard": {
     "hero_verdict_good": "All systems steady",
@@ -441,7 +445,9 @@
     "quota_refresh_single": "Refresh quota",
     "quota_refresh_hint": "Refresh quota only for this credential",
     "quota_refresh_success": "Quota refreshed for \"{{name}}\"",
-    "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}"
+    "quota_refresh_failed": "Failed to refresh quota for \"{{name}}\": {{message}}",
+    "compact_mode_label": "Compact mode",
+    "filter_qoder": "Qoder"
   },
   "antigravity_subscription": {
     "plan_unknown": "Unknown",
@@ -530,7 +536,8 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "extra_usage_user_disabled": "Disabled by user"
   },
   "codex_quota": {
     "title": "Codex Quota",
@@ -732,7 +739,21 @@
     "list_empty_all": "No disabled models yet. Pick a provider to get started.",
     "upgrade_required": "Current CPA version does not support OAuth model disablement. Please upgrade.",
     "upgrade_required_title": "Please upgrade CLI Proxy API",
-    "upgrade_required_desc": "The current server version does not support fetching OAuth model disablement. Please upgrade to the latest CPA (CLI Proxy API) version and try again."
+    "upgrade_required_desc": "The current server version does not support fetching OAuth model disablement. Please upgrade to the latest CPA (CLI Proxy API) version and try again.",
+    "description": "Per-provider model disablement is shown as cards; click a card to edit or delete. Wildcards * are supported and the scope follows the auth file filter.",
+    "add": "Add Disablement",
+    "add_title": "Add provider model disablement",
+    "edit_title": "Edit model disablement for {{provider}}",
+    "provider_label": "Provider",
+    "provider_placeholder": "e.g. codex / openai",
+    "provider_hint": "Defaults to the current filter; pick an existing provider or type a new name.",
+    "save": "Save/Update",
+    "delete": "Delete Provider",
+    "delete_confirm": "Delete model disablement for {{provider}}?",
+    "delete_success": "Provider model disablement removed",
+    "delete_failed": "Failed to delete model disablement",
+    "model_count": "{{count}} models disabled",
+    "provider_required": "Please enter a provider first"
   },
   "excluded_models": {
     "trigger_summary": "{{excluded}} excluded · {{available}} available",
@@ -813,7 +834,25 @@
     "view_mode_list": "List",
     "upgrade_required": "This feature requires a newer CLI Proxy API (CPA) version. Please upgrade.",
     "upgrade_required_title": "Please upgrade CLI Proxy API",
-    "upgrade_required_desc": "The current server does not support the OAuth model aliases API. Please upgrade to the latest CLI Proxy API (CPA) version."
+    "upgrade_required_desc": "The current server does not support the OAuth model aliases API. Please upgrade to the latest CLI Proxy API (CPA) version.",
+    "edit_title": "Edit model aliases for {{provider}}",
+    "mapping_hint": "Choose a source model, then enter the alias your clients will use.",
+    "add": "Add Alias",
+    "add_title": "Add provider model aliases",
+    "provider_label": "Provider",
+    "provider_placeholder": "e.g. codex / vertex",
+    "provider_hint": "Defaults to the current filter; pick an existing provider or type a new name.",
+    "alias_label": "Model aliases",
+    "save": "Save/Update",
+    "delete_confirm": "Delete model aliases for {{provider}}?",
+    "delete_link_title": "Unlink mapping",
+    "delete_link_confirm": "Unlink mapping from <code>{{sourceModel}}</code> ({{provider}}) to alias <code>{{alias}}</code>?",
+    "delete_alias_title": "Delete Alias",
+    "delete_alias_confirm": "Delete alias <code>{{alias}}</code> and unmap all associated models?",
+    "delete_success": "Model aliases removed",
+    "delete_failed": "Failed to delete model aliases",
+    "model_count": "{{count}} aliases",
+    "provider_required": "Please enter a provider first"
   },
   "model_rules": {
     "section_label": "Model rules",
@@ -1009,7 +1048,17 @@
     "login_proxy_in_use": "Signing in through proxy",
     "success_saved_hint": "The credential is saved — manage it in Auth Files.",
     "sign_up_prompt": "No account yet?",
-    "copied": "Copied"
+    "copied": "Copied",
+    "qoder_oauth_title": "Qoder OAuth",
+    "qoder_oauth_button": "Start Qoder Login",
+    "qoder_oauth_hint": "Login to Qoder through the device authorization flow, then save the generated credential automatically.",
+    "qoder_oauth_url_label": "Authorization URL:",
+    "qoder_open_link": "Open Link",
+    "qoder_copy_link": "Copy Link",
+    "qoder_oauth_status_waiting": "Waiting for authentication...",
+    "qoder_oauth_status_success": "Authentication successful!",
+    "qoder_oauth_status_error": "Authentication failed:",
+    "qoder_oauth_start_error": "Failed to start Qoder OAuth:"
   },
   "stats": {
     "success": "Success",
@@ -1451,7 +1500,9 @@
           "timeout": "Timeout",
           "stabilize_device": "Stabilize Device Profile",
           "stabilize_device_desc": "Pin OS/Arch and stabilize the software fingerprint per credential/API key",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "codex_identity_confuse": "Codex Identity Confuse",
+          "codex_identity_confuse_desc": "When fill-first routing or session affinity is used, remap Codex prompt_cache_key and installation identity for the selected auth"
         },
         "network": {
           "title": "Network Configuration",
@@ -1845,7 +1896,13 @@
     "invalid_json": "Enter valid JSON",
     "expected_array": "Enter a JSON array",
     "expected_object": "Enter a JSON object",
-    "invalid_enum": "Choose one of the declared enum values"
+    "invalid_enum": "Choose one of the declared enum values",
+    "refresh": "Refresh",
+    "global_status": "Global status",
+    "global_enabled": "Enabled",
+    "global_disabled": "Disabled",
+    "discovered": "Discovered",
+    "effective": "Effective"
   },
   "plugin_store": {
     "description_show_more": "Show more",
@@ -1921,7 +1978,28 @@
     "gate_step2_action": "I have read and understand these risks",
     "gate_step3_prompt": "To confirm, type \"{{token}}\" in the box below",
     "gate_step3_action": "Install this plugin",
-    "gate_step3_hint": "Enter the exact identifier shown above to enable installation."
+    "gate_step3_hint": "Enter the exact identifier shown above to enable installation.",
+    "title": "Plugin Store",
+    "description": "Browse the plugin registry, then install or update plugins for the current backend.",
+    "global_status": "Global status",
+    "global_enabled": "Enabled",
+    "global_disabled": "Disabled",
+    "plugins_dir": "Plugin directory",
+    "stat_available": "Available",
+    "search_placeholder": "Search plugin ID, name, author, or tag...",
+    "search_label": "Search plugin store",
+    "filter_label": "Filter by install status",
+    "filter_all": "All",
+    "filter_installed": "Installed",
+    "filter_not_installed": "Not installed",
+    "filter_updates": "Updates",
+    "badge_update": "Update available",
+    "badge_effective": "Effective",
+    "version_arrow": "v{{from}} → v{{to}}",
+    "manage": "Manage",
+    "no_matches": "No matching plugins",
+    "no_matches_desc": "No plugins match the current search or filter.",
+    "clear_filters": "Clear filters"
   },
   "plugin_resource": {
     "page_count": "{{count}} pages",
@@ -2129,7 +2207,7 @@
       "activeCount": "{{active}}/{{total}} active"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2192,8 +2270,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "All URLs use the same API conventions. Saving writes only the endpoint for the current grouped protocol.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "Global high-protection route",
-         "aiCodeMirrorDomestic": "Mainland China optimized route",
+        "aiCodeMirrorGlobal": "Global high-protection route",
+        "aiCodeMirrorDomestic": "Mainland China optimized route",
         "standard": "Standard URL",
         "direct": "Direct URL",
         "domestic": "China mainland route",
@@ -2202,8 +2280,8 @@
         "global": "Global"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "A high-protection route for global access.",
-         "aiCodeMirrorDomestic": "A route optimized for mainland China networks.",
+        "aiCodeMirrorGlobal": "A high-protection route for global access.",
+        "aiCodeMirrorDomestic": "A route optimized for mainland China networks.",
         "domestic": "For users and workloads in mainland China; usually lower latency in mainland networks.",
         "overseas": "For overseas deployments, cross-border access, or workloads that need overseas models.",
         "mainlandChinaRecommended": "Recommended for users and workloads on mainland China networks.",
@@ -2489,5 +2567,44 @@
     "error": "Binding failed. Please start over.",
     "unsupported": "This backend does not support SIWC binding.",
     "expired": "The binding session expired. Please start over."
+  },
+  "qoder_quota": {
+    "title": "Qoder Quota",
+    "empty_title": "No Qoder Auth Files",
+    "empty_desc": "Login with Qoder to view remaining quota.",
+    "idle": "Click here to refresh quota",
+    "loading": "Loading quota...",
+    "load_failed": "Failed to load quota: {{message}}",
+    "empty_data": "No Qoder quota snapshot available. Refresh auth files after Qoder models sync.",
+    "refresh_button": "Refresh Quota",
+    "fetch_all": "Fetch All",
+    "usage_label": "Usage",
+    "remaining_amount": "Remaining {{amount}}",
+    "expires_at": "Expires {{time}}",
+    "org_resource_remaining": "Org resource remaining",
+    "quota_exceeded": "Quota exceeded",
+    "unit_default": "credits"
+  },
+  "usage_stats": {
+    "title": "Usage Statistics",
+    "subtitle": "Request and token usage from the proxy runtime.",
+    "refresh": "Refresh",
+    "last_updated": "Last updated",
+    "load_failed": "Failed to load usage statistics",
+    "total_requests": "Total Requests",
+    "total_tokens": "Total Tokens",
+    "success": "Success",
+    "failure": "Failed",
+    "requests_by_hour": "Requests by Hour",
+    "tokens_by_hour": "Tokens by Hour",
+    "top_models": "Top Models",
+    "api_breakdown": "API Breakdown",
+    "api": "API",
+    "model": "Model",
+    "requests": "Requests",
+    "tokens": "Tokens",
+    "failures": "Failures",
+    "models": "Models",
+    "no_data": "No usage data available"
   }
 }

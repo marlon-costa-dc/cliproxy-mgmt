@@ -110,7 +110,9 @@
     "plugins": "插件",
     "config_management": "配置面板",
     "logs": "日志查看",
-    "system_info": "中心信息"
+    "system_info": "中心信息",
+    "plugin_store": "插件商店",
+    "usage_statistics": "使用统计"
   },
   "nav_groups": {
     "operate": "运行",
@@ -130,7 +132,9 @@
     "plugins": "安装、更新与配置",
     "logs": "请求追踪与排查",
     "config_management": "网关基础配置",
-    "system_info": "运行与诊断信息"
+    "system_info": "运行与诊断信息",
+    "plugin_store": "发现并安装插件",
+    "usage_statistics": "请求与 Token 用量"
   },
   "dashboard": {
     "hero_verdict_good": "运行平稳",
@@ -439,7 +443,9 @@
     "quota_refresh_single": "刷新额度",
     "quota_refresh_hint": "仅刷新该认证文件的额度",
     "quota_refresh_success": "已刷新 \"{{name}}\" 的额度",
-    "quota_refresh_failed": "刷新 \"{{name}}\" 的额度失败：{{message}}"
+    "quota_refresh_failed": "刷新 \"{{name}}\" 的额度失败：{{message}}",
+    "compact_mode_label": "简略模式",
+    "filter_qoder": "Qoder"
   },
   "antigravity_subscription": {
     "plan_unknown": "未知",
@@ -515,7 +521,8 @@
     "plan_max": "Max",
     "plan_max5": "Max 5x",
     "plan_max20": "Max 20x",
-    "plan_team": "Team"
+    "plan_team": "Team",
+    "extra_usage_user_disabled": "用户已禁用"
   },
   "codex_quota": {
     "title": "Codex 额度",
@@ -554,7 +561,6 @@
     "reset_confirm_button": "确认重置",
     "reset_not_confirmed": "未确认额度重置成功，请刷新额度后再决定是否重试。",
     "reset_cooldown_failed": "额度已重置，但代理冷却清除失败。请在原连接的认证文件页面使用“清除冷却”，不要再次消耗重置卡。",
-
     "reset_success": "已重置 \"{{name}}\" 的 Codex 额度",
     "reset_failed": "重置 \"{{name}}\" 的 Codex 额度失败：{{message}}",
     "plan_plus": "Plus",
@@ -731,7 +737,21 @@
     "list_empty_all": "暂无任何模型禁用，选择一个提供商开始配置。",
     "upgrade_required": "当前 CPA 版本不支持 OAuth 模型禁用，请升级 CPA 版本",
     "upgrade_required_title": "需要升级 CPA 版本",
-    "upgrade_required_desc": "当前服务器版本不支持获取 OAuth 模型禁用功能，请升级到最新版本的 CPA（CLI Proxy API）后重试。"
+    "upgrade_required_desc": "当前服务器版本不支持获取 OAuth 模型禁用功能，请升级到最新版本的 CPA（CLI Proxy API）后重试。",
+    "description": "按提供商分列展示，点击卡片编辑或删除；支持 * 通配符，范围跟随上方的配置文件过滤标签。",
+    "add": "新增禁用",
+    "add_title": "新增提供商模型禁用",
+    "edit_title": "编辑 {{provider}} 的模型禁用",
+    "provider_label": "提供商",
+    "provider_placeholder": "例如 codex / openai",
+    "provider_hint": "默认选中当前筛选的提供商，也可直接输入或选择其他名称。",
+    "save": "保存/更新",
+    "delete": "删除提供商",
+    "delete_confirm": "确定要删除 {{provider}} 的模型禁用吗？",
+    "delete_success": "已删除该提供商的模型禁用",
+    "delete_failed": "删除模型禁用失败",
+    "model_count": "禁用 {{count}} 个模型",
+    "provider_required": "请先填写提供商名称"
   },
   "excluded_models": {
     "trigger_summary": "已排除 {{excluded}} · {{available}} 可用",
@@ -812,7 +832,25 @@
     "view_mode_list": "清单",
     "upgrade_required": "当前 CPA 版本不支持模型别名功能，请升级 CPA 版本",
     "upgrade_required_title": "需要升级 CPA 版本",
-    "upgrade_required_desc": "当前服务器版本不支持 OAuth 模型别名功能，请升级到最新版本的 CPA（CLI Proxy API）后重试。"
+    "upgrade_required_desc": "当前服务器版本不支持 OAuth 模型别名功能，请升级到最新版本的 CPA（CLI Proxy API）后重试。",
+    "edit_title": "编辑 {{provider}} 的模型别名",
+    "mapping_hint": "选择原模型，并填写客户端使用的别名。",
+    "add": "新增别名",
+    "add_title": "新增提供商模型别名",
+    "provider_label": "提供商",
+    "provider_placeholder": "例如 codex / vertex",
+    "provider_hint": "默认选中当前筛选的提供商，也可直接输入或选择其他名称。",
+    "alias_label": "模型别名",
+    "save": "保存/更新",
+    "delete_confirm": "确定要删除 {{provider}} 的模型别名吗？",
+    "delete_link_title": "取消链接",
+    "delete_link_confirm": "确定取消 <code>{{sourceModel}}</code>（{{provider}}）到别名 <code>{{alias}}</code> 的映射？",
+    "delete_alias_title": "删除别名",
+    "delete_alias_confirm": "确定删除别名 <code>{{alias}}</code> 并取消所有关联模型的映射？",
+    "delete_success": "已删除该提供商的模型别名",
+    "delete_failed": "删除模型别名失败",
+    "model_count": "{{count}} 条别名",
+    "provider_required": "请先填写提供商名称"
   },
   "model_rules": {
     "section_label": "模型规则",
@@ -1003,7 +1041,17 @@
     "login_proxy_in_use": "本次登录通过代理",
     "success_saved_hint": "凭证已保存，可在认证文件页管理。",
     "sign_up_prompt": "还没有账号？",
-    "copied": "已复制"
+    "copied": "已复制",
+    "qoder_oauth_title": "Qoder OAuth",
+    "qoder_oauth_button": "开始 Qoder 登录",
+    "qoder_oauth_hint": "通过设备授权流程登录 Qoder，自动获取并保存认证文件。",
+    "qoder_oauth_url_label": "授权链接:",
+    "qoder_open_link": "打开链接",
+    "qoder_copy_link": "复制链接",
+    "qoder_oauth_status_waiting": "等待认证中...",
+    "qoder_oauth_status_success": "认证成功！",
+    "qoder_oauth_status_error": "认证失败:",
+    "qoder_oauth_start_error": "启动 Qoder OAuth 失败:"
   },
   "stats": {
     "success": "成功",
@@ -1445,7 +1493,9 @@
           "timeout": "Timeout",
           "stabilize_device": "稳定设备指纹",
           "stabilize_device_desc": "固定 OS/Arch，并按凭据/API Key 稳定软件指纹",
-          "beta_features": "Beta Features"
+          "beta_features": "Beta Features",
+          "codex_identity_confuse": "Codex 身份混淆",
+          "codex_identity_confuse_desc": "在 fill-first 或会话粘性路由下，按所选认证重映射 Codex prompt_cache_key 与安装身份"
         },
         "network": {
           "title": "网络配置",
@@ -1839,7 +1889,13 @@
     "invalid_json": "请输入有效 JSON",
     "expected_array": "请输入 JSON 数组",
     "expected_object": "请输入 JSON 对象",
-    "invalid_enum": "请选择声明的枚举值"
+    "invalid_enum": "请选择声明的枚举值",
+    "refresh": "刷新",
+    "global_status": "全局状态",
+    "global_enabled": "已启用",
+    "global_disabled": "已停用",
+    "discovered": "发现插件",
+    "effective": "生效插件"
   },
   "plugin_store": {
     "description_show_more": "展开描述",
@@ -1915,7 +1971,28 @@
     "gate_step2_action": "我已阅读并理解上述风险",
     "gate_step3_prompt": "如需确认，请在下方输入框中键入 “{{token}}”",
     "gate_step3_action": "安装此插件",
-    "gate_step3_hint": "请输入上方显示的完整标识以启用安装。"
+    "gate_step3_hint": "请输入上方显示的完整标识以启用安装。",
+    "title": "插件商店",
+    "description": "浏览插件注册表,为当前后端安装或更新插件。",
+    "global_status": "全局状态",
+    "global_enabled": "已启用",
+    "global_disabled": "已停用",
+    "plugins_dir": "插件目录",
+    "stat_available": "可用插件",
+    "search_placeholder": "搜索插件 ID、名称、作者或标签...",
+    "search_label": "搜索插件商店",
+    "filter_label": "按安装状态筛选",
+    "filter_all": "全部",
+    "filter_installed": "已安装",
+    "filter_not_installed": "未安装",
+    "filter_updates": "可更新",
+    "badge_update": "可更新",
+    "badge_effective": "生效中",
+    "version_arrow": "v{{from}} → v{{to}}",
+    "manage": "管理",
+    "no_matches": "没有匹配的插件",
+    "no_matches_desc": "当前搜索或筛选条件下没有插件。",
+    "clear_filters": "清除筛选"
   },
   "plugin_resource": {
     "page_count": "{{count}} 个页面",
@@ -2123,7 +2200,7 @@
       "activeCount": "{{active}}/{{total}} 活跃"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2186,8 +2263,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "不同 URL 的使用规范一致,保存时只会写入当前分组协议对应地址。",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "全球高保线路",
-         "aiCodeMirrorDomestic": "国内优化线路",
+        "aiCodeMirrorGlobal": "全球高保线路",
+        "aiCodeMirrorDomestic": "国内优化线路",
         "standard": "普通 URL",
         "direct": "专线直连 URL",
         "domestic": "国内线路",
@@ -2196,8 +2273,8 @@
         "global": "全球"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "适用于全球访问的高防护线路。",
-         "aiCodeMirrorDomestic": "针对中国大陆网络优化的线路。",
+        "aiCodeMirrorGlobal": "适用于全球访问的高防护线路。",
+        "aiCodeMirrorDomestic": "针对中国大陆网络优化的线路。",
         "domestic": "面向中国大陆用户和部署在中国大陆网络环境中的业务，通常可获得更低延迟。",
         "overseas": "面向海外部署、跨境访问或需要访问境外模型的业务。",
         "mainlandChinaRecommended": "推荐中国大陆用户和部署在中国大陆网络环境中的业务使用。",
@@ -2483,5 +2560,44 @@
     "error": "绑定失败，请重新开始。",
     "unsupported": "当前后端不支持 SIWC 绑定。",
     "expired": "绑定会话已过期，请重新开始。"
+  },
+  "qoder_quota": {
+    "title": "Qoder 额度",
+    "empty_title": "暂无 Qoder 认证",
+    "empty_desc": "登录 Qoder 后即可查看剩余额度。",
+    "idle": "点击此处刷新额度",
+    "loading": "正在加载额度...",
+    "load_failed": "额度获取失败：{{message}}",
+    "empty_data": "暂无 Qoder 额度快照。请在 Qoder 模型同步后刷新认证文件。",
+    "refresh_button": "刷新额度",
+    "fetch_all": "获取全部",
+    "usage_label": "使用量",
+    "remaining_amount": "剩余 {{amount}}",
+    "expires_at": "{{time}} 到期",
+    "org_resource_remaining": "组织资源剩余",
+    "quota_exceeded": "额度已用尽",
+    "unit_default": "credits"
+  },
+  "usage_stats": {
+    "title": "使用统计",
+    "subtitle": "来自代理运行时的请求和 Token 使用情况。",
+    "refresh": "刷新",
+    "last_updated": "最后更新",
+    "load_failed": "无法加载使用统计",
+    "total_requests": "总请求数",
+    "total_tokens": "总 Token 数",
+    "success": "成功",
+    "failure": "失败",
+    "requests_by_hour": "按小时请求",
+    "tokens_by_hour": "按小时 Token",
+    "top_models": "热门模型",
+    "api_breakdown": "API 明细",
+    "api": "API",
+    "model": "模型",
+    "requests": "请求",
+    "tokens": "Token",
+    "failures": "失败",
+    "models": "模型",
+    "no_data": "暂无使用数据"
   }
 }

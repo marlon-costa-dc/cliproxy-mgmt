@@ -679,7 +679,7 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     labelKey: L('sections.headers.codex_identity_confuse'),
     qualifierKey: L('sections.headers.codex_title'),
     hintKey: L('sections.headers.codex_identity_confuse_desc'),
-    yamlKeys: ['codex', 'identity-confuse'],
+    yamlKeys: ['oauth', 'providers', 'codex', 'identity-confuse'],
     keywords: ['codex'],
   },
   // ── payload (coarse: one entry per rule group) ──────────────────────────────
