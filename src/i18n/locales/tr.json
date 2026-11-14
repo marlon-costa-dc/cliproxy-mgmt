@@ -2587,24 +2587,18 @@
   },
   "usage_stats": {
     "title": "Kullanım İstatistikleri",
-    "subtitle": "Proxy çalışma zamanından istek ve token kullanımı.",
+    "subtitle": "Proxy çalışma zamanından sağlayıcı başına istek sonuçları.",
     "refresh": "Yenile",
     "last_updated": "Son Güncelleme",
     "load_failed": "Kullanım istatistikleri yüklenemedi",
     "total_requests": "Toplam İstek",
-    "total_tokens": "Toplam Token",
     "success": "Başarılı",
     "failure": "Başarısız",
-    "requests_by_hour": "Saatlik İstekler",
-    "tokens_by_hour": "Saatlik Tokenlar",
-    "top_models": "En Çok Kullanılan Modeller",
     "api_breakdown": "API Dağılımı",
     "api": "API",
-    "model": "Model",
-    "requests": "İstekler",
-    "tokens": "Tokenlar",
     "failures": "Hatalar",
-    "models": "Modeller",
-    "no_data": "Kullanım verisi yok"
+    "no_data": "Kullanım verisi yok",
+    "recent_requests": "Son İstekler (10 dakikalık aralıklar)",
+    "credentials": "Kimlik Bilgileri"
   }
 }

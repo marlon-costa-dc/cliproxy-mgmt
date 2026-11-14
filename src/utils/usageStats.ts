@@ -1,36 +1,28 @@
-import type { UsageModelSnapshot, UsageSnapshot } from '@/types/usage';
+import {
+  mergeRecentRequestBucketGroups,
+  normalizeRecentRequestUsageEntry,
+  type ApiKeyUsageResponse,
+  type RecentRequestBucket,
+} from '@/utils/recentRequests';
 
-export interface UsageTrendPoint {
-  label: string;
-  value: number;
-}
-
-export interface UsageModelRow {
-  apiName: string;
-  displayApiName: string;
-  modelName: string;
-  requests: number;
-  tokens: number;
+export interface UsageProviderRow {
+  provider: string;
+  credentials: number;
+  success: number;
   failures: number;
 }
 
-export interface UsageApiRow {
-  apiName: string;
-  displayApiName: string;
-  requests: number;
-  tokens: number;
-  models: UsageModelRow[];
+export interface UsageSummary {
+  success: number;
+  failures: number;
+  providers: UsageProviderRow[];
+  recent: RecentRequestBucket[];
 }
 
 const HTTP_ROUTE_RE = /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+\//i;
 const HASHED_API_KEY_RE = /^api-key:[0-9a-f]{8}$/i;
 const SAFE_IDENTIFIER_RE =
   /^(unknown|other|gemini|gemini-cli|aistudio|vertex|claude|codex|openai|openai-compatibility|openai-compatible|antigravity|github-copilot|gitlab|cursor|kiro|kilo|kimi|iflow|codebuddy)$/i;
-
-const numberValue = (value: unknown): number => {
-  const n = typeof value === 'number' ? value : Number(value);
-  return Number.isFinite(n) ? n : 0;
-};
 
 const maskSecretSegment = (value: string): string => {
   const trimmed = value.trim();
@@ -55,15 +47,6 @@ export function maskUsageIdentifier(value: string): string {
   return maskSecretSegment(label);
 }
 
-const modelFailureCount = (model: UsageModelSnapshot | undefined): number => {
-  if (model?.failure_count !== undefined) {
-    return numberValue(model.failure_count);
-  }
-  return Array.isArray(model?.details)
-    ? model.details.filter((detail) => detail?.failed).length
-    : 0;
-};
-
 export function formatLargeNumber(value: number): string {
   return new Intl.NumberFormat(undefined, {
     notation: value >= 100_000 ? 'compact' : 'standard',
@@ -71,49 +54,31 @@ export function formatLargeNumber(value: number): string {
   }).format(value);
 }
 
-export function toTrendPoints(
-  source: Record<string, number> | undefined,
-  limit = 24
-): UsageTrendPoint[] {
-  if (!source) return [];
-  return Object.entries(source)
-    .map(([label, value]) => ({ label, value: numberValue(value) }))
-    .sort((a, b) => a.label.localeCompare(b.label))
-    .slice(-limit);
-}
-
-export function buildUsageRows(usage: UsageSnapshot | null | undefined): UsageApiRow[] {
-  const apis = usage?.apis;
-  if (!apis) return [];
-
-  return Object.entries(apis)
-    .map(([apiName, api]) => {
-      const displayApiName = maskUsageIdentifier(apiName);
-      const models = Object.entries(api?.models ?? {})
-        .map(([modelName, model]) => ({
-          apiName,
-          displayApiName,
-          modelName,
-          requests: numberValue(model?.total_requests),
-          tokens: numberValue(model?.total_tokens),
-          failures: modelFailureCount(model),
-        }))
-        .sort((a, b) => b.requests - a.requests || b.tokens - a.tokens);
-
-      return {
-        apiName,
-        displayApiName,
-        requests: numberValue(api?.total_requests),
-        tokens: numberValue(api?.total_tokens),
-        models,
-      };
-    })
-    .sort((a, b) => b.requests - a.requests || b.tokens - a.tokens);
-}
-
-export function buildTopModelRows(apiRows: UsageApiRow[], limit = 12): UsageModelRow[] {
-  return apiRows
-    .flatMap((row) => row.models)
-    .sort((a, b) => b.requests - a.requests || b.tokens - a.tokens)
-    .slice(0, limit);
+export function summarizeApiKeyUsage(payload: ApiKeyUsageResponse | null | undefined): UsageSummary {
+  const providers: UsageProviderRow[] = [];
+  const buckets: RecentRequestBucket[][] = [];
+  Object.entries(payload ?? {}).forEach(([provider, entries]) => {
+    if (!entries || typeof entries !== 'object' || Array.isArray(entries)) return;
+    const row: UsageProviderRow = {
+      provider: maskUsageIdentifier(provider),
+      credentials: 0,
+      success: 0,
+      failures: 0,
+    };
+    Object.values(entries).forEach((raw) => {
+      const entry = normalizeRecentRequestUsageEntry(raw);
+      row.credentials += 1;
+      row.success += entry.success;
+      row.failures += entry.failed;
+      buckets.push(entry.recentRequests);
+    });
+    providers.push(row);
+  });
+  providers.sort((a, b) => b.success + b.failures - (a.success + a.failures));
+  return {
+    success: providers.reduce((sum, row) => sum + row.success, 0),
+    failures: providers.reduce((sum, row) => sum + row.failures, 0),
+    providers,
+    recent: mergeRecentRequestBucketGroups(buckets),
+  };
 }

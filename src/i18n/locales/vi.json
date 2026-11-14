@@ -2593,24 +2593,18 @@
   },
   "usage_stats": {
     "title": "Thống kê sử dụng",
-    "subtitle": "Lượng yêu cầu và token từ runtime proxy.",
+    "subtitle": "Kết quả yêu cầu theo từng nhà cung cấp từ runtime proxy.",
     "refresh": "Làm mới",
     "last_updated": "Cập nhật lần cuối",
     "load_failed": "Không thể tải thống kê sử dụng",
     "total_requests": "Tổng yêu cầu",
-    "total_tokens": "Tổng token",
     "success": "Thành công",
     "failure": "Thất bại",
-    "requests_by_hour": "Yêu cầu theo giờ",
-    "tokens_by_hour": "Token theo giờ",
-    "top_models": "Model hàng đầu",
     "api_breakdown": "Chi tiết theo API",
     "api": "API",
-    "model": "Model",
-    "requests": "Yêu cầu",
-    "tokens": "Token",
     "failures": "Lỗi",
-    "models": "Model",
-    "no_data": "Chưa có dữ liệu sử dụng"
+    "no_data": "Chưa có dữ liệu sử dụng",
+    "recent_requests": "Yêu cầu gần đây (khoảng 10 phút)",
+    "credentials": "Thông tin xác thực"
   }
 }
