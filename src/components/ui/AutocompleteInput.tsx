@@ -1,11 +1,15 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
+  type CSSProperties,
   type ChangeEvent,
   type KeyboardEvent,
   type ReactNode,
 } from 'react';
+import { createPortal } from 'react-dom';
+import { filterAutocompleteOptions, normalizeAutocompleteOptions } from './autocompleteOptions';
 import { IconChevronDown } from './icons';
 
 interface AutocompleteInputProps {
@@ -41,39 +45,77 @@ export function AutocompleteInput({
 }: AutocompleteInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  // Only narrow the list while the user is typing; reopening shows every option again.
+  const [isTyping, setIsTyping] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputWrapRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
-  const normalizedOptions = options.map((opt) =>
-    typeof opt === 'string'
-      ? { value: opt, label: opt }
-      : { value: opt.value, label: opt.label || opt.value }
-  );
+  const normalizedOptions = normalizeAutocompleteOptions(options);
+  const filteredOptions = filterAutocompleteOptions(normalizedOptions, value, isTyping);
+  const showDropdown = isOpen && filteredOptions.length > 0 && !disabled;
+  const dropdownReady = showDropdown && dropdownStyle !== null;
 
-  const filteredOptions = normalizedOptions.filter((opt) => {
-    const v = value.toLowerCase();
-    return (
-      opt.value.toLowerCase().includes(v) || (opt.label && opt.label.toLowerCase().includes(v))
-    );
-  });
+  const openDropdown = () => {
+    setIsTyping(false);
+    setHighlightedIndex(normalizedOptions.findIndex((opt) => opt.value === value));
+    setIsOpen(true);
+  };
+
+  useEffect(() => {
+    if (!dropdownReady) return;
+    dropdownRef.current
+      ?.querySelector('[aria-selected="true"]')
+      ?.scrollIntoView({ block: 'nearest' });
+  }, [dropdownReady]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
+      const target = event.target as Node;
+      if (containerRef.current?.contains(target) || dropdownRef.current?.contains(target)) return;
+      setIsOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useLayoutEffect(() => {
+    if (!showDropdown || !inputWrapRef.current) return;
+    const updateDropdownStyle = () => {
+      if (!inputWrapRef.current) return;
+      const rect = inputWrapRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom - 14;
+      const opensUp = spaceBelow < 200 && rect.top > spaceBelow;
+      setDropdownStyle({
+        position: 'fixed',
+        ...(opensUp ? { bottom: window.innerHeight - rect.top + 6 } : { top: rect.bottom + 6 }),
+        left: rect.left,
+        width: rect.width,
+        maxHeight: Math.max(0, Math.min(200, opensUp ? rect.top - 14 : spaceBelow)),
+        zIndex: 2010,
+      });
+    };
+    updateDropdownStyle();
+    window.addEventListener('resize', updateDropdownStyle);
+    window.addEventListener('scroll', updateDropdownStyle, true);
+
+    return () => {
+      window.removeEventListener('resize', updateDropdownStyle);
+      window.removeEventListener('scroll', updateDropdownStyle, true);
+    };
+  }, [showDropdown]);
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
+    setIsTyping(true);
     setIsOpen(true);
     setHighlightedIndex(-1);
   };
 
   const handleSelect = (selectedValue: string) => {
     onChange(selectedValue);
+    setIsTyping(false);
     setIsOpen(false);
   };
 
@@ -83,7 +125,7 @@ export function AutocompleteInput({
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (!isOpen) {
-        setIsOpen(true);
+        openDropdown();
         return;
       }
       setHighlightedIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : prev));
@@ -108,13 +150,14 @@ export function AutocompleteInput({
   return (
     <div className={`form-group ${wrapperClassName}`} ref={containerRef} style={wrapperStyle}>
       {label && <label htmlFor={id}>{label}</label>}
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative' }} ref={inputWrapRef}>
         <input
           id={id}
           className={`input ${className}`.trim()}
           value={value}
           onChange={handleInputChange}
-          onFocus={() => setIsOpen(true)}
+          onFocus={openDropdown}
+          onClick={() => !isOpen && openDropdown()}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
@@ -133,55 +176,62 @@ export function AutocompleteInput({
             cursor: 'pointer',
             height: '100%',
           }}
-          onClick={() => !disabled && setIsOpen(!isOpen)}
+          onClick={() => {
+            if (disabled) return;
+            if (isOpen) setIsOpen(false);
+            else openDropdown();
+          }}
         >
           {rightElement}
           <IconChevronDown size={16} style={{ opacity: 0.5, marginLeft: 4 }} />
         </div>
 
-        {isOpen && filteredOptions.length > 0 && !disabled && (
-          <div
-            className="autocomplete-dropdown"
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 4px)',
-              left: 0,
-              right: 0,
-              zIndex: 1000,
-              backgroundColor: 'var(--bg-secondary)',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-md)',
-              maxHeight: 200,
-              overflowY: 'auto',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            }}
-          >
-            {filteredOptions.map((opt, index) => (
-              <div
-                key={`${opt.value}-${index}`}
-                onClick={() => handleSelect(opt.value)}
-                style={{
-                  padding: '8px 12px',
-                  cursor: 'pointer',
-                  backgroundColor:
-                    index === highlightedIndex ? 'var(--bg-tertiary)' : 'transparent',
-                  color: 'var(--text-primary)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  fontSize: '0.9rem',
-                }}
-                onMouseEnter={() => setHighlightedIndex(index)}
-              >
-                <span style={{ fontWeight: 500 }}>{opt.value}</span>
-                {opt.label && opt.label !== opt.value && (
-                  <span style={{ fontSize: '0.85em', color: 'var(--text-secondary)' }}>
-                    {opt.label}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        {showDropdown &&
+          dropdownStyle &&
+          typeof document !== 'undefined' &&
+          createPortal(
+            <div
+              ref={dropdownRef}
+              className="autocomplete-dropdown"
+              role="listbox"
+              style={{
+                backgroundColor: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-md)',
+                overflowY: 'auto',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                ...dropdownStyle,
+              }}
+            >
+              {filteredOptions.map((opt, index) => (
+                <div
+                  key={`${opt.value}-${index}`}
+                  role="option"
+                  aria-selected={opt.value === value}
+                  onClick={() => handleSelect(opt.value)}
+                  style={{
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    backgroundColor:
+                      index === highlightedIndex ? 'var(--bg-tertiary)' : 'transparent',
+                    color: 'var(--text-primary)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    fontSize: '0.9rem',
+                  }}
+                  onMouseEnter={() => setHighlightedIndex(index)}
+                >
+                  <span style={{ fontWeight: opt.value === value ? 600 : 500 }}>{opt.value}</span>
+                  {opt.label && opt.label !== opt.value && (
+                    <span style={{ fontSize: '0.85em', color: 'var(--text-secondary)' }}>
+                      {opt.label}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>,
+            document.body
+          )}
       </div>
       {hint && <div className="hint">{hint}</div>}
       {error && <div className="error-box">{error}</div>}

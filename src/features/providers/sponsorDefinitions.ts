@@ -9,15 +9,6 @@ import {
   resolveApiKeyFunBaseUrl,
 } from './sponsor';
 import {
-  CODE0_AFFILIATE_URL,
-  CODE0_BASE_URL_OPTIONS,
-  CODE0_DISPLAY_NAME,
-  CODE0_PROTOCOL_LABELS,
-  CODE0_PROVIDER_NAME,
-  getCode0ProtocolUrls,
-  resolveCode0BaseUrl,
-} from './code0';
-import {
   FENNO_AI_AFFILIATE_URL,
   FENNO_AI_BASE_URL_OPTIONS,
   FENNO_AI_DISPLAY_NAME,
@@ -36,23 +27,14 @@ import {
   resolveQiniuCloudBaseUrl,
 } from './qiniuCloud';
 import {
-  LMU_AI_AFFILIATE_URL,
-  LMU_AI_BASE_URL_OPTIONS,
-  LMU_AI_DISPLAY_NAME,
-  LMU_AI_PROTOCOL_LABELS,
-  LMU_AI_PROVIDER_NAME,
-  getLmuAIProtocolUrls,
-  resolveLmuAIBaseUrl,
-} from './lmuAI';
-import {
-  INFISTAR_AFFILIATE_URL,
-  INFISTAR_BASE_URL_OPTIONS,
-  INFISTAR_DISPLAY_NAME,
-  INFISTAR_PROTOCOL_LABELS,
-  INFISTAR_PROVIDER_NAME,
-  getInfistarProtocolUrls,
-  resolveInfistarBaseUrl,
-} from './infistar';
+  AI_CODE_MIRROR_AFFILIATE_URL,
+  AI_CODE_MIRROR_BASE_URL_OPTIONS,
+  AI_CODE_MIRROR_DISPLAY_NAME,
+  AI_CODE_MIRROR_PROTOCOL_LABELS,
+  AI_CODE_MIRROR_PROVIDER_NAME,
+  getAiCodeMirrorProtocolUrls,
+  resolveAiCodeMirrorBaseUrl,
+} from './aiCodeMirror';
 import {
   KIMI_BASE_URL_OPTIONS,
   KIMI_DISPLAY_NAME,
@@ -115,19 +97,6 @@ const SPONSOR_DEFINITIONS: Record<SponsorProviderBrand, SponsorProviderDefinitio
     resolveBaseUrl: resolveApiKeyFunBaseUrl,
     getProtocolUrls: getApiKeyFunProtocolUrls,
   },
-  code0: {
-    brand: 'code0',
-    displayName: CODE0_DISPLAY_NAME,
-    providerName: CODE0_PROVIDER_NAME,
-    affiliateUrl: CODE0_AFFILIATE_URL,
-    protocols: ['openai', 'claude', 'gemini', 'codex'],
-    protocolLabels: CODE0_PROTOCOL_LABELS,
-    defaultProtocol: 'openai',
-    baseUrlOptions: CODE0_BASE_URL_OPTIONS,
-    supportsUsageCheck: false,
-    resolveBaseUrl: resolveCode0BaseUrl,
-    getProtocolUrls: getCode0ProtocolUrls,
-  },
   fennoAI: {
     brand: 'fennoAI',
     displayName: FENNO_AI_DISPLAY_NAME,
@@ -154,37 +123,24 @@ const SPONSOR_DEFINITIONS: Record<SponsorProviderBrand, SponsorProviderDefinitio
     resolveBaseUrl: resolveQiniuCloudBaseUrl,
     getProtocolUrls: getQiniuCloudProtocolUrls,
   },
-  lmuAI: {
-    brand: 'lmuAI',
-    displayName: LMU_AI_DISPLAY_NAME,
-    providerName: LMU_AI_PROVIDER_NAME,
-    affiliateUrl: LMU_AI_AFFILIATE_URL,
+  aiCodeMirror: {
+    brand: 'aiCodeMirror',
+    displayName: AI_CODE_MIRROR_DISPLAY_NAME,
+    providerName: AI_CODE_MIRROR_PROVIDER_NAME,
+    affiliateUrl: AI_CODE_MIRROR_AFFILIATE_URL,
     protocols: ['openai', 'claude', 'gemini', 'codex'],
-    protocolLabels: LMU_AI_PROTOCOL_LABELS,
+    protocolLabels: AI_CODE_MIRROR_PROTOCOL_LABELS,
     defaultProtocol: 'openai',
-    baseUrlOptions: LMU_AI_BASE_URL_OPTIONS,
+    baseUrlOptions: AI_CODE_MIRROR_BASE_URL_OPTIONS,
     supportsUsageCheck: false,
-    resolveBaseUrl: resolveLmuAIBaseUrl,
-    getProtocolUrls: getLmuAIProtocolUrls,
-  },
-  infistar: {
-    brand: 'infistar',
-    displayName: INFISTAR_DISPLAY_NAME,
-    providerName: INFISTAR_PROVIDER_NAME,
-    affiliateUrl: INFISTAR_AFFILIATE_URL,
-    protocols: ['openai', 'claude', 'gemini', 'codex'],
-    protocolLabels: INFISTAR_PROTOCOL_LABELS,
-    defaultProtocol: 'openai',
-    baseUrlOptions: INFISTAR_BASE_URL_OPTIONS,
-    supportsUsageCheck: false,
-    resolveBaseUrl: resolveInfistarBaseUrl,
-    getProtocolUrls: getInfistarProtocolUrls,
+    resolveBaseUrl: resolveAiCodeMirrorBaseUrl,
+    getProtocolUrls: getAiCodeMirrorProtocolUrls,
   },
   kimi: {
     brand: 'kimi',
     displayName: KIMI_DISPLAY_NAME,
     providerName: KIMI_PROVIDER_NAME,
-    protocols: ['openai', 'claude'],
+    protocols: ['openai', 'claude', 'codex'],
     protocolLabels: KIMI_PROTOCOL_LABELS,
     defaultProtocol: 'openai',
     baseUrlOptions: KIMI_BASE_URL_OPTIONS,
@@ -196,24 +152,10 @@ const SPONSOR_DEFINITIONS: Record<SponsorProviderBrand, SponsorProviderDefinitio
 
 export const isMultiProtocolSponsorBrand = (brand: ProviderBrand): brand is SponsorProviderBrand =>
   brand === 'apikeyFun' ||
-  brand === 'code0' ||
   brand === 'fennoAI' ||
   brand === 'qiniuCloud' ||
-  brand === 'lmuAI' ||
-  brand === 'infistar' ||
+  brand === 'aiCodeMirror' ||
   brand === 'kimi';
-
-/**
- * 临时隐藏的赞助商品牌：入口从提供商列表隐藏，其配置改由对应协议分组
- * （codex/claude/gemini/openaiCompatibility）直接显示与管理。
- * 以后恢复时，把对应 brand 从集合中删除即可。
- */
-export const TEMPORARILY_HIDDEN_SPONSOR_BRANDS: ReadonlySet<SponsorProviderBrand> = new Set([
-  'lmuAI',
-]);
-
-export const isTemporarilyHiddenSponsorBrand = (brand: ProviderBrand): boolean =>
-  TEMPORARILY_HIDDEN_SPONSOR_BRANDS.has(brand as SponsorProviderBrand);
 
 export type SponsorAggregationConflict = 'multiple-configs' | 'multiple-openai-keys';
 

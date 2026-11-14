@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 import { IconExternalLink, IconPlus, IconSearch } from '@/components/ui/icons';
 import type { ProviderRecentUsageMap } from '@/components/providers/utils';
 import { PROVIDER_LOGOS } from '../brandLogos';
-import { CLAUDE_API_AFFILIATE_URL } from '../claudeApi';
 import { getKimiAffiliateUrl } from '../kimi';
 import { APIKEY_FUN_AFFILIATE_URL, APIKEY_FUN_DASHBOARD_URL } from '../sponsor';
 import { getSponsorProviderDefinition } from '../sponsorDefinitions';
@@ -59,19 +58,12 @@ export function ProviderResourcePanel({
   const hasProviderInfo = group.resources.length > 0;
   const showSponsorRegistrationLink = group.id === 'apikeyFun' && !hasProviderInfo;
   const showSponsorDashboardLink = group.id === 'apikeyFun' && hasProviderInfo;
-  const showClaudeApiSponsorLink = group.id === 'claudeApi';
   const registrationUrl =
-    group.id === 'claudeApi'
-      ? CLAUDE_API_AFFILIATE_URL
-      : group.id === 'kimi'
-        ? getKimiAffiliateUrl(i18n.resolvedLanguage ?? i18n.language)
-        : group.id === 'code0' ||
-            group.id === 'lmuAI' ||
-            group.id === 'infistar' ||
-            group.id === 'fennoAI' ||
-            group.id === 'qiniuCloud'
-          ? getSponsorProviderDefinition(group.id).affiliateUrl
-          : null;
+    group.id === 'kimi'
+      ? getKimiAffiliateUrl(i18n.resolvedLanguage ?? i18n.language)
+      : group.id === 'fennoAI' || group.id === 'qiniuCloud' || group.id === 'aiCodeMirror'
+        ? getSponsorProviderDefinition(group.id).affiliateUrl
+        : null;
   const registrationLabel = t(
     group.id === 'kimi' ? 'providersPage.sponsor.registerNow' : 'providersPage.sponsor.registerLink'
   );
@@ -141,16 +133,27 @@ export function ProviderResourcePanel({
                 </span>
                 <IconExternalLink className={styles.sponsorLinkIcon} size={14} />
               </a>
-            ) : showClaudeApiSponsorLink || registrationUrl ? (
-              <a
-                className={`${styles.sponsorLink} ${styles.sponsorLinkEmphasis}`}
-                href={registrationUrl ?? CLAUDE_API_AFFILIATE_URL}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span className={styles.sponsorLinkText}>{registrationLabel}</span>
-                <IconExternalLink className={styles.sponsorLinkIcon} size={14} />
-              </a>
+            ) : registrationUrl ? (
+              <>
+                <a
+                  className={[
+                    styles.sponsorLink,
+                    styles.sponsorLinkEmphasis,
+                    group.id === 'kimi' ? styles.sponsorLinkKimi : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  href={registrationUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className={styles.sponsorLinkText}>{registrationLabel}</span>
+                  <IconExternalLink className={styles.sponsorLinkIcon} size={14} />
+                </a>
+                {group.id === 'kimi' ? (
+                  <p className={styles.kimiPromo}>{t('providersPage.sponsor.kimiPromo')}</p>
+                ) : null}
+              </>
             ) : null}
           </div>
           <div className={styles.searchWrap}>

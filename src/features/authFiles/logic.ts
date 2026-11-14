@@ -4,7 +4,14 @@
  */
 
 import type { AuthFileItem } from '@/types';
-import { normalizeProviderKey } from './constants';
+import { isPluginQuotaFile, resolveAuthProvider } from '@/utils/quota';
+import {
+  QUOTA_PROVIDER_TYPES,
+  getAuthFileStatusMessage,
+  normalizeProviderKey,
+  type AuthFileQuotaFilter,
+  type QuotaProviderType,
+} from './constants';
 import { deriveAuthFileIdentity } from './identity';
 import type { AuthFilesSortMode } from './uiState';
 
@@ -17,8 +24,28 @@ export const buildWildcardSearch = (value: string): RegExp | null => {
   return new RegExp(pattern, 'i');
 };
 
+/** “全部”展示每张受支持卡片自己的额度；指定提供商时只展示匹配的额度。 */
+export const resolveAuthFileQuotaType = (
+  file: AuthFileItem,
+  filter: AuthFileQuotaFilter
+): QuotaProviderType | null => {
+  if (!filter) return null;
+
+  const provider = resolveAuthProvider(file);
+  if (isPluginQuotaFile(file)) {
+    if (filter !== 'all' && filter !== 'plugin' && provider !== filter) return null;
+    return 'plugin';
+  }
+  if (QUOTA_PROVIDER_TYPES.has(provider as QuotaProviderType)) {
+    if (filter !== 'all' && provider !== filter) return null;
+    return provider as QuotaProviderType;
+  }
+
+  return null;
+};
+
 /**
- * 搜索 haystack：文件名 + 类型 + 提供方 + 账号邮箱 + 项目 ID。
+ * 搜索 haystack：文件名 + 类型 + 提供方 + 账号邮箱 + 项目 ID + 状态/错误信息。
  * 显式不含 account —— api-key 凭证的 account 就是 API key 本身，见 identity.ts。
  */
 export const matchesAuthFileSearch = (
@@ -28,7 +55,14 @@ export const matchesAuthFileSearch = (
 ): boolean => {
   if (!term) return true;
   const needle = term.toLowerCase();
-  return [file.name, file.type, file.provider, file.email, file.projectId].some((value) => {
+  return [
+    file.name,
+    file.type,
+    file.provider,
+    file.email,
+    file.projectId,
+    getAuthFileStatusMessage(file),
+  ].some((value) => {
     const content = (value || '').toString();
     return wildcard ? wildcard.test(content) : content.toLowerCase().includes(needle);
   });

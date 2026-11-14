@@ -23,19 +23,18 @@ import {
   IconSidebarDashboard,
   IconSidebarLogs,
   IconSidebarOauth,
-  IconSidebarPipeline,
   IconSidebarPlugins,
   IconSidebarProviders,
   IconSidebarQuickStart,
   IconSidebarQuota,
-  IconSidebarStore,
+  IconSidebarRouting,
   IconSidebarSystem,
-  IconSidebarUsage,
   IconChevronDown,
 } from '@/components/ui/icons';
 import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
 import {
   useAuthStore,
+  useLoginTransitionStore,
   useConfigStore,
   useLanguageStore,
   useNotificationStore,
@@ -62,10 +61,8 @@ const sidebarIcons: Record<string, ReactNode> = {
   authFiles: <IconSidebarAuthFiles size={18} />,
   oauth: <IconSidebarOauth size={18} />,
   quota: <IconSidebarQuota size={18} />,
-  pipeline: <IconSidebarPipeline size={18} />,
-  usage: <IconSidebarUsage size={18} />,
+  routing: <IconSidebarRouting size={18} />,
   plugins: <IconSidebarPlugins size={18} />,
-  pluginStore: <IconSidebarStore size={18} />,
   config: <IconSidebarConfig size={18} />,
   logs: <IconSidebarLogs size={18} />,
   system: <IconSidebarSystem size={18} />,
@@ -355,6 +352,7 @@ export function MainLayout() {
 
   const fullBrandName = 'CLI Proxy API Management Center';
   const abbrBrandName = t('title.abbr');
+  const arrivingFromLogin = useLoginTransitionStore((state) => state.phase === 'revealing');
   const isLogsPage = location.pathname.startsWith('/logs');
   const isPluginResourcePage = location.pathname.startsWith('/plugin-pages');
   const showSidebarLabels = !sidebarCollapsed || sidebarOpen;
@@ -637,6 +635,12 @@ export function MainLayout() {
           metaKey: 'nav_meta.oauth',
           icon: sidebarIcons.oauth,
         },
+        {
+          path: '/routing',
+          labelKey: 'nav.routing',
+          metaKey: 'nav_meta.routing',
+          icon: sidebarIcons.routing,
+        },
         ...(isApiKeyFunConfigured ? [quickStartNavItem] : []),
       ],
     },
@@ -649,18 +653,6 @@ export function MainLayout() {
           labelKey: 'nav.quota_management',
           metaKey: 'nav_meta.quota_management',
           icon: sidebarIcons.quota,
-        },
-        {
-          path: '/model-pipeline',
-          labelKey: 'nav.model_pipeline',
-          metaKey: 'nav_meta.model_pipeline',
-          icon: sidebarIcons.pipeline,
-        },
-        {
-          path: '/usage',
-          labelKey: 'nav.usage_statistics',
-          metaKey: 'nav_meta.usage_statistics',
-          icon: sidebarIcons.usage,
         },
         {
           path: '/logs',
@@ -687,12 +679,6 @@ export function MainLayout() {
                 labelKey: 'nav.plugins',
                 metaKey: 'nav_meta.plugins',
                 icon: sidebarIcons.plugins,
-              },
-              {
-                path: '/plugin-store',
-                labelKey: 'nav.plugin_store',
-                metaKey: 'nav_meta.plugin_store',
-                icon: sidebarIcons.pluginStore,
               },
             ]
           : []),
@@ -990,7 +976,7 @@ export function MainLayout() {
     <div
       className={`app-shell ${sidebarCollapsed ? 'sidebar-is-collapsed' : ''} ${
         isPluginResourcePage ? 'plugin-resource-shell' : ''
-      }`}
+      } ${arrivingFromLogin ? 'app-shell--arriving' : ''}`}
     >
       <div className="top-gradient-blur" aria-hidden="true" />
 
