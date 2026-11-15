@@ -87,7 +87,6 @@
     "error_unauthorized": "认证失败，管理密钥缺失或无效",
     "error_forbidden": "访问被拒绝，远程管理未启用、管理密钥未配置或 IP 被临时封禁",
     "error_not_found": "未找到 v8 Management API，请检查服务地址并将 CLIProxyAPI 升级至 v8 或更高版本；不再支持 v0 接口。",
-    "error_legacy_backend": "当前后端可使用 v0 管理接口，但不支持 v8。请将 CLIProxyAPI 升级至 v8 或更高版本后再使用此管理页面。",
     "error_server": "后端处理管理接口时发生错误，请查看服务日志",
     "error_cors": "跨域请求被阻止，请检查服务器配置",
     "error_ssl": "SSL/TLS 证书验证失败"

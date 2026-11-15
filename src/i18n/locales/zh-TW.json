@@ -87,7 +87,6 @@
     "error_unauthorized": "驗證失敗，管理金鑰缺失或無效",
     "error_forbidden": "存取被拒絕，遠端管理未啟用、管理金鑰未設定或 IP 被暫時封鎖",
     "error_not_found": "找不到 v8 Management API，請檢查服務位址並將 CLIProxyAPI 升級至 v8 或更新版本；不再支援 v0 介面。",
-    "error_legacy_backend": "目前後端可使用 v0 管理介面，但不支援 v8。請將 CLIProxyAPI 升級至 v8 或更新版本後再使用此管理頁面。",
     "error_server": "後端處理管理介面時發生錯誤，請查看服務日誌",
     "error_cors": "跨域請求被阻擋，請檢查伺服器設定",
     "error_ssl": "SSL/TLS 憑證驗證失敗"
