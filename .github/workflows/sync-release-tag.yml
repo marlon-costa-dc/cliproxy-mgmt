@@ -125,6 +125,10 @@ jobs:
 
           dispatch_release() {
             local tag="$1"
+            if [[ "${DRY_RUN}" == "true" ]]; then
+              echo "[dry-run] Would dispatch release.yml for ${tag}."
+              return 0
+            fi
             gh workflow run release.yml --repo "${GITHUB_REPOSITORY}" --ref "${GITHUB_REF_NAME}" -f tag="${tag}"
           }
 
@@ -155,7 +159,7 @@ jobs:
                 echo "[i] ${candidate} release already exists for HEAD; nothing to tag."
                 exit 0
               fi
-              echo "[i] ${candidate} tag already exists for HEAD but release is missing; dispatching release."
+              echo "[i] ${candidate} tag already exists for HEAD and is eligible for release dispatch."
               dispatch_release "${candidate}"
               exit 0
             fi
