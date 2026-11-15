@@ -172,6 +172,11 @@ jobs:
       - name: Prepare release assets
         run: |
           cd dist
+          if grep -qF '/v0/management' index.html; then
+            echo 'Panel bundle contains a legacy management endpoint.'
+            exit 1
+          fi
+          grep -qF '/v8/management' index.html
           mv index.html management.html
           ls -lh management.html
 

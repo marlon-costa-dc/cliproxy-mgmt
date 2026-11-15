@@ -87,7 +87,6 @@
     "error_unauthorized": "Kimlik Doğrulama Başarısız. Yönetim Anahtarı Eksik veya Geçersiz",
     "error_forbidden": "Erişim Reddedildi. Uzak Yönetim Kapalı, Yönetim Anahtarı Yapılandırılmamış veya Bu IP Geçici Olarak Yasaklı",
     "error_not_found": "v8 Management API Bulunamadı. Sunucu Adresini Kontrol Et ve CLIProxyAPI Sürümünü v8 veya Sonrasına Yükselt. v0 Desteklenmiyor.",
-    "error_legacy_backend": "Bu Arka Uç v0 Management API Kabul Ediyor ama v8 Sunmuyor. Bu Yönetim Sayfasını Kullanmak için CLIProxyAPI Sürümünü v8 veya Sonrasına Yükselt.",
     "error_server": "Arka Uç Yönetim İsteğini İşlerken Başarısız Oldu. Sunucu Günlüklerini Kontrol Et",
     "error_cors": "Çapraz Kökenli İstek Engellendi. Sunucu Yapılandırmasını Kontrol Et",
     "error_ssl": "SSL/TLS Sertifika Doğrulaması Başarısız"

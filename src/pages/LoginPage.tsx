@@ -13,7 +13,6 @@ import { LANGUAGE_LABEL_KEYS, LANGUAGE_ORDER } from '@/utils/constants';
 import { isSupportedLanguage } from '@/utils/language';
 import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
 import type { ApiError } from '@/types';
-import { LegacyBackendError } from '@/services/api/legacyBackendProbe';
 import { DotMatrixHero } from './login/DotMatrixHero';
 import { LoginForm } from './login/LoginForm';
 import { resolveLoginRedirect } from '@/router/loginRedirect';
@@ -31,7 +30,6 @@ const LANGUAGE_DROPDOWN_MIN_WIDTH = 180;
  * 将 API 错误转换为本地化的用户友好消息
  */
 function getLocalizedErrorMessage(error: unknown, t: (key: string) => string): string {
-  if (error instanceof LegacyBackendError) return t('login.error_legacy_backend');
   const apiError = error as Partial<ApiError>;
   const status = typeof apiError.status === 'number' ? apiError.status : undefined;
   const code = typeof apiError.code === 'string' ? apiError.code : undefined;

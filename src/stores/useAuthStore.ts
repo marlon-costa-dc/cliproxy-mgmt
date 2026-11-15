@@ -9,7 +9,6 @@ import type { AuthState, LoginCredentials, ConnectionStatus } from '@/types';
 import { STORAGE_KEY_AUTH } from '@/utils/constants';
 import { createScopedAuthStorage, getAuthLoginStateStorageKey } from '@/services/storage/secureStorage';
 import { apiClient } from '@/services/api/client';
-import { LegacyBackendError, probeLegacyBackend } from '@/services/api/legacyBackendProbe';
 import { useConfigStore } from './useConfigStore';
 import { useModelsStore } from './useModelsStore';
 import { useQuotaStore } from './useQuotaStore';
@@ -128,21 +127,8 @@ export const useAuthStore = create<AuthStoreState>()(
             managementKey,
           });
 
-          // 测试连接 - 获取配置。只在 v8 路由不存在时诊断旧版后端。
-          const revision = apiClient.getConnectionRevision();
-          try {
-            await useConfigStore.getState().fetchConfig(true);
-          } catch (error) {
-            if (
-              (error as { status?: number })?.status === 404 &&
-              revision === apiClient.getConnectionRevision() &&
-              (await probeLegacyBackend(apiBase, managementKey)) &&
-              revision === apiClient.getConnectionRevision()
-            ) {
-              throw new LegacyBackendError();
-            }
-            throw error;
-          }
+          // Verify login through the v8 management configuration endpoint.
+          await useConfigStore.getState().fetchConfig(true);
 
           // 登录成功
           set({

@@ -89,8 +89,7 @@
     "error_not_found": "Không tìm thấy Management API, hãy xác nhận địa chỉ máy chủ trỏ đến backend CLIProxyAPI",
     "error_server": "Backend gặp lỗi khi xử lý yêu cầu quản lý, hãy kiểm tra log máy chủ",
     "error_cors": "Yêu cầu cross-origin bị chặn, vui lòng kiểm tra cấu hình máy chủ",
-    "error_ssl": "Xác minh chứng chỉ SSL/TLS thất bại",
-    "error_legacy_backend": "Backend này chấp nhận Management API v0 nhưng không cung cấp v8. Vui lòng nâng cấp CLIProxyAPI lên v8 hoặc mới hơn để sử dụng trang quản lý này."
+    "error_ssl": "Xác minh chứng chỉ SSL/TLS thất bại"
   },
   "header": {
     "refresh_all": "Làm mới tất cả",
