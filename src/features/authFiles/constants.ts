@@ -12,6 +12,10 @@ import iconIflow from '@/assets/icons/iflow.svg';
 import iconKimiDark from '@/assets/icons/kimi-dark.svg';
 import iconKimiLight from '@/assets/icons/kimi-light.svg';
 import iconQoder from '@/assets/icons/qoder.svg';
+import iconKilo from '@/assets/icons/kilo.svg';
+import iconCursor from '@/assets/icons/cursor.svg';
+import iconGitlab from '@/assets/icons/gitlab.svg';
+import iconGithub from '@/assets/icons/github.svg';
 import iconQwen from '@/assets/icons/qwen.svg';
 import iconVertex from '@/assets/icons/vertex.svg';
 import type { AuthFileItem, ResolvedTheme, ThemeColors } from '@/types';
@@ -99,6 +103,10 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   iflow: iconIflow,
   kimi: { light: iconKimiDark, dark: iconKimiLight },
   qoder: iconQoder,
+  kilo: iconKilo,
+  cursor: iconCursor,
+  gitlab: iconGitlab,
+  github: iconGithub,
   qwen: iconQwen,
   vertex: iconVertex,
 };

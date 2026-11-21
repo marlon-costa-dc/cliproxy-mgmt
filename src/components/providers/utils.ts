@@ -135,6 +135,7 @@ export const buildGeminiGenerateContentEndpoint = (baseUrl: string, model: strin
 
 export const getProviderUsageKey = (provider: string): string => {
   if (provider === 'interactions') return 'gemini-interactions';
+  if (provider === 'opencodeGo') return 'opencode-go';
   return provider;
 };
 

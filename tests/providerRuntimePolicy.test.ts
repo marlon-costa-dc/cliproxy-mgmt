@@ -39,6 +39,8 @@ const apis = [
   ['codex', providersApi.updateCodexConfig],
   ['xai', providersApi.updateXAIConfig],
   ['meta', providersApi.updateMetaConfig],
+  ['opencode', providersApi.updateOpenCodeConfig],
+  ['opencode-go', providersApi.updateOpenCodeGoConfig],
   ['vertex', providersApi.updateVertexConfig],
 ] as const;
 

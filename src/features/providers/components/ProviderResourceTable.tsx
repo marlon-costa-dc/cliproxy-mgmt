@@ -28,6 +28,7 @@ import {
 import type { OpenAIProviderConfig } from '@/types';
 import type { StatusBarData } from '@/utils/recentRequests';
 import type { ProviderResource } from '../types';
+import { PROVIDER_DEFAULT_BASE_URLS } from '../descriptors';
 import { isMultiProtocolSponsorBrand } from '../sponsorDefinitions';
 import styles from './ProviderResourceTable.module.scss';
 import statusBarStyles from './providerStatusBar.module.scss';
@@ -189,10 +190,11 @@ export function ProviderResourceTable({
     if (isSponsorResource(r)) {
       return <span className={styles.baseUrl}>{renderProtocolSummary(r)}</span>;
     }
-    if (r.brand === 'claude' && !r.baseUrl) {
+    const defaultBaseUrl = PROVIDER_DEFAULT_BASE_URLS[r.brand];
+    if (defaultBaseUrl && !r.baseUrl) {
       return (
         <span className={styles.baseUrl}>
-          https://api.anthropic.com {t('providersPage.status.defaultSuffix')}
+          {defaultBaseUrl} {t('providersPage.status.defaultSuffix')}
         </span>
       );
     }
