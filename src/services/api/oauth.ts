@@ -15,6 +15,10 @@ export type BuiltInOAuthProvider =
   | 'kimi'
   | 'kimi-ai'
   | 'qoder'
+  | 'kilo'
+  | 'github'
+  | 'cursor'
+  | 'gitlab'
   | 'xai'
   | 'devin'
   | 'meta';
@@ -42,6 +46,7 @@ const WEBUI_SUPPORTED = new Set<string>([
   'antigravity',
   'devin',
   'qoder',
+  'gitlab',
   'xai',
 ]);
 

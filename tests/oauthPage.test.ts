@@ -21,7 +21,11 @@ import { VertexImportDialog } from '@/features/oauth/components/VertexImportDial
 import type { ProviderFlowState } from '@/features/oauth/hooks/useOAuthFlows';
 import { resolveCallbackUrl, XAI_CALLBACK_URL } from '@/features/oauth/callbackUrl';
 import { resolveFlowView, splitAuthUrl } from '@/features/oauth/flowView';
-import { buildPluginOAuthProviderCards, OAUTH_PROVIDERS } from '@/features/oauth/providers';
+import {
+  buildPluginOAuthProviderCards,
+  OAUTH_PROVIDERS,
+  supportsManualCallback,
+} from '@/features/oauth/providers';
 import {
   KIMI_CHINESE_AFFILIATE_URL,
   KIMI_INTERNATIONAL_AFFILIATE_URL,
@@ -134,6 +138,37 @@ describe('OAuth provider gallery', () => {
       titleKey: 'auth_login.qoder_oauth_title',
       flow: 'device',
     });
+  });
+
+  test.each([
+    ['kilo', 'Kilo', 'device', false],
+    ['github', 'GitHub Copilot', 'device', false],
+    ['cursor', 'Cursor', 'browser', false],
+    ['gitlab', 'GitLab Duo', 'browser', true],
+  ] as const)('exposes the Plus %s login card', (id, label, flow, callback) => {
+    const card = OAUTH_PROVIDERS.find((provider) => provider.id === id);
+    expect(card).toMatchObject({
+      kind: 'builtin',
+      label,
+      titleKey: `auth_login.${id}_oauth_title`,
+      flow,
+    });
+    expect(supportsManualCallback(card!)).toBe(callback);
+    for (const translation of [en, zhCN, zhTW, ru, ko, vi, tr]) {
+      const messages = translation.auth_login as Record<string, string>;
+      for (const suffix of [
+        'oauth_title',
+        'oauth_button',
+        'open_link',
+        'copy_link',
+        'oauth_status_waiting',
+        'oauth_status_success',
+        'oauth_status_error',
+        'oauth_start_error',
+      ]) {
+        expect(messages[`${id}_${suffix}`]).toBeTruthy();
+      }
+    }
   });
   const locales = { en, 'zh-CN': zhCN, 'zh-TW': zhTW, ru, ko, vi } as const;
 

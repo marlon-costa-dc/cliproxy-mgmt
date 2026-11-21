@@ -46,6 +46,22 @@ export const TYPE_COLORS: Record<string, TypeColorSet> = {
     light: { bg: '#ddf7ff', text: '#075985' },
     dark: { bg: '#0b3a4a', text: '#7dd3fc' },
   },
+  kilo: {
+    light: { bg: '#dcfce7', text: '#166534' },
+    dark: { bg: '#14532d', text: '#86efac' },
+  },
+  cursor: {
+    light: { bg: '#eef2f6', text: '#1f2937' },
+    dark: { bg: '#1f2937', text: '#d1d5db' },
+  },
+  gitlab: {
+    light: { bg: '#fff0e8', text: '#c2410c' },
+    dark: { bg: '#7c2d12', text: '#fdba74' },
+  },
+  github: {
+    light: { bg: '#eaeef2', text: '#24292f' },
+    dark: { bg: '#24292f', text: '#e6edf3' },
+  },
   xai: {
     light: { bg: '#f3f4f6', text: '#111827', border: '1px solid #d1d5db' },
     dark: { bg: '#111827', text: '#f9fafb', border: '1px solid #374151' },

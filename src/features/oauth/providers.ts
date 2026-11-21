@@ -17,6 +17,10 @@ import iconGrokDark from '@/assets/icons/grok-dark.svg';
 import iconDevin from '@/assets/icons/devin.svg';
 import iconDevinDark from '@/assets/icons/devin-dark.svg';
 import iconQoder from '@/assets/icons/qoder.svg';
+import iconKilo from '@/assets/icons/kilo.svg';
+import iconCursor from '@/assets/icons/cursor.svg';
+import iconGitlab from '@/assets/icons/gitlab.svg';
+import iconGithub from '@/assets/icons/github.svg';
 
 export type ThemedIcon = string | { light: string; dark: string };
 
@@ -130,6 +134,38 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
   },
   {
     kind: 'builtin',
+    id: 'kilo',
+    label: 'Kilo',
+    titleKey: 'auth_login.kilo_oauth_title',
+    icon: iconKilo,
+    flow: 'device',
+  },
+  {
+    kind: 'builtin',
+    id: 'github',
+    label: 'GitHub Copilot',
+    titleKey: 'auth_login.github_oauth_title',
+    icon: iconGithub,
+    flow: 'device',
+  },
+  {
+    kind: 'builtin',
+    id: 'cursor',
+    label: 'Cursor',
+    titleKey: 'auth_login.cursor_oauth_title',
+    icon: iconCursor,
+    flow: 'browser',
+  },
+  {
+    kind: 'builtin',
+    id: 'gitlab',
+    label: 'GitLab Duo',
+    titleKey: 'auth_login.gitlab_oauth_title',
+    icon: iconGitlab,
+    flow: 'browser',
+  },
+  {
+    kind: 'builtin',
     id: 'xai',
     label: 'xAI',
     titleKey: 'auth_login.xai_oauth_title',
@@ -156,6 +192,7 @@ export const CALLBACK_SUPPORTED = new Set<string>([
   'antigravity',
   'xai',
   'devin',
+  'gitlab',
 ]);
 
 export const supportsManualCallback = (provider: OAuthProviderCard): boolean =>
