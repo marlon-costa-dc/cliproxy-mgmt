@@ -10,6 +10,8 @@ const PROVIDER_LABELS: Record<string, string> = {
   devin: 'Devin',
   meta: 'Muse (Meta)',
   xai: 'xAI',
+  opencode: 'OpenCode Zen',
+  'opencode-go': 'OpenCode Go',
   vertex: 'Vertex AI',
   openai: 'OpenAI Compatible',
   'openai-compatibility': 'OpenAI Compatible',

@@ -91,7 +91,9 @@ const normalizePrefix = (value: unknown): string | undefined => {
   return trimmed ? trimmed : undefined;
 };
 
-const normalizeAuthIndex = (value: unknown): string | undefined => {
+/** The v8 management API emits `auth_index`; older responses used `auth-index`. */
+const normalizeAuthIndex = (record: Record<string, unknown> | null): string | undefined => {
+  const value = record?.auth_index ?? record?.['auth-index'];
   if (value === undefined || value === null) return undefined;
   const trimmed = String(value).trim();
   return trimmed ? trimmed : undefined;
@@ -106,7 +108,7 @@ const normalizeApiKeyEntry = (entry: unknown): ApiKeyEntry | null => {
 
   const proxyUrl = record?.['proxy-url'];
   const weight = readCredentialWeight(record?.weight);
-  const authIndex = normalizeAuthIndex(record?.['auth-index']);
+  const authIndex = normalizeAuthIndex(record);
 
   const result: ApiKeyEntry = {
     apiKey: trimmed,
@@ -180,7 +182,7 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
   if (models.length) config.models = models;
   const excludedModels = normalizeExcludedModels(record?.['excluded-models']);
   if (excludedModels.length) config.excludedModels = excludedModels;
-  const authIndex = normalizeAuthIndex(record?.['auth-index']);
+  const authIndex = normalizeAuthIndex(record);
   if (authIndex) config.authIndex = authIndex;
 
   const cloakRaw = record?.cloak;
@@ -265,7 +267,7 @@ const normalizeGeminiKeyConfig = (item: unknown): GeminiKeyConfig | null => {
   if (headers) config.headers = headers;
   const excludedModels = normalizeExcludedModels(record?.['excluded-models']);
   if (excludedModels.length) config.excludedModels = excludedModels;
-  const authIndex = normalizeAuthIndex(record?.['auth-index']);
+  const authIndex = normalizeAuthIndex(record);
   if (authIndex) config.authIndex = authIndex;
   return config;
 };
@@ -310,7 +312,7 @@ const normalizeOpenAIProvider = (
   if (headers) result.headers = headers;
   if (models.length) result.models = models;
   if (priority !== undefined) result.priority = Number(priority);
-  const authIndex = normalizeAuthIndex(provider['auth-index']);
+  const authIndex = normalizeAuthIndex(provider);
   if (authIndex) result.authIndex = authIndex;
   if (sourceIndex !== undefined) result.sourceIndex = sourceIndex;
   return result;
@@ -389,6 +391,10 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
   config.codexApiKeys = normalizeProviderGroups(at('api-keys.codex')) as ProviderKeyConfig[];
   config.metaApiKeys = normalizeProviderGroups(at('api-keys.meta')) as ProviderKeyConfig[];
   config.xaiApiKeys = normalizeProviderGroups(at('api-keys.xai')) as ProviderKeyConfig[];
+  config.opencodeApiKeys = normalizeProviderGroups(at('api-keys.opencode')) as ProviderKeyConfig[];
+  config.opencodeGoApiKeys = normalizeProviderGroups(
+    at('api-keys.opencode-go')
+  ) as ProviderKeyConfig[];
   config.claudeApiKeys = normalizeProviderGroups(at('api-keys.claude')) as ProviderKeyConfig[];
   config.vertexApiKeys = normalizeProviderGroups(at('api-keys.vertex')) as ProviderKeyConfig[];
   config.openaiCompatibility = normalizeProviderGroups(

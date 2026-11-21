@@ -2215,6 +2215,8 @@
       "interactions": "Interactions API",
       "codex": "Codex",
       "xai": "xAI",
+      "opencode": "OpenCode Zen",
+      "opencodeGo": "OpenCode Go",
       "claude": "Claude",
       "vertex": "Vertex",
       "openaiCompatibility": "OpenAI Compatible",

@@ -219,6 +219,8 @@ export type ProviderFamily =
   | 'codex'
   | 'meta'
   | 'xai'
+  | 'opencode'
+  | 'opencode-go'
   | 'claude'
   | 'vertex'
   | 'openai-compatibility';
@@ -492,6 +494,7 @@ const updateKey = async (
   );
   // Response metadata belongs to credentials, not arbitrary nested maps such as headers.
   delete keys[keyIndex]['auth-index'];
+  delete keys[keyIndex].auth_index;
   groups[index] = { ...nextGroup, keys };
   await putGroups(family, groups);
 };
@@ -546,6 +549,19 @@ export const providersApi = {
     updateKey('xai', apiKey, baseUrl, config),
   deleteXAIConfig: (apiKey: string, baseUrl?: string, source?: ProviderSource) =>
     deleteKey('xai', apiKey, baseUrl, source),
+  createOpenCodeConfig: (config: ProviderKeyConfig) => createKey('opencode', config),
+  updateOpenCodeConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
+    updateKey('opencode', apiKey, baseUrl, config),
+  deleteOpenCodeConfig: (apiKey: string, baseUrl?: string, source?: ProviderSource) =>
+    deleteKey('opencode', apiKey, baseUrl, source),
+  createOpenCodeGoConfig: (config: ProviderKeyConfig) => createKey('opencode-go', config),
+  updateOpenCodeGoConfig: (
+    apiKey: string,
+    baseUrl: string | undefined,
+    config: ProviderKeyConfig
+  ) => updateKey('opencode-go', apiKey, baseUrl, config),
+  deleteOpenCodeGoConfig: (apiKey: string, baseUrl?: string, source?: ProviderSource) =>
+    deleteKey('opencode-go', apiKey, baseUrl, source),
   createClaudeConfig: (config: ProviderKeyConfig) => createKey('claude', config),
   updateClaudeConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
     updateKey('claude', apiKey, baseUrl, config),

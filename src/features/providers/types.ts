@@ -14,6 +14,8 @@ export type ProviderBrand =
   | 'codex'
   | 'meta'
   | 'xai'
+  | 'opencode'
+  | 'opencodeGo'
   | 'claude'
   | 'vertex'
   | 'openaiCompatibility'
@@ -22,6 +24,18 @@ export type ProviderBrand =
   | 'qiniuCloud'
   | 'aiCodeMirror'
   | 'kimi';
+
+/** Brands stored as one config `api-keys.<family>` entry per key. */
+export type ProviderKeyBrand =
+  | 'gemini'
+  | 'interactions'
+  | 'codex'
+  | 'meta'
+  | 'xai'
+  | 'opencode'
+  | 'opencodeGo'
+  | 'claude'
+  | 'vertex';
 
 export type SponsorProviderBrand = 'apikeyFun' | 'fennoAI' | 'qiniuCloud' | 'aiCodeMirror' | 'kimi';
 
@@ -37,6 +51,8 @@ export type ProviderResourceSelector =
   | { brand: 'codex'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'meta'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'xai'; apiKey: string; baseUrl?: string; index: number }
+  | { brand: 'opencode'; apiKey: string; baseUrl?: string; index: number }
+  | { brand: 'opencodeGo'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'claude'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'vertex'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'openaiCompatibility'; name: string; index: number }

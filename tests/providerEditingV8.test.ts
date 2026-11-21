@@ -38,6 +38,8 @@ const keyApis = [
   ['codex', providersApi.updateCodexConfig],
   ['meta', providersApi.updateMetaConfig],
   ['xai', providersApi.updateXAIConfig],
+  ['opencode', providersApi.updateOpenCodeConfig],
+  ['opencode-go', providersApi.updateOpenCodeGoConfig],
   ['claude', providersApi.updateClaudeConfig],
 ] as const;
 
