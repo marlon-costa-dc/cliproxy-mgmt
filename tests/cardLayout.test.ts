@@ -15,6 +15,7 @@ import { ClaudeQuotaBody } from '@/features/quota/providers/claude/ClaudeQuotaBo
 import { CodexQuotaBody } from '@/features/quota/providers/codex/CodexQuotaBody';
 import { QUOTA_CLASS_KEYS, bindQuotaClasses } from '@/features/quota/types';
 import type { ClaudeQuotaState, CodexQuotaState } from '@/types';
+import { markupText } from './markupText';
 
 const LOCALES = ['en', 'zh-CN', 'zh-TW', 'ru', 'vi', 'ko', 'tr'];
 const classes = bindQuotaClasses(
@@ -202,7 +203,7 @@ describe('plan chip marker (kept on Compact glance cards)', () => {
       ...markup.matchAll(
         /<span class="codexPlanItem"( data-quota-plan="")?>(.*?)<\/span><\/span>/g
       ),
-    ].map((m) => ({ plan: Boolean(m[1]), text: m[2].replace(/<[^>]+>/g, ' ').trim() }));
+    ].map((m) => ({ plan: Boolean(m[1]), text: markupText(m[2], ' ').trim() }));
 
   test('Codex marks only the plan, not renewal, credits or manual resets', () => {
     const quota: CodexQuotaState = {

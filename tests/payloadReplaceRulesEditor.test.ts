@@ -6,6 +6,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 import { PayloadReplaceRulesEditor } from '@/features/config/components/blocks/PayloadReplaceRulesEditor';
 import type { PayloadReplaceRule } from '@/types/visualConfig';
+import { markupText } from './markupText';
 
 const prefix = 'config_management.visual.payload_replace.';
 const rule: PayloadReplaceRule = {
@@ -70,7 +71,7 @@ describe('payload replacement editor', () => {
     const html = render();
     const buttons = html.match(/<button\b[^>]*>(?:(?!<\/button>).)*<\/button>/gs) ?? [];
     for (const button of buttons) {
-      const text = button.replace(/<[^>]+>/g, '').trim();
+      const text = markupText(button).trim();
       expect(text !== '' || /aria-label="[^"]+"/.test(button)).toBe(true);
     }
     for (const key of ['from', 'to', 'move_up', 'move_down']) {

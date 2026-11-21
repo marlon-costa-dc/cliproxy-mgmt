@@ -26,6 +26,7 @@ import ru from '@/i18n/locales/ru.json';
 import vi from '@/i18n/locales/vi.json';
 import ko from '@/i18n/locales/ko.json';
 import tr from '@/i18n/locales/tr.json';
+import { markupText } from './markupText';
 
 const PROXY = 'socks5://user:secret@127.0.0.1:1080';
 
@@ -380,10 +381,9 @@ describe('login proxy field', () => {
       expect(text).toContain(i18n.t('auth_login.login_proxy_toggle'));
       // An empty proxy shows no status: the collapsed chip already reads as optional, so the
       // toggle's only text is its label.
-      const toggleText = /aria-expanded="false"[^>]*>([\s\S]*?)<\/button>/
-        .exec(markup)![1]
-        .replace(/<[^>]+>/g, '')
-        .replace(/&#x27;/g, "'");
+      const toggleText = markupText(
+        /aria-expanded="false"[^>]*>([\s\S]*?)<\/button>/.exec(markup)![1]
+      ).replace(/&#x27;/g, "'");
       expect(toggleText).toBe(i18n.t('auth_login.login_proxy_toggle'));
       expect(markup).not.toContain('data-active');
       // It sits between the header and the gallery.
