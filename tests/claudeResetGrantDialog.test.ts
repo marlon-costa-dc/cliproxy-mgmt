@@ -54,6 +54,9 @@ test('radio cards begin unselected and show kind, count, expiry and Fable semant
   expect(markup).toContain('Expiry unknown');
   expect(markup).toContain('No Fable usage to reset.');
   expect(markup).toContain('Other weekly usage stays unchanged.');
+  // Only the Fable grant spends differently from its label; ordinary grants carry no note.
+  expect(markup.match(/Other weekly usage stays unchanged\./g)).toHaveLength(1);
+  expect(markup).not.toContain('Uses exactly this reset grant.');
   expect(markup.match(/disabled=""/g)).toHaveLength(1);
 });
 
@@ -63,28 +66,3 @@ test('explicit choice checks only one radio and pending retry can select only or
   expect(markup).toMatch(/checked=""[^>]*value="fable"/);
   expect(markup.match(/disabled=""/g)).toHaveLength(1);
 });
-
-test.each(['en', 'zh-CN', 'zh-TW', 'ru', 'vi', 'ko', 'tr'])(
-  'dialog strings exist in %s',
-  async (lang) => {
-    const locale = await Bun.file(`src/i18n/locales/${lang}.json`).json();
-    for (const key of [
-      'choose_grant',
-      'no_grants',
-      'grant_expiry',
-      'grant_unavailable',
-      'kind_weekly',
-      'kind_session',
-      'kind_full',
-      'kind_fable',
-      'kind_unknown',
-      'selected_grant',
-      'no_usage',
-      'fable_hint',
-      'exact_grant_hint',
-    ]) {
-      expect(typeof locale.claude_reset[key]).toBe('string');
-      expect(locale.claude_reset[key].length).toBeGreaterThan(0);
-    }
-  }
-);

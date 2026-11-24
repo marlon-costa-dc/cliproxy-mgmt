@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
+import { InfoTip, Tooltip } from '@/components/ui/Tooltip';
 import {
   IconGithub,
   IconBookOpen,
@@ -28,6 +29,7 @@ import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
 import iconGemini from '@/assets/icons/gemini.svg';
 import iconClaude from '@/assets/icons/claude.svg';
 import iconMeta from '@/assets/icons/meta.svg';
+import iconCopilot from '@/assets/icons/copilot.svg';
 import iconDevinLight from '@/assets/icons/devin.svg';
 import iconDevinDark from '@/assets/icons/devin-dark.svg';
 import iconOpenaiLight from '@/assets/icons/openai-light.svg';
@@ -50,6 +52,7 @@ const MODEL_CATEGORY_ICONS: Record<string, string | { light: string; dark: strin
   gpt: { light: iconOpenaiLight, dark: iconOpenaiDark },
   claude: iconClaude,
   meta: iconMeta,
+  copilot: iconCopilot,
   gemini: iconGemini,
   qwen: iconQwen,
   kimi: { light: iconKimiDark, dark: iconKimiLight },
@@ -403,12 +406,17 @@ export function SystemPage() {
               <div className={styles.tileLabel}>{t('connection.status')}</div>
               <div className={styles.tileValue}>{t(`common.${auth.connectionStatus}_status`)}</div>
               <div className={styles.tileSub}>{auth.apiBase || '-'}</div>
+              {config?.serverId && (
+                <div className={styles.tileSub}>
+                  {t('config_management.visual.serverExtras.serverId.label')}{' '}
+                  <code>{config.serverId}</code>
+                </div>
+              )}
             </div>
           </div>
         </Card>
 
         <Card title={t('system_info.quick_links_title')}>
-          <p className={styles.sectionDescription}>{t('system_info.quick_links_desc')}</p>
           <div className={styles.quickLinks}>
             <a
               href="https://github.com/router-for-me/CLIProxyAPI"
@@ -417,14 +425,13 @@ export function SystemPage() {
               className={styles.linkCard}
             >
               <div className={`${styles.linkIcon} ${styles.github}`}>
-                <IconGithub size={22} />
+                <IconGithub size={18} />
               </div>
               <div className={styles.linkContent}>
                 <div className={styles.linkTitle}>
                   {t('system_info.link_main_repo')}
                   <IconExternalLink size={14} />
                 </div>
-                <div className={styles.linkDesc}>{t('system_info.link_main_repo_desc')}</div>
               </div>
             </a>
 
@@ -435,14 +442,13 @@ export function SystemPage() {
               className={styles.linkCard}
             >
               <div className={`${styles.linkIcon} ${styles.github}`}>
-                <IconCode size={22} />
+                <IconCode size={18} />
               </div>
               <div className={styles.linkContent}>
                 <div className={styles.linkTitle}>
                   {t('system_info.link_webui_repo')}
                   <IconExternalLink size={14} />
                 </div>
-                <div className={styles.linkDesc}>{t('system_info.link_webui_repo_desc')}</div>
               </div>
             </a>
 
@@ -453,21 +459,29 @@ export function SystemPage() {
               className={styles.linkCard}
             >
               <div className={`${styles.linkIcon} ${styles.docs}`}>
-                <IconBookOpen size={22} />
+                <IconBookOpen size={18} />
               </div>
               <div className={styles.linkContent}>
                 <div className={styles.linkTitle}>
                   {t('system_info.link_docs')}
                   <IconExternalLink size={14} />
                 </div>
-                <div className={styles.linkDesc}>{t('system_info.link_docs_desc')}</div>
               </div>
             </a>
           </div>
         </Card>
 
         <Card
-          title={t('system_info.models_title')}
+          title={
+            <>
+              {t('system_info.models_title')}
+              {/* When to use which of the two buttons on the right. */}
+              <InfoTip
+                content={t('system_info.models_desc')}
+                label={t('system_info.models_title')}
+              />
+            </>
+          }
           extra={
             <div className={styles.modelsActions}>
               <Button
@@ -477,31 +491,31 @@ export function SystemPage() {
                 onClick={() => void fetchModels({ forceRefresh: true, notify: true })}
                 loading={modelsLoading}
                 disabled={syncingModelCatalog || auth.connectionStatus !== 'connected'}
-                title={t('system_info.models_refresh_hint')}
               >
                 <span className={styles.modelsActionLabel}>
                   {!modelsLoading && <IconRefreshCw size={16} />}
                   {t('system_info.models_refresh_button')}
                 </span>
               </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => void handleCatalogRefresh()}
-                loading={syncingModelCatalog}
-                disabled={modelsLoading || auth.connectionStatus !== 'connected'}
-                title={t('system_info.models_catalog_refresh_hint')}
-              >
-                <span className={styles.modelsActionLabel}>
-                  {!syncingModelCatalog && <IconDownload size={16} />}
-                  {t('system_info.models_catalog_refresh_button')}
-                </span>
-              </Button>
+              {/* The catalog is shared by every user of the backend: say so before it is pressed. */}
+              <Tooltip content={t('system_info.models_catalog_refresh_hint')}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => void handleCatalogRefresh()}
+                  loading={syncingModelCatalog}
+                  disabled={modelsLoading || auth.connectionStatus !== 'connected'}
+                >
+                  <span className={styles.modelsActionLabel}>
+                    {!syncingModelCatalog && <IconDownload size={16} />}
+                    {t('system_info.models_catalog_refresh_button')}
+                  </span>
+                </Button>
+              </Tooltip>
             </div>
           }
         >
-          <p className={styles.sectionDescription}>{t('system_info.models_desc')}</p>
           {modelStatus && models.length === 0 && (
             <div className={`status-badge ${modelStatus.type}`}>{modelStatus.message}</div>
           )}
@@ -534,7 +548,11 @@ export function SystemPage() {
                           title={model.description || ''}
                         >
                           <span className={styles.modelName}>{model.name}</span>
-                          {model.alias && <span className={styles.modelAlias}>{model.alias}</span>}
+                          {(model.alias || model.displayName) && (
+                            <span className={styles.modelAlias}>
+                              {model.alias || model.displayName}
+                            </span>
+                          )}
                         </span>
                       ))}
                     </div>
