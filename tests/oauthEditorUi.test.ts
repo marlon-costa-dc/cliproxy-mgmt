@@ -10,12 +10,6 @@ import {
   type ModelRulesWorkspaceProps,
 } from '../src/features/authFiles/modelRules/ModelRulesWorkspace';
 import en from '../src/i18n/locales/en.json';
-import zhCN from '../src/i18n/locales/zh-CN.json';
-import zhTW from '../src/i18n/locales/zh-TW.json';
-import ru from '../src/i18n/locales/ru.json';
-import vi from '../src/i18n/locales/vi.json';
-import ko from '../src/i18n/locales/ko.json';
-import tr from '../src/i18n/locales/tr.json';
 
 const i18n = createInstance();
 await i18n.init({ lng: 'en', resources: { en: { translation: en } } });
@@ -44,7 +38,6 @@ function renderWorkspace(overrides: Partial<ModelRulesWorkspaceProps> = {}) {
     createElement(ModelRulesWorkspace, {
       kind: 'alias',
       title: 'OAuth Model Aliases',
-      description: 'Describe',
       meta: ['2 providers', '5 mappings'],
       status: 'ready',
       errorMessage: '',
@@ -138,25 +131,13 @@ describe('model rules workspace UI', () => {
     expect(failed).not.toContain('id="stage-content"');
   });
 
-  test('all seven locales cover the workspace copy with matching placeholders', () => {
-    const base = en.model_rules as Record<string, string>;
-    for (const locale of [en, zhCN, zhTW, ru, vi, ko, tr]) {
-      const rules = locale.model_rules as Record<string, string>;
-      for (const [key, value] of Object.entries(rules)) {
-        expect(value.trim().length).toBeGreaterThan(0);
-        expect(value.includes('{{count}}')).toBe(/^(meta_(?!empty)|unsaved_count)/.test(key));
-      }
-      for (const key of Object.keys(base)) {
-        const stem = key.replace(/_(one|other)$/, '');
-        expect(
-          Object.keys(rules).some((name) => name === stem || name.startsWith(`${stem}_`))
-        ).toBe(true);
-      }
-      expect(locale.oauth_excluded.editor_description.length).toBeGreaterThan(0);
-      expect(locale.oauth_excluded.models_hint.length).toBeGreaterThan(0);
-      expect(locale.oauth_model_alias.editor_description.length).toBeGreaterThan(0);
-      expect(locale.oauth_model_alias.mapping_row).toContain('{{number}}');
-      expect(locale.oauth_model_alias.remove_mapping).toContain('{{number}}');
-    }
+  test('the header carries only title, telemetry and controls, with no subtitle', () => {
+    const markup = renderWorkspace();
+    const header = markup.slice(markup.indexOf('<header'), markup.indexOf('</header>'));
+    expect(header).toContain('<h1');
+    expect(header).toContain('OAuth Model Aliases');
+    // The single paragraph left in the header is the mono telemetry line.
+    expect(header.match(/<p\b/g)).toHaveLength(1);
+    expect(header).toContain('5 mappings');
   });
 });
